@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT nodeType;         /* structure type of the node */
+ TEXT edgeType;         /* structure type of the edge */
+.)l
+Description:
+ Explicit definition of the organization of the single graph.
+.pp
+This is the usual graph representation where, internally, each node
+has a circular single-linked list of its adjacent edges.
+Each edge is on two rings and points to the two adjacent nodes.
+All this is trasparent to you, but it is important to know that
+this is the representation that needs the minimum memory and is
+fast in all cases except when deleting edges.
+If you have nodes with many edges that may be deleted in random
+order, you should consider using the DOUBLE_GRAPH organization.
+.(l
+Example:
+ Organize a graph of highways connecting towns.
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+
+
+If we decide to handle names as the part of the automatic organization
+(which may be useful for automatic disk save/open), and we use a name
+both for Towns and Hwy's, we have the following setup:
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {
+    ZZ_EXT_Town
+};
+struct Hwy {
+    ZZ_EXT_Hwy
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+ZZ_ORG_NAME(townName,Town)
+ZZ_ORG_NAME(hwyName,Hwy)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_SINGLE_GRAPH(id,nodeType,edgeType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_SINGLE_GRAPH */

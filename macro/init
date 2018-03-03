@@ -1,0 +1,20 @@
+/* =========================================================
+.(l
+ TEXT strType;       /* structure to handle */
+.)l
+Description:
+ Initialization of transparent pointers in C++ constructors.
+.(l
+Example:
+
+class Employee {
+    ZZ_EXT_Employee
+class:
+    Employee(){ZZ_INIT(Employee);}
+};
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_INIT(strType) ZZ_INITIAL(strType,0,1,this)
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+

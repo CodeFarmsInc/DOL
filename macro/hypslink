@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name (OrgC id) */
+ TEXT sTp;   /* source type */
+ TEXT tTp;   /* target type */
+.)l
+Description:
+ Generates a one-way link (one pointer) between two objects of different types.
+.pp
+ For local scope use ZZ_LOCAL_SINGLE_LINK(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Example of the use:
+.(l
+class Employee {
+    ZZ_EXT_Employee
+    char *name;
+};
+
+class Factory {
+    ZZ_EXT_Factory
+    char *name;
+};
+
+ZZ_HYPER_SINGLE_LINK(worksAt,Employee,Factory);
+
+Employee *ep;
+Factory *fp;
+
+ep=new Employee;
+fp=new Factory;
+worksAt.add(ep,fp);
+  ...
+fp=worksAt.fwd(ep); // fp is where ep works at
+// there is no way to get from the Factory to its Employees
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_SINGLE_LINK(id,sTp,tTp)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_SINGLE_LINK(id,sTp,tTp,ZZ_EXTERN,id) 
+
+#define ZZ_LOCAL_SINGLE_LINK(id,sTp,tTp,where)  \
+ZZ_BASIC_SINGLE_LINK(id,sTp,tTp,static,where :: id) 
+
+#define ZZ_BASIC_SINGLE_LINK(id,sTp,tTp,scope,where)  \
+class ZZFP(ZZH,id) { \
+public: \
+    tTp * fwd(sTp *s){tTp *t; ZZ_FORWARD_SINGLE_LINK(id,s,t); return(t);} \
+    void add(sTp *s,tTp *t){ZZ_ADD_SINGLE_LINK(id,s,t); }\
+    tTp * del(sTp *s){tTp *t;ZZ_DELETE_SINGLE_LINK(id,s,t); return(t);}\
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */

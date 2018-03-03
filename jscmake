@@ -1,0 +1,15 @@
+cp lib/env3s.h environ.h
+cd lib
+cp env3s.h environ.h
+CC -c util.c msgs.c time.c
+cd ..
+CC zzprep.c zzutil.c lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+CC zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+CC zzsplit.c
+mv a.out zzsplit
+zzcomb
+cd lib
+jscmake
+cd ..

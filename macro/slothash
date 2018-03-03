@@ -1,0 +1,58 @@
+/* =========================================================
+.(l
+ TEXT id;        /* hash table id */
+ str1Type *obj1; /* object on which the hash table exists */
+ int slot;       /* given slot index */
+ str2Type *obj2; /* returned, first object in this slot */
+.)l
+Description:
+ For the given slot number, return the first object in that slot.
+If the slot is empty, return NULL.
+ If the slot number is out of range, return NULL, set ZZerrFLG,
+and issue an error message.
+.sp
+This command permits, together with ZZ_A_TRAVERSE_HASH() to
+monitor loading of individual slots, or to access all objects 
+currently loaded in the table.
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee *ep,*pp;
+ int i;
+
+ ZZ_FORM_HASH(byName,&h,200) /* hash table with 200 slots */
+   ....
+ /* print all Employees in the table */
+ for(i=0;i<200;i++){
+    ZZ_SLOT_HASH(byName,h,i,ep)
+    ZZ_A_TRAVERSE(byName,ep,pp)
+        printf("slot=%d employee=%s\n",i,pp->name);
+    ZZ_A_END
+ }
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SLOT_HASH(id,obj1,slot,obj2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_SLOT_HASH(id,ZZFP(ZZa,id),ZZFT(2,id),obj1,slot,obj2)
+
+#define ZZZ_SLOT_HASH(id,aPtr,objType,obj1,slot,obj2) \
+{ char **ZZs;\
+  if((obj1)->aPtr){\
+    if((slot)<0 || (slot)>=(obj1)->aPtr->num)(obj2)=NULL;\
+    else {ZZs=(char**)((obj1)->aPtr->array); (obj2)=(objType *)ZZs[slot];}\
+  }\
+  else (obj2)=NULL;\
+}

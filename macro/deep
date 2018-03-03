@@ -1,0 +1,86 @@
+/* =========================================================
+.(l
+ char *fileName; /* file name where to save */
+ char *obj;      /* given object */
+ char *type;     /* type of the given object */
+.)l
+Description:
+  This command provides a deep save of one object. The object is saved, and
+following internal data pointers, also all the connected objects and names,
+their connected objects and names, and so on.
+.sp
+DEEP is similar to SAVE, with the following exceptions:
+ - SAVE can be called only once; it opens the output file, writes out
+   the key entries in a proper order, collects all objects, and closes the file.
+ - DEEP dumps out objects in an arbitrary order. That means that the key entries
+   must be saved individually by using ZZ_OBJECT_SAVE() prior to the first call
+   to DEEP().
+ - When using DEEP(), arrange you data so that you have only one key entry.
+ - The first call to ZZ_OBJECT_SAVE() or DEEP() automatically opens the output
+   file. The file must be explicitely closed by calling ZZ_CLOSE_BIND when all
+   objects are saved.
+.sp
+WARNING:
+ (1) Organizations GENERAL_LINK and SINGLE_LINK are a potential problem when
+using ZZ_SAVE().
+GENERAL_LINK must not be used at all, and
+for any SINGLE_LINK, the target structure must have ZZ_EXT.
+.i "Organized C"
+has no way to check on these conditions, and if you use the LINK organization
+improperly, the target object will be misinterpreted as a text string.
+ (2) Also, the organization must not contain pointers into any ARRAY. 
+ARRAYs are stored automatically as a part of an object. Reference
+to array members should be by index.
+ (3) DOUBLE_LINK can be used freely, it causes no problems.
+.sp
+Example:
+.(l
+typedef struct Link Link;
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Link {
+    ZZ_EXT_Link  
+};
+struct Block {
+    ZZ_EXT_Block  
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+};
+struct Term {
+    ZZ_EXT_Term   
+    char *name;
+};
+struct Pin {
+    ZZ_EXT_Pin  
+    int num;
+    int x1,y1,x2,y2;
+};
+ZZ_ORG_SINGLE_RING(list,Link);
+ZZ_ORG_SINGLE_LINK(toBlock,Link,Block);
+ZZ_ORG_SINGLE_TRIANGLE(terms,Block,Term);
+ZZ_ORG_SINGLE_TRIANGLE(pins,Term,Pin);
+
+Link *start,*lp;
+Block *bp;
+
+ZZ_OBJECT_SAVE(Link,"myFile",start,1); /* as key entry */
+ZZ_A_TRAVERSE(list,start,lp){
+    ZZ_OBJECT_SAVE(Link,"myFile",lp,1); /* save link */
+    ZZ_FORWARD(toBlock,lp,bp);
+    ZZ_DEEP("myFile",bp,"Block"); /* saves Block with Terms with Pins */
+}ZZ_A_END;
+    
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DEEP(fileName,obj,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_swpSet();\
+ ZZint ZZFUN_saveAll();\
+ ZZint ZZFUN_swpFree();\
+    ZZ_GENERAL_EXT(); \
+    ZZswpSet(ZZstrList,ZZnxtType,(char **)(&(obj)),&(type),1,0);\
+    ZZsaveAll(fileName);\
+    ZZswpFree();\
+}

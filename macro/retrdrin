@@ -1,0 +1,43 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *start; /* any member of the ring, NULL will do nothing */
+ strType *pp;    /* object returned as traversing the ring */
+.)l
+Description:
+ Starts a loop that retraces (traverses backward)
+all objects on this ring. The loop
+must end by ZZ_A_END (or ZZAend) macro.
+ You can delete an element while retracing the ring. 
+.sp
+ Exceptions: when start=NULL is given, it does nothing.
+ WARNING: You cannot delete objects while retracing the chain.
+.(l
+Example:
+
+typedef struct Country Country;
+struct Country{
+    ZZ_EXT_County
+    int population;
+    float size;
+    char *name;
+};
+ZZ_ORG_DOUBLE_RING(countries,Country)
+
+Country *entry,*pp;
+
+/* print names of all countries on the current list, with entry 'entry' */
+ZZ_A_RETRACE_DOUBLE_RING(countries,entry,pp)
+    printf("%s\\n",pp->name);
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_RETRACE_DOUBLE_RING(id,start,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_RETRACE_DOUBLE_RING(id,ZZFP(ZZb,id),ZZFT(1,id),start,pp)
+
+#define ZZZ_A_RETRACE_DOUBLE_RING(id,bwp,strType,start,pp) \
+{strType *ZZt;\
+    for((pp)=(start);(pp);(pp)=ZZt){ \
+	ZZt=(pp)->bwp; if(ZZt==(start))ZZt=NULL;

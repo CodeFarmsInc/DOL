@@ -1,0 +1,47 @@
+aggregate B=0
+aggregate B=1
+aggregate B=2
+aggregate B=3
+aggregate B=4
+no child left
+
+collection B=0
+collection B=1
+collection B=2
+collection B=3
+collection B=4
+no child left
+
+ring B=0
+ring B=1
+ring B=2
+ring B=3
+ring B=4
+no child left
+
+tree B=1
+tree B=2
+tree B=3
+tree B=4
+no child left
+
+mto1 B=0
+mto1 B=1
+mto1 B=2
+mto1 B=3
+mto1 B=4
+no child left
+
+1ton B=0
+1ton B=1
+1ton B=2
+1ton B=3
+1ton B=4
+no child left
+
+mton from A11 to B=21
+mton from A11 to B=22
+mton from A11 to B=23
+mton from B21 to A=11
+mton from B21 to A=12
+mton from B21 to A=13

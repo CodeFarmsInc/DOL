@@ -1,0 +1,12 @@
+echo "test23c"
+cp ../lib/env3g.h environ.h
+../zzprep test23c.h
+g++ test23c.c test23x.c ../lib/zzglib.a
+./a.out < inp23 > res23c
+rm a.out
+g++ test23d.c test23x.c ../lib/zzglib.a
+./a.out >> res23c
+rm a.out
+g++ test23e.c test23x.c ../lib/zzglib.a
+./a.out >> res23c
+./diff res23c out23c

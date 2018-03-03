@@ -1,0 +1,225 @@
+        Using C++ Data Object Library with multiple threads
+        ----------------------------------------------------
+           (General information and example, May.20/96)
+ 
+
+WARNING: This program has not been re-tested for new versions of C++.
+
+=========================================================================
+Here is a new file, ORGC\LIB\MTHREAD.BAT, which compiles the LIB directory
+for the use with multiple threads (the last 3 lines must be concatenated
+into one line, I split them just to pass this through email):
+=========================================================================
+
+copy envmsft.h environ.h
+del *.obj
+del mllib.lib
+..\zzprep pager.hpp pager.k zzmaster pager.g
+copy bind.cc bind.cpp
+copy pager.cc pager.cpp
+copy sweap.c sweap.cpp
+copy array.c array.cpp
+copy property.c property.cpp
+copy sortRing.c sortRing.cpp
+copy time.c time.cpp
+copy util.c util.cpp
+copy msgs.c msgs.cpp
+copy blast.c blast.cpp
+copy virtarr.c virtarr.cpp
+cl /c /MT virtarr.cpp pager.cpp bind.cpp util.cpp sweap.cpp array.cpp
+cl /c /MT blast.cpp time.cpp msgs.cpp property.cpp sortRing.cpp 
+del *.cpp
+lib /OUT:mllib.lib /NODEFAULTLIB:LIBCMT.LIB pager.obj time.obj property.obj
+bind.obj sortring.obj util.obj array.obj sweap.obj msgs.obj blast.obj
+virtarr.obj
+
+
+=========================================================================
+The test program, which I call TEST.CPP:
+=========================================================================
+
+#define USE_THREADS
+// ---------------------------------------------------------------------
+// This program demonstrates the use of OrgC++ library in multi-threaded
+// environment, using data organization SINGLE_COLLECT, SINGLE_TREE, and
+// NAME. Note that disk storing facilities (util.save() and util.open())
+// are not thread safe - the application must provide appropriate locking.
+// For the purpose of testing, you may remove #define USE_THREADS, and
+// run the program as a single thread.
+//     Jiri Soukup, May 19/96
+// ---------------------------------------------------------------------
+#define ZZmain
+#include <windows.h>
+#include <iostream.h>
+#include <process.h>
+#include "zzincl.h"
+
+class  Dept {
+    ZZ_EXT_Dept
+    int deptNo;
+public:
+    Dept(int n){deptNo=n;}
+    ~Dept();
+    void prt(){cout << "Dept=" << deptNo << "\n";}
+};
+class  Empl {
+    ZZ_EXT_Empl
+public:
+    Empl(char *n);
+    ~Empl();
+    void prt();
+};
+// ---------------------------------------------------------------------
+char *names[]= {  // names shared by different threads
+"John","Peter","Anne","Doug","Helena","Eric","Clara","Martin","George","Tom",
+"Celia","Carl","Dan","Liz","Steve","Mike","Vic","Betty","Hector","Sam",
+"Bob","Janice","Neil","Craig","Debby","Diane","Elsa","Frank","Gus","Kevin"};
+int totNames={30};
+// ---------------------------------------------------------------------
+ZZ_HYPER_SINGLE_TREE(depts,Dept);         // hierarchy of departments
+ZZ_HYPER_SINGLE_COLLECT(empls,Dept,Empl); // employees in one department
+ZZ_HYPER_NAME(name,Empl);                 // each employee has a name
+// ---------------------------------------------------------------------
+Empl::Empl(char *n){name.add(this,n);} // assumes the name is already allocated
+
+Empl::~Empl(){name.del(this);} // cannot disconnect empls without knowing dept
+
+void Empl::prt(){ cout << "   " << name.fwd(this) << "\n";}
+
+Dept::~Dept(){
+    Empl *ep; Dept *dp;
+    empls_iterator eit(this);
+    ITERATE(eit,ep){ empls.del(this,ep); delete ep;}
+
+    depts_iterator dit(this);
+    ITERATE(dit,dp){ depts.del(dp); delete dp;} // destroys entire subtree
+}
+
+// ----------------------------------------------------------------------
+// Thread function: creates its own data structure
+// ----------------------------------------------------------------------
+unsigned int WINAPI thr_fun(LPVOID vd){
+    int makeTree(Dept*,int,int,int);  
+    (void)makeTree((Dept*)vd,3,0,100);
+    return 0;
+}
+    
+// ----------------------------------------------------------------------
+// For a given root, create a subtree of departments and employees
+// level=level of the department tree
+// eIndx=index of the employee name
+// ----------------------------------------------------------------------
+int makeTree(Dept *root,int level,int eIndx,int parDept){
+    Dept *dp; Empl *ep; int i,k,n,incr;
+
+    if(level==3)incr=10; else incr=1;
+    for(i=0, n=incr; i<level; i++, n=n+incr){
+        dp=new Dept(n+parDept);
+        depts.add(root,dp);
+        for(k=0; k<3; k++, eIndx++){ // add 3 employees
+            if(eIndx>=totNames){cout<<"name space overflow\n"; return totNames;}
+            ep=new Empl(names[eIndx]);
+            empls.add(dp,ep);
+        }
+        if(level>2)eIndx=makeTree(dp,level-1,eIndx,n+parDept);
+    }
+    return eIndx;
+}
+
+// ----------------------------------------------------------------------
+// Print the entire subtree, departments, employees, and all
+// ----------------------------------------------------------------------
+void prtTree(Dept *root,int startPrint){
+    Dept *dp; Empl *ep;
+    if(startPrint)cout << "\n";
+    root->prt();
+    empls_iterator eit(root);
+    ITERATE(eit,ep){ ep->prt();}
+    depts_iterator dit(root);
+    ITERATE(dit,dp){ prtTree(dp,0);}
+}
+
+int main(){
+    unsigned id1,id2,id3;
+
+    Dept* d1=new Dept(100);
+    Dept* d2=new Dept(100);
+    Dept* d3=new Dept(100);
+
+#ifdef USE_THREADS
+    _beginthreadex(NULL,0,thr_fun,(LPWORD)d1,0,&id1);
+    _beginthreadex(NULL,0,thr_fun,(LPWORD)d2,0,&id2);
+    _beginthreadex(NULL,0,thr_fun,(LPWORD)d3,0,&id3);
+
+    // let the main thread to wait until all sub-threads are finished
+    HANDLE h=GetCurrentThread();
+    SetThreadPriority(h,THREAD_PRIORITY_LOWEST);
+#else
+    thr_fun(d1);
+    thr_fun(d2);
+    thr_fun(d3);
+#endif
+
+    prtTree(d1,1);
+    prtTree(d2,1);
+    prtTree(d3,1);
+
+    return 0;
+}
+    
+#include "zzfunc.c"
+
+
+=========================================================================
+Batch file TT.BAT which compiles, runs the program, and stores the results
+in file RES:
+=========================================================================
+
+copy d:\orgc\lib\envmsft.h environ.h
+d:\orgc\zzprep test.cpp
+cl /MT test.cpp d:\orgc\lib\mllib.lib
+test > res
+
+=========================================================================
+File RES (the results) repeat 3-times the following data:
+=========================================================================
+
+Dept=100
+Dept=130
+   Bob
+   Sam
+   Hector
+Dept=132
+   Elsa
+   Diane
+   Debby
+Dept=131
+   Craig
+   Neil
+   Janice
+Dept=120
+   Carl
+   Celia
+   Tom
+Dept=122
+   Betty
+   Vic
+   Mike
+Dept=121
+   Steve
+   Liz
+   Dan
+Dept=110
+   Anne
+   Peter
+   John
+Dept=112
+   George
+   Martin
+   Clara
+Dept=111
+   Eric
+   Helena
+   Doug
+=========================================================================
+

@@ -1,0 +1,45 @@
+/* =========================================================
+.(l
+ TEXT id;        /* organization id */
+ strType *given; /* given object */
+ strType *pp;    /* next object in the forward direction */
+.)l
+Description:
+ Generic function that returns the parent for a given object
+in any tree/triangle organization. It returns NULL for the top
+of the triangle/tree.
+ The program detects the type of the organization.
+.(l
+Example:
+
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+}*b1;
+
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+}*n1,*n2;
+
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+}*p1;
+
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TREE(netTree,Net)
+   .....
+ZZ_PARENT(byBlock,p1,b1) /* long form macro */
+ZZpar (netTree,n1,n2) /* short form macro */
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_PARENT(id,given,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_PARENT,id)(id,given,pp)

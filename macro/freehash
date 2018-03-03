@@ -1,0 +1,27 @@
+/* =========================================================
+.(l
+ TEXT id;              /* hash table id */
+ str1Type *obj; /* object on which the table lives */
+.)l
+Description:
+ Removes the hash table from the given object, and deallocates it
+including its internal header. In case that there is no hash table
+already, simply nothing happens, no error message are issued.
+.sp
+There is no need to disconnect any objects prior to freeing the table.
+See also ZZ_RESIZE_HASH(). 
+.sp
+If you free a hash table and you want to use it again later on,
+you must form it again with ZZ_FORM_HASH().
+.sp 1
+  ========================================================== */ 
+#define ZZ_FREE_HASH(id,obj) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_FREE_HASH(id,ZZFT(2,id),ZZFP(ZZa,id),ZZFP(ZZf,id),obj)
+
+#define ZZZ_FREE_HASH(id,type2,aPtr,fwp,obj) \
+{ ZZarray *ZZFUN_frHash(); union{unsigned ZZlong l;unsigned ZZint i;}u; type2 *ZZp;\
+    ZZp=NULL;\
+    u.l= ZZptrToLong((char *)(&(ZZp->fwp))) - ZZptrToLong((char *)ZZp);\
+    if((obj)->aPtr)(obj)->aPtr=ZZfrHash((obj)->aPtr,u.i);\
+}

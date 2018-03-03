@@ -1,0 +1,115 @@
+/* =========================================================
+.(l
+ TEXT id;    // hyper-class id
+ TEXT sType; // type of the source Entity
+ TEXT rType; // type of the relation
+ TEXT tType; // type of the target entity
+.)l
+Description:
+ Declaration of the M_TO_1 relation between two Entity types. Source and
+target entities can have the same type.
+.pp
+This organization uses 6 pointers: 1 on each entity, and 4 on the relation.
+.pp
+ void add(sType*,rType*,tType*) adds a new relation between two entities;
+ void del(rType*) disconnects the given relation;
+ sType *source(rType*) returns the source for the given relation;
+ tType *source(rType*) returns the target for the given relation;
+ rType *fwd(sType*) returns the relation for the given source;
+ rType *bwd(tType*) returns the last loaded relation for the given target;
+ rType *iterator() iterates over relations connected to the target;
+.pp
+If the relation has no attributes, the same organization can be implemented
+in a more efficient way, using TRIANGLE (target entity as the TOP of the
+triangle, source entity as the BOTTOM). Attributes can always be moved
+from the relation to the source entity, thus permitting a more efficient
+implementation.
+.pp
+You can re-start the iterator by calling start(). Iterator works in both
+directions (++ and --).
+.pp
+ For local scope use ZZ_LOCAL_M_TO_1(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.(l
+Example:
+   class Student {
+       ZZ_EXT_Student
+   public:
+       char *name;
+       Student(){ZZ_INITIAL(Student,0,1,this);}
+       ~Student(){ZZ_CHECK_FREE(Student,1,this);}
+   };
+   class Class {
+       ZZ_EXT_Class
+   public:
+       int num;
+       Class(){ZZ_INITIAL(Class,0,1,this);}
+       ~Class(){ZZ_CHECK_FREE(Class,1,this);}
+   };
+   class Member {
+       ZZ_EXT_Member
+   public:
+       int orderNum;
+       Member(){ZZ_INITIAL(Member,0,1,this);}
+       ~Member(){ZZ_CHECK_FREE(Member,1,this);}
+   };
+   ZZ_HYPER_M_TO_1(goesTo,Student,Member,Class);
+
+   Student *s;
+   Member *m;
+   Class *c;
+
+   // print all students that belong to class c
+   goesTo_iterator it(c);
+   while(m=it++){
+       s=goesTo.source(m);
+       cout << s->name >> "orderNum=" << m->num << "\n";
+   }
+    ...
+   // print in the reverse order
+   it.start(c);
+   while(m=it--){
+    ...
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_M_TO_1(id,sType,rType,tType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_M_TO_1(id,sType,rType,tType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_M_TO_1(id,sType,rType,tType,where) \
+ZZ_BASIC_M_TO_1(id,sType,rType,tType,static,where :: id)
+
+#define ZZ_BASIC_M_TO_1(id,sType,rType,tType,scope,where) \
+class ZZFP(ZZH,id) { \
+  friend class sType;\
+  friend class rType;\
+  friend class tType;\
+public: \
+  void add(sType *s,rType *r,tType *t);\
+  void del(rType *r);\
+  sType *source(rType *r){sType *s; ZZ_SOURCE_M_TO_1(id,r,s); return(s);}\
+  tType *target(rType *r){tType *t; ZZ_TARGET_M_TO_1(id,r,t); return(t);}\
+  rType *fwd(sType *s){rType *r; ZZ_FORWARD_M_TO_1(id,s,r); return(r);}\
+  rType *bwd(tType *t){rType *r; ZZ_BACKWARD_M_TO_1(id,t,r); return(r);}\
+  rType *nxtOnTarg(rType *r){rType *n;\
+                        if(r)n=r->ZZFP(ZZs,id); else n=NULL; return(n);}\
+  rType *preOnTarg(rType *r){rType *n;\
+                        if(r)n=r->ZZFP(ZZr,id); else n=NULL; return(n);}\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   rType *beg;\
+   rType *nxt;\
+public:\
+   ZZFN(id,iterator)(tType *t){start(t);}\
+   void start(tType *t){nxt=NULL; if(t)beg=where.bwd(t); else beg=NULL;}\
+   rType* operator++(){rType *p;\
+      if(nxt)p=nxt; else if(beg)p=where.nxtOnTarg(beg); else p=NULL;\
+      if(p==beg)nxt=beg=NULL; else nxt=where.nxtOnTarg(p); return(p);}\
+   rType* operator--(){rType *p;\
+      if(nxt)p=nxt; else if(beg){p=beg; beg=where.nxtOnTarg(beg);} else p=NULL;\
+      if(p==beg)nxt=beg=NULL; else nxt=where.preOnTarg(p); return(p);}\
+}
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ2$ *r,ZZ3$ *t){ZZ_ADD_RELATION_M_TO_1($,s,r,t);}
+void ZZV$ ZZH$ :: del(ZZ2$ *r){ZZ_DELETE_RELATION_M_TO_1($,r);}

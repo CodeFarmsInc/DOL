@@ -1,0 +1,30 @@
+resulting table: 26 buckets, 13 words
+traversing the table with the bucket iterator
+creek
+corner
+clever
+cow
+craving
+cold
+canopy
+dome
+dog
+doodle
+karate
+kiss
+kraut
+
+traversing the table with the global iterator
+creek
+corner
+clever
+cow
+craving
+cold
+canopy
+dome
+dog
+doodle
+karate
+kiss
+kraut

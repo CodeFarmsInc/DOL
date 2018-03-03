@@ -1,0 +1,45 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *targ; /* given target entity */
+ strType *rel;  /* relation to be returned */
+.)l
+Description:
+ For a given target entity, return the last relation recorded for
+the M_TO_N entity.
+.sp
+Warning: This macro should be used rather as an exception, because normal
+access to the relations is through ZZ_A_TRAVERSE().
+.(l
+Example:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct InCourse InCourse;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InCourse {
+       ZZ_EXT_InCourse
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(teacherStudent,Teacher,InCourse,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   InCourse *i;
+   ....
+   ZZ_BACKWARD(teacherStudent,s,i);
+   printf("last course for which student=%s registered was %d\n",
+       s->name,i->courseNum);
+.)l
+  ========================================================== */ 
+#define ZZ_BACKWARD_M_TO_N(id,targ,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_BACKWARD_M_TO_N(ZZFP(ZZb,id),targ,rel)
+
+#define ZZZ_BACKWARD_M_TO_N(nxt,targ,rel) {(rel)=(targ)->nxt;}

@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *sour;  /* given source entity */
+ strType *rel; /* forward relation to be returned */
+.)l
+Description:
+ For a given source entity, traverse all relations of the M_TO_1 entity.
+This macro is the beginning of a loop that must end with ZZ_A_END.
+Since this is M_TO_1 entity, the loop is either executed once, or not
+executed at all (if no relation is recorded).
+.sp
+Relations can be deleted while traversing them using ZZ_A_TRAVERSE().
+.sp
+Advice: Use generic ZZ_A_TRAVERSE(), it makes the code simpler.
+In most cases, ZZ_FORWARD() is better for this relation than ZZ_A_TRAVERSE().
+.(l
+Example:
+   typedef struct River River;
+   typedef struct Ocean Ocean;
+   typedef struct FlowsInto FlowsInto;
+   struct River {
+       ZZ_EXT_River
+       int length;
+       char *name;
+   };
+   struct Ocean {
+       ZZ_EXT_Ocean
+       char *name;
+   };
+   struct FlowsInto {
+       ZZ_EXT_FlowsInto
+       char *mouth;
+   };
+   ZZ_ORG_M_TO_1(intoOcean,River,FlowsInto,Ocean)
+   ....
+   River *r;
+   Ocean *o;
+   FlowsInto *f;
+   ....
+   ZZ_TRAVERSE(intoOcean,r,f)
+       ZZ_TARGET(intoOcean,f,o);
+       printf("river=%s flows into ocean=%s\n",r->name,o->name);
+   ZZ_A_END
+.)l
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_M_TO_1(id,sour,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_TRAVERSE_M_TO_1(ZZFP(ZZf,id),sour,rel)
+
+#define ZZZ_TRAVERSE_M_TO_1(nxt,sour,rel) \
+{   if(sour)(rel)=(sour)->nxt; else (rel)=NULL;\
+    for(;(rel);(rel)=NULL){

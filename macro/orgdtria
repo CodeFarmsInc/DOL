@@ -1,0 +1,20 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure type of the parent */
+ TEXT str2Type;         /* structure type of the children */
+.)l
+Description:
+ Explicit definition of the organization of the double triangle
+.pp
+This is precisely the same organization as the single triangle, except
+that the children are linked in a doubly-linked list.
+In addition to the same functions as for the single triangle, it
+provides: ZZ_A_RETRACE(), ZZ_BACKWARD(), and ZZ_INSERT().
+  ========================================================== */ 
+#define ZZ_ORG_DOUBLE_TRIANGLE(id,strType1,strType2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_DOUBLE_TRIANGLE */
+
+#define ZZ_ORG_DOUBLE_AGGREGATE(id,strType1,strType2) \
+/* ZZ_ORG_DOUBLE_AGGREGATE */

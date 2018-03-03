@@ -1,0 +1,12 @@
+cd ..
+cp lib/env0l.h environ.h
+lcc -c zzutil.c
+cd lib
+cp env0l.h environ.h
+lcc -c util.c msgs.c time.c
+cd ../macro
+cp ../lib/env0l.h environ.h
+lcc zzmerge.c ../lib/util.o ../lib/msgs.o ../lib/time.o ../zzutil.o ../lib/zzlib.a
+mv a.out zzmerge
+lcc zzselect.c ../lib/util.o ../lib/msgs.o ../lib/time.o ../zzutil.o ../lib/zzlib.a
+mv a.out zzselect

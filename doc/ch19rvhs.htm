@@ -1,0 +1,218 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 19 Revision History</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">19. REVISION HISTORY</font></h1>
+
+<p>For various reasons, you may want to know the differences
+between individual versions of the software. Anybody who is
+running on a version older than 4.8 should request an update.
+Backward compatibility for data files remained all through
+the time period recorded here:</p>
+
+<h3><font size="3" face="Arial">VERSION 5.0</font></h3>
+
+<p><b>Corrections:</b></p>
+
+<p>msftregr.bat, msftchk.bat expanded by test23f (memory blasting).
+There was no program with memory blasting in the regression test
+for VC++. </p>
+
+<p><b>Improvements:</b></p>
+
+<p>Function del() for the HASH organization has been improved so
+that it detects situations when an object seems to be in a hash
+table, but when you ask for it, it is not there.</p>
+
+<p>The performance of the <em>PAGER</em> has been improved by
+keeping the track of dirty pages, and flushing only dirty pages
+to disk when <em>close() </em>is called. The operation is also faster
+due to the use of <em>memcpy() </em>internally when copying large
+blocks of bytes.</p>
+
+<p>array.c is new, ZZhashStr does not involve other function calls.</p>
+
+<p>hyppage is new, multiple calls to pager.close() are now permitted
+    without a crash</p>
+
+<p>del() for ZZ_HYPER_HASH prints error messages if the function cannot find the
+object. Changes in delhash, msgs.c. </p>
+
+<p><b>New Features:</b></p>
+
+<p>Function <em>newFun() </em>allows you to switch between
+different hashing functions while running your program.</p>
+
+<p>An ARRAY can be treated as a <em>sorted collection</em>,
+adding and removing items while maintaining the array ordered (sorted).</p>
+
+<p>A new function <em>etOrd()</em>, performs binary search on the
+sorted array.</p>
+
+<p>New functions available for <em>PAGER</em>: <em>fill()</em>
+returns the highest byte address currently used by the <em>PAGER</em>;
+<em>flush() </em>flushes all dirty pages to the disk.</p>
+
+<p><b>Unresolved issues:</b></p>
+
+<p>Under memory blasting, open() does not return t[], only v[] !!!
+    Testing for t[] seems to give an error even it there isn't any.</p>
+
+
+<h3><font size="3" face="Arial">VERSION 5.1</font></h3>
+
+<p><b>Date:</b> Dec.16/98
+
+<p><b>Corrections:</b></p>
+
+<p>zzincl.h used to generate warnings in the ZZinhList
+section. zzprep.c has been modified to generate better zzincl.h.</p>
+
+<p>The order of constructors for (ZZZiClass) in zzfunc.c used to generate
+warnings under LINUX - zzprep.c has been modified to correct this.</p>
+
+
+<h3><font size="3" face="Arial">VERSION 5.4</font></h3>
+
+<p><b>Date:</b> Nov.16/00</p>
+
+<p><b>Corrections:</b></p>
+
+<p>In previous version, under some conditions, util.save() crashed when
+the REFERENCE organization was used. This problem has been corrected.</p>
+
+   
+<h3><font size="3" face="Arial">VERSION 5.4.1</font></h3>
+
+<p><b>Date:</b> Jan.17/01</p>
+
+<p><b>Corrections:</b></p>
+
+<p>No changes in the source, small changes in the batch/script/include
+    files to overcome NT problem with the 'copy' command, which does not
+    copy the newLine character at the end of the file.</p>
+
+<p><b>Improvements:</b></p>
+
+<p>Added test58 to orgc/test. It demonstrates splitting the source
+    to *.h and *.cpp files for individual classes, as usual today.</p>
+
+<p>Significant improvement of the documentation part describing save/open
+commands (Chap.13).</p>
+
+<p>The problem which was reported as <i>unresolved issue</i> in Ver.5.0
+- open() not returning t[] properly, has been corrected since but not recorded here.
+We have verified that it works now.</p>
+
+<h3><font size="3" face="Arial">VERSION 5.6</font></h3>
+<p><b>Date:</b> Sep.20/01</p>
+<p><b>Corrections:</b></p>
+<p>ARRAY and HASH work now safely in this setup (Ver.5.5 had problems
+    for arrays of derived classes).</p>
+<p><b>Improvements:</b></p>
+<p>Several improvements for running multiple versions of DOL under the same
+    project (see ZZlocal, subprojects). When several independent DOL
+    applications are used on the same project, only one of them (the 'main'
+    application) can save/restore data from disk now. </p>
+                                                           
+<h3><font size="3" face="Arial">VERSION 5.7</font></h3>
+<p><b>Date:</b> Feb.25/02/01</p>
+<p><b>Corrections:</b></p>
+<p>The new native Sun compiler (Ver.5.0), not g++, required numerous minor
+    syntax fixes for the library to compile. There are many warnings:
+         String literal converted to char* ....</p>
+<p>The library is now available in C++ only, the C version is not supported
+    any more.</p>
+<p>The Borland compiler was thoroughly tested again, and the new batch
+    files provided by Curtis Krauskopf are included in all directories
+    - look for files names BCB4...</p>
+<p><b>Improvements:</b></p>
+<p>The clarity of readme files was significantly imnproved, the compile
+    and regression scripts simplified and improved.</p>
+
+                                                          
+<h3><font size="3" face="Arial">VERSION 5.8</font></h3>
+<p><b>Date:</b> Sep.04/02</p>
+<p><b>Corrections:</b></p>
+<p>Cleanup of the test directory - numerous obsolete script files have
+    been removed.</p>
+<p><b>Improvements:</b></p>
+
+<p>The ARRAY organization (regardless of what objects are in the array)
+    has now access to individual bits through functions getBit() and setBit().
+    Note that other libraries need a special class for this (BinaryArray).</p>
+<p>Functions clear() and clearAndDestroy() have been added to most
+    organizations. Note that clear() disassembles the organization,
+    while clearAndDestroy() disassembles it and destroys only those objects
+    which have been disconnected from all(!) organizations. DOL has 
+    a special checking mechanism for this, which cannot be used in libraries
+    which are not based on intrusive data structures.</p>
+<p>It has been verified, that by changing ZZlocal to ZZmain in file
+    lib/pager.hpp and recompiling the library, it is possible to use DOL
+    with multiple, independent projects - each using ZZlocal only.</p>
+                                                         
+<h3><font size="3" face="Arial">VERSION 5.8.1</font></h3>
+<p><b>Date:</b> -not recorded-</p>
+<p><b>Improvements:</b></p>
+<p>Additional error message in hash::del() protecting against deleting
+    objects which are not in any hash table.</p>
+
+
+<h3><font size="3" face="Arial">VERSION 5.9</font></h3>
+<p><b>Date:</b> May.05/04</p>
+<p><b>Improvements:</b></p>
+<p>Simple introductory examples of the three methods of
+saving/retrieving data from disk were added to orgc\test directory,
+read orgc\test\readme.txt for the instruction.</p>
+                                                           
+<h3><font size="3" face="Arial">VERSION 5.9.1</font></h3>
+<p><b>Date:</b> Jul.18/04</p>
+<p><b>Corrections:</b></p>
+<p>Names of all source and batch files changed to lower case in order
+to make this source to compile and run under both Windows and UNIX/Linux.</p>
+
+                                                          
+<h3><font size="3" face="Arial">VERSION 5.0</font></h3>
+<p><b>Date:</b> Oct.17/04</p>
+<p><b>Corrections:</b></p>
+<p>Memory leak in sweap.c - function newArr(), the SPLIT option on PC
+    has been corrected.</p>
+<p>Functions util.clear() can now be safely used for all three modes
+    of saving to disk (it was disabled for ASCII and binary modes in
+    previous versions).</p>
+<p><b>Improvements:</b></p>
+<p>Added ZZinheritAll as an option for users who do not want to worry
+    about all base classes required to have at least one virtual function
+    (as required when only ZZ_INHERIT is used).</p>
+<p>A significant improvement in the size of disk file for memory blasting.
+    Previous versions stores a large internal array filled mostly with 0's.
+    The array is now stored more efficiently. Depending on the chosen
+    parameters and size of the problem, this improvement may decrease
+    the disk storage from 137kB to 440B !!</p>
+<p>New function util.getNumObjects() returns the number of application
+    objects currently in use. (The count does not include arrays of objects.)</p>
+<p>In the User Guide, the entire chapter 13 (memory allocation and saving
+    to disk) has been revised.</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch18Mult.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        18: Multi User Mode</font></a></td>
+        <td align="right" width="50%"><a href="AppendxA.htm"><font
+        face="Arial">Appendix A: Current Organizations <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

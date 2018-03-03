@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* structure to allocate */
+ int num;             /* number of structures to allocate */
+ strType *ptr; /* returned pointer, NULL if allocation problems */
+.)l
+Description:
+ Can be used to allocate either a single data structure (num=1), or
+an array of structures. Note that the allocation includes possible pointers
+for the declared ZZ organizations.  All allocated memory is automatically
+set to 0, except for the timeStamp (if used on this object), which is
+set to the current date and time.
+.sp
+If this structure type has been setup to support selfID (see for example
+ZZ_SET_SELF_ID() ), then the selfId mark is automatically set with
+the allocation.
+.sp
+This macro is the main allocation command in C. Its C++ equivalent is
+ZZ_PLAIN_NEW(). ZZ_PLAIN_ALLOC() can be used even in C++, but not
+for classes that use virtual functions; the macro does not initialize
+virtual function pointers.
+.sp
+Error condition: If allocation problems, macro returns ptr=NULL;
+.sp 1
+Note that the function works even on structures that do not use ZZ_EXT
+.(l
+Example:
+
+typedef struct Insect Insect;
+struct Insect{
+    ZZ_EXT_Insect
+    short numLegs;
+    char color;
+    char category;
+};
+
+Insect *pp;
+
+   ....
+/* allocate array of 350 Insect structures */
+ZZ_PLAIN_ALLOC(Insect,350,pp);
+.)l
+.sp 1
+  ========================================================== */ 
+#ifdef ZZ_SIMPLE
+#define ZZ_PLAIN_ALLOC(strType,num,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ ZZvoidS *ZZFUN_massAlloc(); ZZFN(ZZS,strType) \
+  (ptr)= (strType *)ZZmassAlloc(((size_t)num)*sizeof(strType),1); }
+#else
+#define ZZ_PLAIN_ALLOC(strType,num,ptr) \
+{char *ZZFUN_allo();\
+    ZZFN(ZZS,strType) \
+    (ptr)= (strType *)ZZallo(ZZstrList,(char **)ZZselfArr,ZZFP(ZZJ,strType),\
+       ZZ_STRINGIT(strType),ZZFP(ZZI,strType),num,(int)sizeof(strType),1);\
+}
+#endif

@@ -1,0 +1,7 @@
+u1-0 NAME Place pName ;
+u1-0 NAME Connection cName ;
+u1-* ARRAY Network Place placesArr ;
+b1-1 DOUBLE_LINK Place Station station ;
+u1=* SINGLE_TREE Place placesTree ;
+b2-* SINGLE_GRAPH Station Connection flights ;
+b2-* SINGLE_GRAPH Station Connection roads ;

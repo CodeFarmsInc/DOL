@@ -1,0 +1,217 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 13, Memory Management and Saving on Disk</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">13. MEMORY MANAGEMENT AND SAVING
+ON DISK</font></h1>
+
+<h4><a href="#13_1"><font size="2" face="Arial">13.1 Virtual
+Functions and Internal Pointers</font></a><font size="2"
+face="Arial"><br>
+</font><a href="ch13mmmb.htm#13_2"><font size="2" face="Arial">13.2
+Memory Management (ALLOCATE/FREE)<br>
+</font></a><a href="ch13mmmc.htm#13_3"><font size="2"
+face="Arial">13.3 Saving to Disk (SAVE/OPEN)<br>
+</font></a><a href="ch13mmmd.htm"><font size="2" face="Arial">13.4
+Collecting Objects (SWEEP)</font></a></h4>
+
+<h2><a name="13_1"><font size="4" face="Arial"></font></a><font
+size="4" face="Arial">13.1 VIRTUAL FUNCTIONS AND INTERNAL
+POINTERS</font></h2>
+
+<p><b>IMPORTANT: </b>
+<i>Familiarity with this section is not essential for use of the
+library. It only provides more depth and theoretical background.
+If you are just starting, and you want to use DOL quickly,
+skip this chapter and proceed directly to</i> <a href="ch13MmMb.htm">Chap.
+13.2<font color="#FF0000">.</font></a></p>
+
+<p>When you are saving objects to disk, the program must correctly
+save and retrieve three parts of the object:</p>
+
+<ol>
+    <li>General attributes, various <em>int </em>and <em>float </em>types.</li>
+    <li>Pointers that form your data structures.</li>
+    <li>Virtual function pointers which are transparently inserted and used by the C++ compiler.</li>
+</ol>
+
+<p>All this be performed recursively for all member objects of
+the given class, and following the inheritance hierarchy. The fact
+that C++ allows multiple inheritance complicates this even more.</p>
+
+<p>Without going into details, the following example will show you the complex the task that DOL does for you completely automatically and transparently.</p>
+
+<blockquote><pre>
+class Obj2 { // base object
+    ZZ_EXT_Obj2
+public: 
+    virtual prt(void){ };
+};
+class Obj4 { // used as member in Obj1
+    ZZ_EXT_Obj4
+    int i4;
+public: 
+};
+class Obj5 { 
+    ZZ_EXT_Obj5
+    double d5;
+};
+class Obj3 : public Obj5 {
+    ZZ_EXT_Obj3
+    char *c3;
+public:
+    virtual abc(int i){ ... );
+};
+class Obj1 : public Obj2, public Obj3 { 
+    ZZ_EXT_Obj1
+    float f1;
+    Obj4 m1; // member object, not pointer
+public:
+    virtual prt(void){...};
+};
+ZZ_HYPER_DOUBLE_RING(myRing,Obj2);
+ZZ_HYPER_SINGLE_TRIANGLE(myTria,Obj4,Obj5);
+</pre></blockquote>
+
+<p>For most C++ compilers, the internal representation of any object of class Obj1 may look like this:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><strong>vf1</strong></td>
+        <td>virt.function pointer Obj1</td>
+    </tr>
+    <tr>
+        <td><strong>f1</strong></td>
+        <td>float in Obj1 </td>
+    </tr>
+    <tr>
+        <td><strong>fwd</strong></td>
+        <td>triangle pointer (ZZ_EXT_Obj4) </td>
+    </tr>
+    <tr>
+        <td><strong>i4</strong></td>
+        <td>int in Obj4 </td>
+    </tr>
+        <td><strong>bwd</strong></td>
+        <td>ring pointer (ZZ_EXT_Obj2) </td>
+    </tr> 
+    <tr>
+        <td><strong>bwd</strong></td>
+        <td>ring pointer (ZZ_EXT_Obj2) </td>
+    </tr>
+    <tr>
+        <td><strong>vf3</strong></td>
+        <td>virt.function pointer Obj3</td>
+    </tr>
+    <tr>
+        <td><strong>p3</strong></td>
+        <td>char* pointer in Obj3</td>
+    </tr>
+    <tr>
+        <td><strong>child</strong></td>
+        <td>triangle pointer (ZZ_EXT_Obj5)</td>
+    </tr>
+    <tr>
+	<td><strong>d5</strong></td>
+        <td>double in Obj5</td>
+    </tr>
+</table>
+
+<p>Note that the values of<i> vf1 </i>and<i> vf2</i> are the same for all objects of class Obj1. However, most C++ compilers today do not insert these pointers if the classes involved do not use virtual functions. That reduces the size of objects, but makes any operation which depends on the internal structure of the objects more difficult.</p>
+
+<p>When restored from disk, objects are in new memory locations,
+therefore pointers <em>p3, fwd, bwd</em>, and <em>child</em> must be
+modified (swizzled). If you store an object
+during one program run, and restore it in another run, the
+virtual function tables will also be in a different location. The
+remaining attributes such as <em>f1, d5, or i4</em> should keep their values.
+To complicate the matters more,  <em>p3</em> may be just a temporary pointer which does not require
+permanent storage.</p>
+
+<p>In order to manage the whole situation, DOL must know:</p>
+
+<ol>
+    <li>the inheritance/member hierarchy (<em>ZZ_EXT</em>
+        statements and class declarations provide this
+        information);</li>
+    <li>which classes have virtual functions;</li>
+    <li>locations of the pointers to be swizzled (<em>ZZ_EXT</em>
+        statements hide them).</li>
+</ol>
+
+<p>When you create a new object, DOL initialzes pointers to NULL (not in any data structure yet), and it sets virtual
+function pointers to the values specific for each
+class. When you allocate all objects from the heap, using operator <em>new()</em>,
+ this happens automatically. However, if your program uses automatically
+allocated objects, you must include the <em>ZZ_INIT()</em> statement in
+your constructor. For example:</p>
+
+<blockquote><pre>
+    class Blob {
+        int speed;
+        ...
+    public:
+        Blob(){ZZ_INIT(Blob);}
+        Blob(int s){ZZ_INIT(Blob); speed=s;}
+        ...
+    };
+    
+    int main(){
+        Blob b1,b2(80); // automatically allocated objects
+        Blob *b3,*b4; // not objects, just references
+        ...
+        b3=new Blob; // allocated from the heap
+        b4=new Blob(120); // allocated from the heap
+</pre></blockquote>
+
+<p>It is much safer to avoid automatically allocated objects and simply forget about
+<em>ZZ_INIT()</em>.</p>
+
+<p>When saving data to disk in the ASCII or binary mode (for details see Chap.13.3),
+two pieces of information are saved for every object. Each array is treated as
+a large, composite object:</p> 
+
+<ol>
+<li>A fix-sized header which stores the old location, object type (class),
+    and the size of the object (or array).
+<li>The object itself, either as a block of bytes or member by member.
+</pre>
+</ol>
+In the ASCII mode, each object including every object in the array is stored
+ as two records. The first record includes all the data
+ structure pointers. DOL knows where they are and generates this record automatically. The second record includes those members from your class declaration which 
+you specify in the
+<em>ZZ_FORMAT()</em> statement. When storing a composite
+objects which involves inheritance and/or member objects, there is a similar record
+for each subpart. When retrieving the information from disk, the program builds
+an internal table of old/new addresses for all objects, and 
+converts all the pointers.</p>
+
+<p>The third mode of storing data to disk, called <i>memory blasting</i> is
+conceptually different, and the next chapters explain its algorithm and
+use.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch12Docn.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        12: Documentation</font></a></td>
+        <td align="right" width="50%"><a href="ch13MmMb.htm"><font
+        face="Arial">Next Section 13.2 Memory Management <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

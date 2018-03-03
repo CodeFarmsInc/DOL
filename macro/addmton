@@ -1,0 +1,94 @@
+/* =========================================================
+.(l
+ TEXT id;          /* organization id */
+ strType1 *source; /* source entity */
+ strType2 *rel;    /* relation to add */
+ strType3 *target; /* target entity */
+.)l
+Description:
+ Add the new M_TO_N relation between two entities.
+.sp
+If the relation is not disconnected, no action is taken,
+an error message is issued, and the error flag is set.
+.sp
+Source and target (in fact even the relation) can have the same type.
+.sp
+Advice: Use generic ZZ_ADD_RELATION(), it simplifies the code.
+.sp
+Warning: This macro causes problems on Microsoft software, use
+compiled version ZZF_ADD_RELATION().
+.(l
+Example:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct InCourse InCourse;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InCourse {
+       ZZ_EXT_InCourse
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(teacherStudent,Teacher,InCourse,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   InCourse *i;
+   ....
+   ZZ_PLAIN_ALLOC(InCourse,1,i);
+   ZZ_ADD_RELATION(teacherStudent,t,i,s);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_RELATION_M_TO_N(id,source,rel,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_RELATION_M_TO_N(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZx,id),ZZFP(ZZy,id), \
+ZZFP(ZZb,id),ZZFP(ZZr,id),ZZFP(ZZs,id),ZZFP(ZZv,id),ZZFP(ZZw,id),\
+source,rel,target)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_RELATION_M_TO_N(id,eType,fwd,src,trg,bwd,sSib,tSib,sRet,tRet,source,rel,target)\
+{eType *ZZe;\
+        (rel)->src=(source); (rel)->trg=(target);\
+        ZZe=(source)->fwd;\
+        if(ZZe){\
+            ZZe->sSib->sRet=(rel); (rel)->sSib=ZZe->sSib;\
+            (rel)->sRet=ZZe; ZZe->sSib=(rel);\
+        }\
+        else {(source)->fwd=(rel)->sSib=(rel)->sRet=(rel);}\
+        ZZe=(target)->bwd;\
+        if(ZZe){\
+            ZZe->tSib->tRet=(rel); (rel)->tSib=ZZe->tSib;\
+            (rel)->tRet=ZZe; ZZe->tSib=(rel);\
+        }\
+        else {(target)->bwd=(rel)->tSib=(rel)->tRet=(rel);}\
+}
+#else
+#define ZZZ_ADD_RELATION_M_TO_N(id,eType,fwd,src,trg,bwd,sSib,tSib,sRet,tRet,source,rel,target)\
+{eType *ZZe;\
+    if((rel)->src || (rel)->trg || (rel)->sSib || (rel)->tSib){\
+        ZZmsgSS(19,ZZ_STRINGIT(id),(char *)(rel));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        (rel)->src=(source); (rel)->trg=(target);\
+        ZZe=(source)->fwd;\
+        if(ZZe){\
+            ZZe->sSib->sRet=(rel); (rel)->sSib=ZZe->sSib;\
+            (rel)->sRet=ZZe; ZZe->sSib=(rel);\
+        }\
+        else {(source)->fwd=(rel)->sSib=(rel)->sRet=(rel);}\
+        ZZe=(target)->bwd;\
+        if(ZZe){\
+            ZZe->tSib->tRet=(rel); (rel)->tSib=ZZe->tSib;\
+            (rel)->tRet=ZZe; ZZe->tSib=(rel);\
+        }\
+        else {(target)->bwd=(rel)->tSib=(rel)->tRet=(rel);}\
+    }\
+}
+#endif

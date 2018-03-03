@@ -1,0 +1,29 @@
+/* =========================================================
+Description:
+ Any A-type traverse macro which starts with ZZA... forms a loop
+which must end with ZZ_A_END or ZZAend (either one can be used).
+.(l
+Example:
+
+typedef struct ActTerm ActTerm;
+struct ActTerm{
+    ZZ_EXTActTerm
+     ....
+};
+ZZ_ORG_SINGLE_RING(myRing,ActTerm)
+
+ActTerm *at,*start;
+   
+ZZ_A_TRAVERSE(myRing,start,at)
+       ....
+    /* this is like a loop for 'at' */
+    /* use 'at', but not change it nor 'start' */
+       ....
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_A_END \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+}}

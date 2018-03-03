@@ -1,0 +1,35 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *obj;   /* given pointer to an object child */
+ strType *next;  /* returned pointer to previous object (sibling) */
+.)l
+Description:
+ For a given object, find the previous sibling.
+ If only one object at this level of the tree, macro returns pointer
+to the same object.
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee{
+    ZZ_EXT_Employee
+    char *name;
+    char *manager;
+    int salary;
+};
+ZZ_ORG_DOUBLE_TREE(myTree,Employee)
+
+Employee *c,*p;
+
+ZZ_BACKWARD_DOUBLE_TREE(myTree,c,p)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_BACKWARD_DOUBLE_TREE(id,obj,next) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_BACKWARD_DOUBLE_TREE(ZZFP(ZZb,id),obj,next)
+
+#define ZZZ_BACKWARD_DOUBLE_TREE(backward,obj,next) {(next)=(obj)->backward;}

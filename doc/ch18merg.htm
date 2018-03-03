@@ -1,0 +1,98 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 18 Merging and Reducing Libraries</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>18. MERGING AND REDUCING LIBRARIES</h1>
+
+<p>If you start to develop your own library of macros and
+functions, you have to resolve several problems: </p>
+
+<ol type="a" start="1">
+    <li>If you update the <em>zzmaster </em>file and you receive
+        a new version of OrgC later, the <em>zzmaster </em>will
+        collide with the one you have already developed.</li>
+    <li>If both you and your colleague developed new macros, how
+        do you merge the two libraries?</li>
+    <li>If you only need several organizations, it does not make
+        much sense to drag along hundreds of macros. You may want
+        to reduce the library to only those macros which you will
+        actually use.</li>
+</ol>
+
+<p>The best strategy for developing your own library is not to
+modify the <em>zzmaster </em>file, but to create your own file
+under a different name, say, <em>myMaster. </em>The <em>myMaster </em>file
+has the same format as the<em> zzmaster </em>file but contains
+only the organizations you developed yourself. All the files that
+contain your new macros and parametric functions will be stored
+together with OrgC files in the <em>orgC/macro </em>directory.</p>
+
+<h4>Merging Libraries:</h4>
+
+<p>When you are ready to merge the original OrgC library with
+your new library, rename the original <em>zzmaster </em>to
+something else, say<em> qqmaster. </em>Then run the program that
+merges the two libraries and create a combined file called <em>zzmaster</em>:
+</p>
+
+<blockquote>
+    <p><em>cd orgC/macroÄ</em><br>
+    <em>zzmerge qqmaster myMaster zzmaster</em></p>
+</blockquote>
+
+<p>This can be repeated several times, gradually merging more
+libraries:</p>
+
+<blockquote>
+    <p><em>zzmerge master1 master2 aMaster<br>
+    zzmerge aMaster master3 bMaster<br>
+    zzmerge bMaster master4 zzmaster</em></p>
+</blockquote>
+
+<h4>Reducing Libraries:</h4>
+
+<p>If you want to select only a limited set of organizations and
+functions, make a copy of <em>zzmaster</em>, edit it, and delete
+the organizations and functions you don't want. Don't worry about
+indices and pointers, and change only two sections: <em>ZZorganization</em>{
+and<em> ZZfunction {</em>.</p>
+
+<p>Be careful that you don't delete too many organizations. You
+need the organization for every function you keep.</p>
+
+<p>Then run <em>zzselect</em>, which creates a new, reduced <em>zzmaster,
+</em>properly rearranged with all indices and pointers. The total
+run may look like this:</p>
+
+<blockquote>
+    <p><em>cd orgC/macro<br>
+    cp zzmaster qqmaster<br>
+    cp zzmaster rrmaster<br>
+    vi rrmaster ... delete some organizations and functions<br>
+    zzselect qqmaster rrmaster zzmaster</em></p>
+</blockquote>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch17Addf.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        17: Adding New Features</a></td>
+        <td align="right" width="50%"><a href="ch19Mult.htm">Chapter
+        19: Multi User Mode <img src="images/next.gif" border="0"
+        width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

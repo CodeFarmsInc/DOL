@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ strType *ptr;   /* object from which to remove the property */
+ char *name;            /* name of the property to be removed */
+.)l
+Description:
+ Delete the property of the given name (and id) from the given object.
+ If the property is not on the object, no action is taken, no warning
+messages are issued.
+.pp
+You can use macro ZZ_GET_PROPERTY() to test whether the property
+is on the object. The macro returns
+.i "num=0"
+in case that the property is not found.
+.pp
+Important:
+ When you delete a property, you delete and free all the information
+associated with it: For example, when deleting a property that has
+an array of names, all the names disappear from the system.
+.pp
+See also: ZZ_SET_PROPERTY, ZZ_GET_PROPERTY, ZZ_TRAVERSE_PROPERTY
+.(l
+Examples:
+
+typedef struct Person Person;
+struct Person {
+    ZZ_EXT_Person
+    char *name;
+    int age;
+};
+ZZ_ORG_PROPERTY(Person)
+
+Person *party,*pp;
+int i,num;
+
+/* assume we marked some people in our party with these properties:
+ * ("income",integer value), ("retired",integer no value).
+ * Not necessarily all people are marked, and one or both properties
+ * can be used per person.
+ */
+
+/* delete the "income" property from person pp */
+ZZ_DELETE_PROPERTY(pp,"income")
+
+/* assuming all our records are in a single-linked list 'party',
+ * print the names of the retired persons */
+ZZ_A_TRAVERSE_SINGLE_RING(party,pp)
+    ZZ_GET_PROPERTY(int,pp,"retired",&i,num);
+    if(num>0)printf("%s\n",pp->name);
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_DELETE_PROPERTY(ptr,name) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+struct ZZproperty *ZZp,*ZZr; ZZint ZZFUN_propDelete();\
+    for(ZZp=(ptr)->ZZprop;ZZp;ZZp=ZZr){\
+        if(ZZp->next==((ptr)->ZZprop))ZZr=NULL; else ZZr=ZZp->next;\
+	if(!strcmp(name,&(ZZp->codeName[1])))break;\
+    }\
+    if(ZZp)ZZpropDelete(ZZp,&((ptr)->ZZprop));\
+}

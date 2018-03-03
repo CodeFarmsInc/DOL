@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT type;  /* class on which to use this organization */
+.)l
+Description:
+ Declaration for the organization of TIME_STAMP. This is one of the special
+organizations that can be used only once on any object.
+.pp
+Internally, the time stamp is stored as 4 characters only.
+.pp
+The time accuracy is in seconds, which means that structures stamped
+within a second may appear as being stamped with the same time.
+The year must be 1988 or more.
+.pp
+In C++, this feature always has a global scope.
+.pp
+.(l
+Example of the use:
+    class myObj {
+        ZZ_EXT_myObj
+    public:
+        int a,b,c,d;
+    myObj(){ZZ_INITIAL(myObj,0,1,this);};
+    ~myObj(){ZZ_CHECK_FREE(myObj,1,this);};
+    };
+
+    ZZ_HYPER_TIME_STAMP(myObj)
+
+    myObj *p1,*p2;
+    unsigned char ts[6]; /* Y M D H M S */
+    int i;
+
+    p1=new myObj;
+     ...
+    p2=new myObj;
+     ...
+    p2.setTime();     /* reset stamp on p2 */
+    i=p1.cmpTime(p2); /* i<0 if p1 is olded */
+    p1.getTime(ts);   /* get stamp for p1 */
+    for(i=0;i<6;i++)printf("%d ",ts[i]); /* example: 90 9 13 15 32 55 */
+.)l
+  ========================================================== */ 
+#ifdef VMS
+#define ZZ_HYPER_TIME_STAMP(type) unsigned char ZZTIMESTAMP##type
+#else
+#define ZZ_HYPER_TIME_STAMP(type) /* ZZ_HYPER_TIME_STAMP */
+#endif
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+#define ZZEXTTIME_STAMP(type) \
+    void getTime(unsigned char ts[6]){ZZ_GET_TIME_STAMP(this,ts);}\
+    void setTime(void){ZZ_SET_TIME_STAMP(this);}\
+    ZZint cmpTime(type *p);
+/* _______________________________________________________________________ */
+ZZint $ :: cmpTime($ *p){ZZint i; ZZ_CMP_TIME_STAMP(this,p,i); return(i);}

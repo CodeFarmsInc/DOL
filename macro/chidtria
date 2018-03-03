@@ -1,0 +1,18 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the instance of the organization */
+ str2Type *pp;   /* given pointer to a parent */
+ str1Type *chi;  /* returned pointer to the child */
+.)l
+Description:
+ For a given parent, it finds the first child that would be listed
+by ZZ_A_TRAVERSE().
+ Generic ZZ_CHILD() can be used.
+.sp 1
+  ========================================================== */ 
+#define ZZ_CHILD_DOUBLE_TRIANGLE(id,pp,chi) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_CHILD_DOUBLE_TRIANGLE(ZZFP(ZZc,id),ZZFP(ZZf,id),pp,chi)
+
+#define ZZZ_CHILD_DOUBLE_TRIANGLE(child,sibling,pp,chi) \
+{if((pp)->child)(chi)=(pp)->child->sibling; else (chi)=NULL;}

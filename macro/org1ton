@@ -1,0 +1,44 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure type of the source entity */
+ TEXT str2Type;         /* structure type of the entity */
+ TEXT str3Type;         /* structure type of the target entity */
+.)l
+Description:
+ Declaration of the 1_to_N relation between two object types. Source and
+target entities can have the same type.
+.pp
+This organization uses 6 pointers: 1 on each entity, and 4 on the relation.
+.pp
+ ZZ_ADD_RELATION() adds a new relation between two entities;
+ ZZ_DELETE_RELATION() deletes a given relation;
+ ZZ_SOURCE() and ZZ_TARGET() move you from the relation to the source or
+the target entity;
+ ZZ_FORWARD() moves you from the source entity to the relation;
+ ZZ_BACKWARD() moves you from target source entity to the relation.
+ ZZ_A_TRAVERSE() traverses the relations for a given source entity.
+ ZZ_A_RETRACE() can be used for a given taget node; its loop executes just
+once, and is equivalent to ZZ_BACKWARD().
+.(l
+Example of the use:
+   typedef struct Class Class;
+   typedef struct Student Student;
+   typedef struct InClass InClass;
+   struct Class {
+       ZZ_EXT_Class
+       int id;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InClass {
+       ZZ_EXT_InClass
+   };
+   ZZ_ORG_1_TO_N(students,Class,InClass,Student)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_1_TO_N(id,type1,type2,type3)
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_1_TO_N */

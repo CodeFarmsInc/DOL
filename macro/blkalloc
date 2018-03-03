@@ -1,0 +1,201 @@
+/* =========================================================
+.(l
+ unsigned int blkSize;  /* total size in bytes, 0=no limit */
+ int bits; /* number of bits to represent one block, 0=individual objects */
+.)l
+Description:
+ Allocates big blocks of memory, from which all OrgC objects are
+then allocated.
+IMPORTANT:
+ Make sure this call is placed at the beginning of your main(),
+or somewhere before you start to allocate any objects.
+.sp
+ For bits=0, only one block of blkSize is allocated, and blkSize
+will be its size. If this memory
+is all used up, the program switches automatically to the normal
+allocation method. The storage to disk is the same as with other
+saving methods, objects are stored one by one, with the overhead of
+4 integer header for every object. Compared to regular save/open,
+the disk files are much faster to retrieve, because all pointers
+must be only offset; no hashing is required. For the same reason,
+open() also uses less memory than the regular binary/ASCII methods.
+ For bits>0, the program allocates chunks of 2**bits of memory,
+from which the application objects are gradually taken, without
+crossing the block boundaries. If the program reaches
+address (not the block size!) equal to blkSize,
+it behaves as if the allocation heap has been allused up (returns
+NULL, issues error message, error code set up). If blkSize=0,
+there is assumed no limit.
+  Saving to disk with bits>0 is extremely fast and efficient, wrinting/reading
+binary blocks of 2**bits Bytes one at a time, with only 3.2%
+overhead for the information on where the pointers are located.
+ In most cases, you should be able to make a good conservative
+estimate of the maximum memory the program will use. If you are not
+sure, you may select blkSize=0. In that case, the program will assume
+that you may use the full pointer space of memory. Never use the
+combination of ZZ_BLOCK_ALLOC(0,0); it would attempt to allocate
+a huge chunk of memory and definitely return with an allocation error.
+ You can create similar problem by calling ZZ_BLOCK_ALLOC(0,bits),
+where bits is too small. When you select blkSize=0, the program 
+creates internal tables with a special entry for each possible block.
+For example, ZZ_BLOCK_ALLOC(0,20) on a system with 4B pointers
+(e.g. SUN or DOS with a large memory model)  creates a table with 
+2**12 = 32KB entries 2 pointers each, a total of 256KB. On the other
+hand, choosing bits too small,ZZ_BLOCK_ALLOC(0,6), would create
+huge internal table of 2**26 entries=64M, which is impractical to use.
+Additional 2 temporary pointers per entry are required in OPEN().
+For larger blocks (see the examples below), the overehad of
+internal tables is minor, or can be totally avoided by specifying
+non-zero blkSize.
+.sp
+Examples:
+  ZZ_BLOCK_ALLOC(20000,0); will allocate one block of 20000B for your
+data and, if exhausted, will switch to the normal allocation by individual
+object. Storage to disk will be by object.
+  ZZ_BLOCK_ALLOC(5000000,20); will allocate memory in 1MB chunks,
+to the nearest value above 5000000B. Saving to disk will be fast,
+in 1MB blocks, but the allocator will fail if more than 5MB are
+required. 
+  ZZ_BLOCK_ALLOC(0,20); will allocate memory in 1MB chunks with no
+limits. If running on a machine/memory mode with 4B per pointer,
+there will be an additional overhead of 64kB in memory and 16kB on disk.
+ Explanation: 32-20=12bits corresponds to 4k, x(1 pointer)=16,
+x(4 pointers)=64.
+.sp
+Limitations:
+ Neither of these methods allow changes in the data organization
+or the definition of objects (Intelligent Database).
+ Option bits=0 may require a fair memory overhead, if you don't know
+the size of the data beforehand. 
+ Option bits>0 stores all data, and therefore does not allow
+partitioning data to connected sets that may be possibly stored in
+different files.
+ In either case, block, once allocated, cannot be freed. However, when
+allocating/deallocating objects with ZZ_OBJECT_ALLOC())  and ZZ_OBJECT_FREE(),
+the program keeps free lists by type, and thus reclaims the discarded
+space automatically.
+ Advantages:
+Fast disk storage, all data stored in one shot. For bits>0, all
+data is stored, regardless whether connected by pointers. This has
+the advantage for data that contain GENERAL_LINKS.
+For bits=0, there are not auxilliary internal data, for bits>0
+the auxilliary data is very small compared to other methods.
+.sp
+ZZ_BLOCK_FREE() complements ZZ_BLOCK_ALLOC(). It allows you to do two
+things: To switch the mode of allocation from the block allocation mode
+to the normal allocation (or back to the big block), or to discard the bick block.
+.sp
+If ZZ_BLOCK_ALLOC(blkSize,0) is called several times, all the data remains in memory, and
+block allocated by the last call become the current (active)block.
+Multiple calls to ZZ_BLOCK_ALLOC for bits>0 are not permitted,
+and will create an error condition.
+.sp
+The following information applies to bits=0 only:
+
+When ZZ_OPEN() is called on data which was created under the big-block
+memory control, the action depends on whether you have a memory block
+open in the new program:
+ 1. If no memory block is currently open, a new block is automatically
+   open. The new block automatically becomes your current block,
+   with the pool space equal to that of the original data.
+ 2. If you have a currently open memory block with a sufficiently large
+   pool still available, the new data is read into it, and the pool is
+   appropriately reduced.
+ 3. If you have a memory block open, but its pool is not large enough to
+   accomodate the new data, a new block is open and becomes your new
+   current block. In this case, you get a waring message, but your run
+   can continue without problems. The new pool space will be the equal
+   to the pool space of the data that you read from the disk.
+ If you want to disable the big-block allocation after ZZ_OPEN, use
+ZZ_BLOCK_FREE(1) to switch to the normal allocation scheme.
+
+Error condition:
+ If the block of the given size cannot be allocated, ZZ_ERROR is set to 01,
+and a warning message is printed. Your program still can continue to run
+though, but the objects will be allocated in the normal way (not from a big
+object).
+.(l
+Example:
+
+ZZ_BLOCK_ALLOC(3500,0); /* reserves a block of 3500 bytes for OrgC objects */
+  ...
+/* here you create your data */
+ZZ_PLAIN_ALLOC(...);
+ZZ_PLAIN_ALLOC(...);
+  ...
+ZZ_BLOCK_FREE(1);  /* switch to normal allocation mode */
+ZZ_SAVE(...);
+ZZ_BLOCK_FREE(0);   /* frees the block of data */
+.)l
+Example of running with bits>0 (SUN UNIX, up to 8MB of space in 1MB chinks):
+.(l
+ZZ_BLOCK_ALLOC(8000000,20);
+ZZ_MODE_SAVE(0,1,0,0);
+  ...
+/* here you create your data */
+ZZ_PLAIN_ALLOC(...);
+ZZ_PLAIN_ALLOC(...);
+  ...
+ZZ_SAVE(...);   /* save a s usual */
+ZZ_CLEAR(...);  /* free all the data */
+.)l
+Note that when running with bits>0, the type for key entries is
+not required/returned by ZZ_SAVE and ZZ_OPEN. However, a dummy
+array must be provided in the call, to make the interface compatible
+to other saving modes.
+.sp 1
+  ========================================================== */ 
+
+#ifdef ZZ_ANSI
+#ifdef ZZcplus
+#define ZZ_BLOCK_ALLOC(blkSize,bits) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ ZZvoidS *ZZFUN_massAlloc(); int ZZi;\
+    ZZ_GENERAL_EXT();\
+    ZZi=bits;\
+    if(ZZmemSwitch==2 && ZZmemEnd){ZZmsg(60); ZZerror=ZZerror|01;}\
+    else if(ZZi==0){\
+      if(blkSize==0){ ZZerror=ZZerror|01; ZZmsg(70); exit(1);} \
+      ZZmemStart=ZZmemPool=(char *)ZZmassAlloc((size_t)blkSize,(ZZint)ZZcallocFlg);\
+      if(ZZmemStart){ ZZmemSwitch=1; ZZmemEnd=ZZmemStart+(blkSize);}\
+      else { ZZerror=ZZerror|01; ZZmsgD(24,blkSize);}\
+    }\
+    else {ZZmemSwitch=2; ZZioSwitch=1; ZZmemStart=ZZintToPtr(bits); \
+          ZZmemEnd=(char *)NULL; ZZmemPool=ZZintToPtr(blkSize);}\
+          /* temp.use: ZZmemStart pass to ZZnewBit, ZZmemPool to startBit() */\
+}
+#else // not C++
+#define ZZ_BLOCK_ALLOC(blkSize,bits) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ZZvoidS *ZZFUN_massAlloc(); int ZZi;\
+    ZZ_GENERAL_EXT();\
+    ZZi=bits;\
+    if(ZZmemSwitch==2 && ZZmemEnd){ZZmsg(60); ZZerror=ZZerror|01;}\
+    else if(ZZi==0){\
+        if(blkSize==0){ZZerror=ZZerror|01;  ZZmsg(70); exit(1);} \
+        ZZmemStart=ZZmemPool=(char *)ZZmassAlloc((size_t)blkSize,(ZZint)ZZcallocFlg);\
+        if(ZZmemStart){ ZZmemSwitch=1; ZZmemEnd=ZZmemStart+(blkSize);}\
+        else { ZZerror=ZZerror|01; ZZmsgD(24,blkSize);}\
+    }\
+    else {ZZmemSwitch=2; ZZioSwitch=1; ZZmemStart=ZZpowerOf2(bits);\
+          ZZmemEnd=(char *)NULL; ZZmemPool=ZZintToPtr(blkSize);}\
+}
+#endif
+#else // not ANSII
+#define ZZ_BLOCK_ALLOC(blkSize,bits) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ZZvoidS *ZZFUN_massAlloc(); ZZint ZZi;\
+    ZZ_GENERAL_EXT();\
+    ZZi=bits;\
+    if(ZZmemSwitch==2 && ZZmemEnd){ZZmsg(60); ZZerror=ZZerror|01;}\
+    else if(ZZi==0){\
+        if(blkSize==0){ ZZerror=ZZerror|01; ZZmsg(70); exit(1);} \
+        ZZmemStart=ZZmemPool=(char *)ZZmassAlloc((size_t)blkSize,(ZZint)ZZcallocFlg);\
+        if(ZZmemStart){ ZZmemSwitch=1; ZZmemEnd=ZZmemStart+(blkSize);}\
+        else { ZZerror=ZZerror|01; ZZmsgD(24,blkSize);}\
+    }\
+    else {ZZmemSwitch=2; ZZmemSwitch=1;  ZZmemStart=ZZpowerOf2(bits);\
+          ZZmemEnd=(char *)NULL; ZZmemPool=ZZintToPtr(blkSize);}\
+    if(ZZmemSwitch==1){ZZmsg(78); exit(1);}\
+}
+#endif

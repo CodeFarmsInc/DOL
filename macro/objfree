@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* type of the object to free */
+ strType *ptr;        /* pointer to the object to free */
+.)l
+Description:
+ Moves a single object to the pool of free objects.
+.sp
+In C++, this macro should be encapsulated in a special function.
+See an example in the description of ZZ_OBJECT_ALLOC().
+.sp
+The object
+must be declared as
+.i "Organized C"
+object, i.e. it must have ZZ_EXT.. line, to be acepted for the pool.
+If used on other objects, the command is equivalent to ZZ_PLAIN_FREE.
+.sp
+Note that this macro works only for single objects. For the description
+of how to free arrays of objects, see ZZ_PLAIN_FREE().
+.sp
+See also: ZZ_OBJECT_ALLOC() which gets a new object from the pool, and
+ZZ_OBJECT_CLEAR() which frees the whole pool.
+.sp
+IMPORTANT:
+ The function checks that the object
+is properly disconnected from all organizations, and only then it
+can move to the pool.  If the object is a part of any organization, a warning
+message is issued, and the object is NOT freed. This arrangement is one of
+the key features that prevent bugs caused by mistakes in initialization,
+allocation, and de-allocation of objects.
+.sp
+The current implementation is NOT protected against giving a wrong
+number of objects. If you give less objects than were originally allocated,
+not all objects are checked for being disconnected from the organization.
+If you give more objects, you may get false error message and the
+no objects may be freed.
+.(l
+Example:
+
+typedef struct Insect Insect;
+struct Insect{
+    ZZ_EXT_Insect
+    short numLegs;
+    char color;
+    char category;
+};
+
+Insect *p1,*p2;
+
+   ....
+/* free 2 objects type Insect */
+ZZ_OBJECT_FREE(Insect,p2)
+ZZobjFree(Insect,p2)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_OBJECT_FREE(strType,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{\
+strType *ZZp; ZZint ZZFUN_deal();\
+ ZZp=(ptr);\
+ ZZdeal((char *)ZZp,ZZstrList,ZZ_STRINGIT(strType),0,(int)sizeof(strType),0);\
+}

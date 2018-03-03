@@ -1,0 +1,453 @@
+13.1 Concepts
+
+DOL provides three modes, or styles, of saving data to disk: binary, ASCII, and memory blasting.
+Each mode has different advantages and disadvantages, and you can
+select the mode which fits best to your requirements. 
+
+In Chap.13.5, you will learn how, within one program run, you can open (read the data from
+disk) in one mode, and then save it in another mode. Also, if you 
+change the classes in your program by adding or removing members,
+and/or if you modify your data structures by adding or removing ZZ_HYPER
+statements, there is a way to open the old data in the new environment.
+You can also read data produced by an earlier version of DOL into a newer version of DOL.
+ 
+DOL expects that your data has one or a few objects, which we will call "key objects". 
+Usually there is one root, which has the property that if you follow pointers
+introduced by your ZZ_HYPER statements, jumping from object to object, you eventually
+traverse all your objects. In some situations, there may be two or more such roots, 
+which is the reason why we use the term of key objects.
+
+The syntax of opening/saving the data is the same in all three modes, for example:
+
+ZZ_HYPER_UTILITIES(util); // with other ZZ_HYPER statements
+
+class Library { ... };
+class Members { ... };
+
+void *v[2]; // key objects
+char *t[2]; // their types as text strings
+char *fileName="myData";
+
+Library *lib; Member *mem;
+
+util.open(fileName,2,v,t); 
+lib=(Library*)(v[0]);
+mem=(Members*)(v[1]);
+
+v[0]=(void*)lib;
+v[1]=(void*)mem;
+t[0]="Library";
+t[1]="Members";
+util.save(fileName,2,v,t); 
+
+There is also a function which starts from the key objects, traverses all the objects in your data, and destroys them
+    util.clear(2,v,t);
+
+The mode of saving to the disk is controlled by the util.mode() statements, and remains valid through your
+program or until encountering another util.mode() call.
+
+util.mode(style,io,ver,close); // style: 0=binary, 1=ascii, 2=memory blasting
+                         // io=: 0=direct IO, 1=buffered IO
+			 // ver: 0=disregard, >0 DOL version (int)
+                         // 0=close file after open/save, 1=leave it open
+
+If you use ASCII saving mode anywhere in your code, you have to add #define ZZascii to your #define ZZmain,
+which you already have in one of your files:
+    #define ZZascii
+    #define ZZmain
+
+If you omit to call util.mode(), the default saving mode is:
+   binary - if you don't have #define ZZascii
+   ASCII  - if you have #define ZZascii
+
+When using memory blasting, a call to util.blkAlloc() must be in the beginning of your main().
+For the parameters and details of use, go to Chap.13.4.
+
+
+EXAMPLES:
+For a running example with binary or ASCII saving, look at orgc\test\test0n.c, 
+ and search for "ZZascii" and "util.mode". File tt10.bat runs the tests. You can
+look at the resulting data file, sfile, with your editor.
+
+For a running example with memory blasting, look at orgc\test\test63.c.
+Note the call to util.blkAlloc() which must be at the beginning of main(), because
+it controls allocation of all objects. File tt63.bat runs the test.
+
+IMPORTANT - ARRAYS OF OBJECTS:
+
+DOL allows you to declare array of objects, e.g.
+    ZZ_HYPER_ARRAY(books,Library,Book);
+or an array of pointers, e.g.
+    ZZ_HYPER_ARRAY(books,Library,Book*);
+
+It is a poor architecture to use pointers that point inside an array. 
+The purpose of an array is to provide access by index. Either avoid arrays
+of objects, or be very careful that no pointers lead to such array.
+In particular, util.clear() will crash or mulfunction if your data
+structures point inside an array.
+
+Example of the bad design:
+    ZZ_HYPER_ARRAY(books,Library,Book); // use Book* instead
+    ZZ_HYPER_SINGLE_COLLECT(byGenre,Genre,Book);
+
+13.2 Binary saving mode
+
+This mode of saving is easiest to use yet reasonably efficient
+even for complex data with up to about 40,000 objects. If you are a new user of DOL, your first 
+experiments with saving data to disk should definitely be in this mode. Simply call util.save()
+or util.open() as described in Chap.13.1.
+
+It may interest you what happens "under the hood". When saving, DOL starts from the key objects
+you provide in the util.save() statement, and traverses all your objects. For each object it saves
+on the disk two binary records:
+struct Header {
+    void *obj; // pointer to the object
+    int type;  // index describing the class (type)
+    int sz;    // size of the object
+    int n;     // array size, 1=single object
+}
+and then the object itself as n*sz bytes.
+All arrays to be stored must be declared as ZZ_HYPER_ARRAY.
+
+On a 32-bit architecture, this results in the overhead of 16B per object in the disk storage, but it
+has no affect on the memory needed for the objects.
+
+When reading the data from the disk, DOL allocates the objects one by one, and fills them with the bytes
+from the disk. As the same time, it builds a table of old- and new pointers. When all objects are allocated
+in memory. DOL knows locations of all pointers inside the objects, and when all the objects are allocated,
+DOL traverses them and converts all their pointers. 
+
+Note that if you save data and then open it again
+    util.save(..);
+    util.open(..);
+you have two copes of the same data in the memory. Under some circumstances this may be a nice feature,
+but in most situations you want to use util.clear() to remove the original data:
+    Root* root;
+    v[0]=root;
+    t[0]="Root";
+    util.save(fileName,1,v,t);
+    util.clear(1,v,t);
+    ...
+    util.open(fileName,1,v,t);
+    root=(Root*)(v[0]);
+
+The disadvantage of the binary mode is its rigidity: You cannot change your objects or your data structures,
+because your saved data would not open in the new version. Also, if you save your data in one environment,
+for example under Windows 7, you cannot open in a different environment, for example under LINUX.
+
+The advantage is that if you save data, exit the program, restart the program, and then open the data,
+the data is freshly allocated, thus avoiding memory fragmentation and dead space if you created any by mistake.
+
+
+
+13.3 ASCII saving mode
+    
+ASCII mode works exactly like the binary mode, except that the disk file has a portable ASCII format.
+
+The Header is saved member by member, and the object in two parts: 
+
+First part is automatically generated and contains values of all the pointers which hide under the ZZ_EXT
+statement and which are used by all data structures in which the object participates. This pointers
+are transparent to you, and you never use them directly in your application.
+
+The second part are the members which your application is using, members you placed into the class definition.
+Because DOL cannot know how you plan to use this data and what is their true meaning, it cannot generate its
+ASCII image. It is left to you to specify the format in which you want to save it. The specification of
+the format is simple and is similar to the format for read/write in the C-language. For example:
+
+
+#define ZZascii // compulsory if at least one of the save/open commands uses the ASCII mode
+#define ZZmain
+
+class Obj1 {
+    ZZ_EXT_Obj1
+    unsigned char c;
+    int i;
+    int flg; // temporary
+    char t[20];
+    char *temp; // non-persistent pointer
+    float f;
+};
+ZZ_FORMAT(X,"%d %o %s %f,c,i,t,f");
+
+class Obj2 {
+    long int a;
+    ZZ_EXT_Obj1
+public:
+    char *temp;
+    float x;
+};
+ZZ_FORMAT(Obj2,"%e %lu,x,a");
+class Obj3 {
+    ZZ_EXT_Obj3
+};
+ZZ_FORMAT(Obj3,"");
+ZZ_HYPER_SINGLE_RING(ring1,Obj1);
+ZZ_HYPER_SINGLE_TRIANGLE(ring1,Obj1,Obj2);
+ZZ_HYPER_SINGLE_LINK(ring1,Obj1,Obj3);
+
+    util.mode(1,1,0,0); // not needed if all the open/save commands are in the ASCII mode
+    open("myFile",1,v,t);
+    root=(Root*)(v[0]);
+
+Text strings associated with the ZZ_HYPER_NAME declarations are stored automatically, just as composite objects
+due to inheritance or member objects, but the mechanism is complex and beyond the scope of this manual.
+For example:
+
+    class A {
+        ZZ_EXT_A
+        int a;
+    };
+    ZZ_FORMAT(A,"%d,a");
+
+    class B {
+        ZZ_EXT_B
+        float b;
+    };
+    ZZ_FORMAT(B,"%f,b");
+
+    class C : public B {
+        ZZ_EXT_C
+        char c;
+        A aObject; // entire object, not a pointer
+    };
+    ZZ_FORMAT(C,"%d,c");
+    
+    ZZ_HYPER_NAME(cName,C);
+    
+    
+Note: When the object is used only as a part of the data structure and has no members to be saved 
+on the disk, an empty ZZ_FORMAT() still must be provided, for example: ZZ_FORMAT(myClass,""); 
+
+Just as in the binary mode: If you save data, exit the program, restart it, and then open the data,
+the data is freshly allocated, thus avoiding memory fragmentation and dead space if you created any by mistake.
+
+
+13.4 Memory blasting
+
+Memory blasting is based on a completely different algorithm, which combines allocation and saving to disk.
+DOL alocates pages of memory (you decide how big pages you want), and then allocates your objects from these pages.
+Part of each page is a bitmap, where each bit corresponds to one potential location for a pointer. On a 32-bit computer,
+pointers start on a 32-bit boundary, thus each bit in the bitmap represents 32 bits of the allocation space.
+The space overhead is minor, only 1/32.
+
+Right when allocating an object, DOL sets the bits in the map for the pointers which are embedded in the object.
+Then when saving the data to disk, entire pages including their bitmaps are transfered to disk as blocks of bytes,
+and that is extremely fast.
+
+When reading the disk file, DOL again trasfers the entire pages, and it converts the pointers without even looking
+at individual objects - it simply walks through the bitmap, and converts the marked locations.
+When the page size is a power of two, say 2**pg, then the pg lowest bits of any pointer are the address within the page,
+while the higher bits contain the page address. All this is very fast, usually order of magnitude faster than
+saving the same data in the binary or the ASCII mode.
+
+If your program saves or opens data in the memory blasting mode, than your main() must start with a call to util.blkAlloc(),
+before allocating any objects. This call defines the page size and how much space (how many pages) you may eventually need.
+Note that only the pages which are at least partially used will be saved to disk.
+  util.blkAlloc(sz,pg); // will allocate your objects in pages of 2**pg bytes, pg>2*sizeof(char*)
+                        // total memmory must not exceed sz bytes
+                        // sz=0 will use all the available virtual memory space
+
+Page size you select must be large enough to accomodate any array your program may create. Arrays are NOT allocated
+across page boundaries. However, if the page size is too large, the last saved page which is not fully used may
+be transferred to the disk with a lot of unused space.
+
+Another consideration when selecting parameters sz and pg is that memory blasting is using an internal table with 24 bytes
+for each page. For example, if pg=6 (page size 64 bytes) and you call util.blkAlloc(0,6), then the internal
+table may have close to (2**32)/(2**6)= 2**26 entries, which are 24=3*(2**3) bytes each, or total space of 1.5*(2**30)
+
+The call to util.blkAlloc() sets only the allocation, not the saving mode which is controlled by call (or calls) to
+util.mode().You can change from one mode to another just by calling util.mode() with the appropriate first parameter.
+If you mix memory blasting with the ASCII mode, the file with main() must include also these two statements:
+#define ZZmain
+#define ZZascii
+
+Here is an example of what you can do:
+
+#define ZZascii
+#define ZZmain
+
+class Root {...};
+ZZ_FORMAT(Root,""); // empty format if no members to store
+
+
+ZZ_HYPER_UTILITIES(util);
+
+int main() {
+    void *v[1]; // one root object
+    char *t[1]; // The class of the root
+    Root *root;
+
+    util.blkAlloc(100000,8); // total data under 100,000 bytes, pages 256 bytes
+    ... // create some data
+
+    util.mode(2,0,0,0);      // memory blasting
+    v[0]=root; t[0]="Root";
+    util.save("memFile",1,v,t); 
+    util.clear(1,v,t); // remove the old data
+    util.open("memFile",1,v,t);
+    root=(Root*)(v[0]);
+
+    util.mode(0,1,0,0);      // binary mode
+    v[0]=root; t[0]="Root";
+    util.save("memFile",1,v,t); 
+    util.clear(1,v,t); // remove the old data
+    util.open("binFile",1,v,t);
+    root=(Root*)(v[0]);
+
+    util.mode(1,1,0,0);      // ASCII mode
+    v[0]=root; t[0]="Root";
+    util.save("memFile",1,v,t); 
+    util.clear(1,v,t); // remove the old data
+    util.open("asciiFile",1,v,t);
+    root=(Root*)(v[0]);
+
+    return 0;
+}
+
+For a simple example of straight memory blasting, see example c:\orgc\test\test63.c
+and file tt63.bat which runs the test.
+
+Note that when you are working with memory blasting, you can use operator new() which has been transparently overloaded by functions that allocate entire pages of memory, find an unused space, and turn it into a valid object which operator new() returns to you. However, C++ language does not allow you to overwrite operator delete, and you cannot destroy only a part of such page. You may leave unused objects in that page, and if they are not too many, you may accept the overhead of this wasted space. If you want to remove this space, you can save the data using serialization   and then open it while allocationg into memory pages. Serialization saves only valid objects, and when reading them into new memory pages, all the dead space is automatically removed.
+In addition to this, DOL can automatically maintains a list of free object for each application class, but there is no reuse of strings:
+A *ap; char *str;
+ap=new A() // A-object allocated from an internal page
+ZZ_OBJECT_NEW(A,ap); // gets ap from the free list, or uses new()
+ZZ_OBJECT_FREE(A,ap); // moves ap to the free list, 
+                      // regardless how ap was created
+str=util.strAlloc(“xyz”)); // allocates string, copies “xyz” in it
+util.strFree(str); // for mem.blasting it does NOTHING
+delete ap; // DO NOT USE it will crash the program
+
+If you use serialization, free lists are discarded. If you want a nicer interface, you can hide these macros under functions newObj() and delObj() :
+class A {
+    ZZ_EXT_A
+public:
+    static A *newObj(){A *p; ZZ_OBJECT_NEW(A,ap); return p;};
+    static void delObj(A *p){ZZ_OBJECT_FREE(A,ap);}
+    char *myName;
+};
+
+A *ap=A::newObj();
+A::delObj(ap);
+ap->myName=util.strAlloc(“TestA”);
+util.strFree(ap->myName); // does nothing for mem.blasting
+
+
+13.5 Advanced topics
+
+13.5.1 Constructors and destructors.
+
+In addition to static checking through strict typing, DOL provides run-time protection against pointer errors 
+which is superior to both STL and the existing Java libraries. The integrity of of your data structure is guaranteed,
+and you can detect situations where, by mistake, you would destroying an object which is still connected
+in some data structure.
+
+The idea is simple. When data structures are implemented
+with rings instead of NULL ending lists, unused pointers are always NULL and novalid pointer can be NULL. 
+In a new object, all pointers are initialized to NULL,and beforeaddint an object to a data structure, DOL
+checks that all its pointers used in this data structure are NULL.
+If any of them is not NULL, it means the object is already connected and adding it would cause a hard-to-find error.
+DOL issues a warning message and does not perform the operation.
+
+Before destroying any object, you must disconnect it from all data structures in which it participates, and that will set all
+its pointers are NULL. A call to ZZ_CHECK() in the destructor checks all the pointers to be NULL, and it prints an error message
+which identifies the objects and describes the data structure in which the object is still connected. 
+
+This protection is complete for doubly doubly-linked data structures, but can occassionally miss an error for data organizations
+such as SINGLE_LINK and GENERAL_LINK. For this reason, we recommend to use double-linked data structures unless the size of the
+used data space is critical in your application.
+
+If you allocate all objects from the heap, i.e. by calling operator new(), DOL automatically initializes all the pointers to NULL.
+Arrays introduced with ZZ_HYPER_ARRAY are also initialized in this way, and you must not use explicitely allocated arrays
+when working with DOL. Automatically allocated objects are not initialized, but you can arrange their initialization by inserting 
+ZZ_INIT() into their constructors. For example
+
+class Town {
+    ZZ_EXT_Town
+    ...
+public:
+    Town(){ZZ_INIT(Town); ... your code ...}
+    Town(int i){ZZ_INIT(Town); ... }
+    ...
+};
+
+INT foo(...){
+    Town myTown; // object initialized as disconnected
+    ...
+}  // object automatically destroyed
+
+
+Inserting automatically allocated objects and objects allocated from the heap into the same data structure is not the best architecture,
+but if you chose to do so, it is safest simply insert ZZ_INIT() either into constructors of all the classes that have ZZ_EXT_ ...
+
+If you insert ZZ_CHECK() into your destructor, an error message will be issued when detecting a non-zero pointer. 
+Unfortunately, the destruction is not prevented, the object is destructed anyway, and teh porogram will likely crash later on.
+Howeever, since you know what is the cause of the problem, repairing the error is easy. 
+ 
+The reason why the destruction is not prevented is that C++ does not allow to return from a destructor, and DOL was written before exceptions 
+were introduced to C++. If you want ZZ_CHECK() to throw an exception, 
+simply remove the "//" from the last line of orgc\macro\check:
+   #define ZZ_CHECK(strType) ZZ_CHECK_FREE(strType,1,this) //; throw ???     [........test this before publishing !!!!!]
+and then recompile DOL (Microsoft Windows version):
+   cd c:\orgc
+   msft
+
+class Town {
+    ZZ_EXT_Town
+    ...
+public:
+    Town(){ZZ_INIT(Town); ... your code ...}
+    ~Town(){ ... your code ...; ZZ_CHECK(Town);}
+    ...
+};
+
+void foo(...){
+    Town myTown, *townPtr; 
+    townPtr=new Town;
+    ...
+    delete townPtr; // checks whether this is safe
+}   // on return from foo(), myTown is checked before destruction
+
+For objects that do not have any hidden pointers (their classes are not used in any of the ZZ_HYPER_.. statements), 
+neither ZZ_INIT() nor ZZ_CHECK() should be used.
+
+
+
+
+
+
+
+
+
+
+
+
+
+13.5.2 Lists of free objects
+
+If you frequently create and destroy objects of the same type, calls to new() and delete()
+take significant amount of resources. The operating system tries to prevent memory
+ fragmentation and searches for
+a good place for the new object, and when destroying an object it may combine it with 
+free adjacent space. Every new object must be initialized 
+with apropriate hidden pointers. 
+
+Instead,DOL allows you to keep free list of object attached to every class. 
+It requires to set only to pointers in order to add or remove the object from such list, and
+the objects on the list are already valid objects with all hidden pointers.
+
+This arrangement can be especially useful for programs that run for a long time without interruption,
+such as airline reservation systems, banking systems, or a telephone switch. We participated in
+in a design of an experimental telephone switch, where every telephone call created and later destroyed
+hundreds of objects. When we replaced new() and delete() by free lists, the troughput of the switch increased
+by 30%.
+
+In DOL, all three modes (binary, ASCIi, and memory blasting) allow optional use of such free lists. 
+Note, however, that these free lists are not stored on disk. That is no problem in binary or ASCII modes,
+because they reallocate all objects in a compact way, and the reuse of the empty space is left
+to the operating system.
+
+B
+
+and when we want to reuse these objects, we have them ready and n

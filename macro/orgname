@@ -1,0 +1,55 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure of the object that has the name */
+.)l
+Description:
+ If an object has a name, the relation is handled as a special
+organization. This has the advantage that when storing the organization
+on the disk, the names are automatically allocated and stored with it.
+Since names have typically different sizes, this arrangement also
+simplifies the allocation/deallocation of names.
+.pp
+Note that one object can have several names, which are identified
+by their id's.
+.pp
+This organization is just as efficient as when coding by hand:
+one pointer on the object, plus the name allocated separately.
+ZZ_FORWARD() returns pointer to the name, see the example below.
+.pp
+Example:
+ Assume we have two different types of objects, Apple and Plum.
+For apples we want to keep two names: variety and owner;
+for plums we only want to store only the owner.
+.(l
+typedef struct Apple Apple;
+typedef struct Plum Plum;
+struct Apple {
+    ZZ_EXT_Apple
+    char *name;
+    char color;
+    float weight;
+}; 
+struct Plum {
+    ZZ_EXT_Plum
+    float pitSize;
+};
+ZZ_ORG_NAME(Apple,aVariety)
+ZZ_ORG_NAME(Apple,aOwner)
+ZZ_ORG_NAME(Apple,pOwner)
+
+Apple *a;
+Plum  *p;
+char *p1,*p2,*p3;
+  ....
+ZZ_FORWARD_NAME(aVariety,a,p1)
+ZZ_FORWARD_NAME(aOwner,a,p2)
+ZZ_FORWARD_NAME(pOwner,p,p3)
+printf("apple variety=%s owner=%s, plum owner=%s\n",p1,p2,p3);
+.)l
+.pp
+See also: ZZ_ADD_NAME(),ZZ_DELETE_NAME(),ZZ_FORWARD_NAME().
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_NAME(id,strType) /* ZZ_ORG_NAME */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

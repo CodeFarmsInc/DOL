@@ -1,0 +1,78 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the hash table */
+ str1Type *obj;  /* object on which the hash table lives */
+ int hSize;       /* given new size */
+.)l
+Description:
+ Resets the size of the hash table to the given size. The new size
+may be either bigger or smaller than the current size.
+.sp
+In case of allocation error, the old table remains in place,
+the error flag is set to 01, and an error message is issued. 
+.sp
+This is a fully automatic procedure which reloads the whole table.
+Remember that ZZ_FORM_HASH() must be used to form the hash table,
+before ZZ_RESIZE_HASH() can be used.
+.sp
+For each hash table, the user has to provide two functions.
+For more details, see the ZZ_ORG_HASH(),
+the User's Guide, or the example below.
+Before Version 6.2, this macro was called ZZ_RESET_HASH().
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+main() {
+ Header h;
+ Employee e1,e2;
+
+ ZZ_FORM_HASH(byName,&h,200) /* hash table with 200 slots */
+  ....
+ ZZ_ADD_HASH(byName,h,e1)
+ ZZ_ADD_HASH(byName,h,e2)
+  ....
+ /* changing the size of the table to 320 */
+ ZZ_RESIZE_HASH(byName,h,320)
+}
+
+int zz_hashCmp(p1,p2) objType *p1,*p2;
+{ return(strcmp(p1->name,p2->name)); }
+int zz_hashInd_byName(key,tabSize) char *key; int tabSize;
+{ int ZZhashStr(); return(ZZhashStr(key,tabSize); }
+.)l
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZ_RESIZE_HASH(id,obj,hSize) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_RESIZE_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),obj,hSize)
+
+#define ZZZ_RESIZE_HASH(id,type2,fwp,aPtr,indF,obj,hSize) \
+{int ZZFUN_upHash(),indF(); type2 *ZZp; union {ZZptrIntType l; ZZint i;}u;\
+   ZZp=NULL; u.l=(ZZptrIntType)(&(ZZp->fwp))-(ZZptrIntType)(ZZp);\
+   ZZupHash((obj)->aPtr,hSize,u.i,indF); \
+}
+#endif
+#ifdef ZZ_ANSI
+#define ZZ_RESIZE_HASH(id,obj,hSize) \
+ZZZ_RESIZE_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),obj,hSize)
+
+#define ZZZ_RESIZE_HASH(id,type2,fwp,aPtr,indF,obj,hSize) \
+{ZZint ZZFUN_upHash(),indF(char *w,ZZint s);\
+ type2 *ZZp; union {ZZptrIntType l; ZZint i;}u;\
+   ZZp=NULL; u.l=(ZZptrIntType)(&(ZZp->fwp))-(ZZptrIntType)(ZZp);\
+   ZZupHash((obj)->aPtr,hSize,u.i,indF); \
+}
+#endif

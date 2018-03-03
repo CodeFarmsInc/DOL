@@ -1,0 +1,114 @@
+
+100000;;;
+;1;Library creation [ms];558.00
+;2;Sort by vote [ms];236.00
+;3;Library saving [ms];32.00
+;4;File size [MB];16.22
+
+100;;;
+;1;Library creation [ms];2.00
+;2;Sort by vote [ms];0.00
+;3;Library saving [ms];19.00
+;4;File size [MB];8.40
+;5;Data loading [ms];22.00
+;6;Top voted books;3.00
+;7;Search book by title;0.00
+;8;Data reduction;1.00
+;9;Reduced file size [MB];8.40
+
+
+
+
+
+10000;;;
+;1;Library creation [ms];65.00
+;2;Sort by vote [ms];16.00
+;3;Library saving [ms];25.00
+;4;File size [MB];9.17
+;5;Data loading [ms];40.00
+;6;Top voted books;2.00
+;7;Search book by title;2.00
+;8;Data reduction;16.00
+;9;Reduced file size [MB];9.17
+
+
+
+
+
+100000;;;
+;1;Library creation [ms];547.00
+;2;Sort by vote [ms];238.00
+;3;Library saving [ms];29.00
+;4;File size [MB];16.23
+;5;Data loading [ms];30.00
+;6;Top voted books;4.00
+;7;Search book by title;29.00
+;8;Data reduction;162.00
+;9;Reduced file size [MB];16.23
+
+
+
+
+
+1000000;;;
+;1;Library creation [ms];5720.00
+;2;Sort by vote [ms];2911.00
+;3;Library saving [ms];641.00
+;4;File size [MB];87.18
+;5;Data loading [ms];113.00
+;6;Top voted books;1.00
+;7;Search book by title;256.00
+;8;Data reduction;1361.00
+;9;Reduced file size [MB];87.18
+
+
+
+
+
+5000000;;;
+;1;Library creation [ms];19975.00
+;2;Sort by vote [ms];21581.00
+;3;Library saving [ms];4215.00
+;4;File size [MB];412.33
+
+100000;;;
+;1;Library creation [ms];512.00
+;2;Sort by vote [ms];233.00
+;3;Library saving [ms];17.00
+;4;File size [MB];16.23
+;5;Data loading [ms];25.00
+;6;Top voted books;1.00
+;7;Search book by title;27.00
+;8;Data reduction;159.00
+;9;Reduced file size [MB];16.23
+
+
+
+
+
+1000000;;;
+;1;Library creation [ms];4930.00
+;2;Sort by vote [ms];3116.00
+;3;Library saving [ms];727.00
+;4;File size [MB];87.18
+;5;Data loading [ms];132.00
+;6;Top voted books;3.00
+;7;Search book by title;265.00
+;8;Data reduction;1547.00
+;9;Reduced file size [MB];87.18
+
+
+
+
+
+1000000;;;
+;1;Library creation [ms];4844.00
+;2;Sort by vote [ms];2535.00
+;3;Library saving [ms];1022.00
+;4;File size [MB];87.19
+
+100000;;;
+;1;Library creation [ms];527.00
+;2;Sort by vote [ms];239.00
+;3;Library saving [ms];21.00
+;4;File size [MB];16.23

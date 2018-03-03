@@ -1,0 +1,88 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name for the hyper-class */
+ TEXT vType; /* type of the vertex object */
+ TEXT eType; /* type of the edge object */
+.)l
+Description:
+ Declaration of the hyper-object for DIRECT_GRAPH.
+This is a a C++ function similar to ZZ_ORG_DIRECT_GRAPH() in C.
+.pp
+Internally, each node is associated with a circular singly-linked
+list of adjacent edges. Each edge is on one ring only, for the vertex
+where it starts, but it has two pointers, one for to each adjacent vertex.
+All this is trasparent to the user but, sometimes, it is useful
+to understand what happens inside the program.
+.pp
+The basic model corresponds to the undirected graph, but
+if the first/second vertices of each edge are treated as the
+start/end points, the model can support directed graphs.
+The order of the start/end points is never reversed once an edge is
+added to the graph by the id.add() command.
+.pp
+If you have nodes with many edges that may be deleted in random
+order, you should consider creating a DOUBLE_GRAPH organization,
+where doubly-linked rings would be used for the edges.
+.pp
+ For local scope use ZZ_LOCAL_DIRECT_GRAPH(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Operation insert() works just like add(), except that it does not reverse
+the order of the edges.
+.(l
+
+Example:
+ Organize a graph of Towns connected by Fligh connections.
+
+class Town {
+    ZZ_EXT_Town
+    char *name;
+};
+class Flight {
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_HYPER_DIRECT_GRAPH(myGraph,Town,Flight);
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_DIRECT_GRAPH(id,vType,eType)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_DIRECT_GRAPH(id,vType,eType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_DIRECT_GRAPH(id,vType,eType,where)  \
+ZZ_BASIC_DIRECT_GRAPH(id,vType,eType,static,where :: id)
+
+#define ZZ_BASIC_DIRECT_GRAPH(id,vType,eType,scope,where)  \
+class ZZFP(ZZH,id) { \
+  friend class vType;\
+  friend class eType;\
+public: \
+  void nodes(vType **v,eType *e){ZZ_NODES_DIRECT_GRAPH(id,v,e);}\
+  eType *edge(vType *v){return(v->ZZFP(ZZe,id));}\
+  eType *fwd(vType **v,eType *e){eType *t;\
+      t=e->ZZFP(ZZr,id); v[1]=t->ZZFP(ZZy,id); return(t);}\
+  void add(vType **v,eType *e);\
+  void insert(vType **v,eType *e){add(v,e); v[0]->ZZFP(ZZe,id)=e;}\
+  void del(vType **v,eType *e);\
+  void set(vType *v,eType *e);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   vType *nd[2];\
+   vType *ver;\
+   eType *beg;\
+   eType *nxt;\
+public:\
+   ZZFN(id,iterator)(vType *v){start(v);}\
+   vType *adj(){return(ver);}\
+   void start(vType *v){if(v){beg=where.edge(v); nd[0]=v; if(beg)nxt=where.fwd(nd,beg); else nxt=NULL;}\
+                                                 else beg=nxt=NULL;} \
+   eType* operator++(){eType *e; e=nxt; ver=nd[1]; if(!ver)ver=nd[0];\
+            if(e==beg)nxt=beg=NULL; else nxt=where.fwd(nd,e); return(e);}\
+}
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ **v,ZZ2$ *e){ZZ_ADD_DIRECT_GRAPH($,v,e); }
+void ZZV$ ZZH$ :: del(ZZ1$ **v,ZZ2$ *e){ZZ_DELETE_DIRECT_GRAPH($,v,e); }
+void ZZV$ ZZH$ :: set(ZZ1$ *v,ZZ2$ *e){
+    if(e && v && v->ZZe$->ZZr$ == e)v->ZZe$=e; else ZZmsg(67);
+}

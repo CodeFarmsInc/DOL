@@ -1,0 +1,67 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the array */
+ str1Type *obj;  /* object on which the array is */
+ str2Type *elem; /* returned pointer to the beginning of the array */
+.)l
+Description:
+ For the current internal implementation of the array, get the
+beginning of the array. Call to this macro provides an identical
+result to ZZ_INDEX_ARRAY(id,obj,0,elem), but it is much faster.
+.sp
+Warning:
+ The beginning of the array changes with each internal re-sizing of
+the array, therefore using this command is safe only for
+fixed-sized arrays or when, temporarily, you are abolutely
+sure that the array will not re-allocate for a while, for example
+in array or matrix algorithms dealing with fixed-sezes of objects..
+.sp
+An array must be formed before ZZ_INDEX_ARAY can be used.
+.sp
+.(l
+Example of the use: List of headers, each leading to 2 arrays
+
+ typedef struct Header Header;
+ typedef struct Animal Animal;
+ typedef struct Plant Plant;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Animal {
+     ZZ_EXT_Animal
+     int numLegs;
+ };
+ struct Plant {  /* note has no ZZ_EXT.. */
+     char annual; /* 'A=annual, 'P'=perenial */
+     int regNumber;
+ };
+ ZZ_ORG_SINGLE_RING(myList,Header)
+ ZZ_ORG_ARRAY(animals,Header,Animal)
+ ZZ_ORG_ARRAY(plants,Header,Plant)
+ ZZ_ORG_ARRAY(crop,Header,int)
+ ZZ_ORG_NAME(aName,Animal)
+
+ Header h;
+ Animal *a;
+ Plant *p;
+
+ ZZ_FORM_ARRAY(animals,&h,40,0,a) /* forms array of 40 animals on h */
+ ZZ_FORM_ARRAY(plants,&h,15,0,p) /* forms array of 15 plants on h */
+
+ /* fast access */
+ a[20].numLegs=6;
+ printf("%c plant regNum=%d\\n",p[8].annual,p[8].regNumber;
+
+ /* ... operations that may reset the array size ... */
+   
+ /* get the new beginning of the array */
+ ZZ_HEAD_ARRAY(animals,&h,a) 
+ a[20]->numLegs=6;
+.)l
+  ========================================================== */ 
+#define ZZ_HEAD_ARRAY(id,obj,elem) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_HEAD_ARRAY(id,ZZFT(2,id),ZZFP(ZZa,id),obj,elem)
+ 
+#define ZZZ_HEAD_ARRAY(id,str2Type,aPtr,obj,elem) \
+    ((elem)=(str2Type *)((obj)->aPtr->array))

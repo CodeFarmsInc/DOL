@@ -1,0 +1,117 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT pType;            /* parent class type */
+ TEXT cType;            /* child class type */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for DOUBLE_TRIANGLE, which
+links together parent objects type 'pType' with child objects, type 'cType'.
+ For local scope use ZZ_LOCAL_DOUBLE_TRIANGLE(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+ DOUBLE_AGGREGATE is just another name for DOUBLE_TRIANGLE
+.pp
+Use this organization just like single-triangle, except that list of siblings is doubly linked.
+Additional functions available here:
+  ins() - insert,
+  bwd() - next in the backward direction (previous sibling),
+  --    - iterates in the reverse direction.
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_DOUBLE_TRIANGLE(id,pType,cType)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_DOUBLE_TRIANGLE(id,pType,cType,ZZ_EXTERN,id)
+
+#define ZZ_HYPER_DOUBLE_AGGREGATE(id,pType,cType)  \
+ZZ_BASIC_DOUBLE_TRIANGLE(id,pType,cType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_DOUBLE_TRIANGLE(id,pType,cType,where)  \
+ZZ_BASIC_DOUBLE_TRIANGLE(id,pType,cType,static,where :: id)
+
+#define ZZ_LOCAL_DOUBLE_AGGREGATE(id,pType,cType,where)  \
+ZZ_BASIC_DOUBLE_TRIANGLE(id,pType,cType,static,where :: id)
+
+#define ZZ_BASIC_DOUBLE_TRIANGLE(id,pType,cType,scope,where)  \
+class ZZFN(id,iterator);\
+class ZZFP(ZZH,id) { \
+  friend class pType;\
+  friend class cType;\
+  friend class ZZFN(id,iterator);\
+  ZZFN(id,iterator) *iterators;\
+public: \
+  ZZFP(ZZH,id)(){iterators=NULL;}\
+  pType *par(cType *s){pType *p;\
+                  ZZ_PARENT_DOUBLE_TRIANGLE(id,s,p); return(p);}\
+  cType *child(pType *s){cType *p;\
+                   ZZ_CHILD_DOUBLE_TRIANGLE(id,s,p); return(p);}\
+  cType *chld(pType *s){return(s->ZZFP(ZZc,id));}\
+  cType * fwd(cType *s){cType *p;\
+                 ZZ_FORWARD_DOUBLE_TRIANGLE(id,s,p); return(p);}\
+  cType * bwd(cType *s){cType *p;\
+                 ZZ_BACKWARD_DOUBLE_TRIANGLE(id,s,p); return(p);}\
+  void set(cType *t){ZZ_SET_DOUBLE_TRIANGLE(id,NULL,t);}\
+  void add(pType *s,cType *p);\
+  void ins(cType *s,cType *p);\
+  void app(cType *s,cType *p){cType* t=chld(par(s)); \
+      ins(fwd(s),p); if(t==s)set(p);}\
+  void del(cType *p);\
+  void merge(cType *s,cType *t,pType *p);\
+  void sort(ZZTsortFun cmpF,pType *p);\
+  void switchParents(pType *p1,pType *p2); \
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   friend class ZZFP(ZZH,id);\
+   pType *boss;\
+   cType *nxt;\
+   ZZFN(id,iterator) *fList,*bList;\
+public:\
+   ZZFN(id,iterator)(pType *p){start(p);\
+           bList=NULL; fList=where.iterators; where.iterators=this;}\
+   ZZFN(id,iterator)(){boss=NULL; nxt=NULL;\
+           bList=NULL; fList=where.iterators; where.iterators=this;}\
+   ~ ZZFN(id,iterator)(){ \
+           if(bList)bList->fList=fList; else where.iterators=fList;\
+           if(fList)fList->bList=bList;}\
+   void start(pType *p){boss=p; nxt=NULL;} \
+   cType* operator++(){cType *p,*beg; beg=NULL;\
+      if(boss)beg=where.chld(boss);\
+      if(nxt)p=nxt; else if(beg)p=where.fwd(beg); else p=NULL;\
+      if(p==beg){nxt=NULL; boss=NULL;} else nxt=where.fwd(p); return(p);}\
+   cType* operator--(){cType *p,*beg; beg=NULL;\
+      if(boss)beg=where.chld(boss);\
+      if(nxt)p=nxt; else p=beg; if(p)nxt=where.bwd(p); \
+      if(nxt==beg){nxt=NULL; boss=NULL;} return p;}\
+}
+
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ2$ *t){$_iterator *i;
+    ZZ_ADD_DOUBLE_TRIANGLE($,s,t);
+    // check all iterators for this item
+    for(i=$.iterators; i; i=i->fList){if(i->nxt==t->ZZf$)i->nxt=t;}
+}
+void ZZV$ ZZH$ :: ins(ZZ2$ *s,ZZ2$ *t){$_iterator *i;
+    ZZ_INSERT_DOUBLE_TRIANGLE($,s,t);
+    // check all iterators for this item
+    for(i=$.iterators; i; i=i->fList){if(i->nxt==t->ZZf$)i->nxt=t;}
+}
+void ZZV$ ZZH$ :: del(ZZ2$ *t){$_iterator *i;
+    // check all iterators for this item
+    if(!t)return;
+    for(i=$.iterators; i; i=i->fList){
+        if(i->nxt==t){
+            if(t->ZZp$->ZZc$==t){i->nxt=NULL; i->boss=NULL;}
+            else i->nxt=t->ZZf$;
+        }
+    }
+    ZZ_DELETE_DOUBLE_TRIANGLE($,NULL,t); }
+void ZZV$ ZZH$ :: merge(ZZ2$ *s,ZZ2$ *t,ZZ1$ *p){
+                                 ZZ_MERGE_DOUBLE_TRIANGLE($,s,t,p); }
+void ZZV$ ZZH$ :: sort(ZZTsortFun cmpF,ZZ1$ *p){ZZ_SORT_DOUBLE_TRIANGLE($,cmpF,p);}
+void ZZV$ ZZH$ :: switchParents(ZZ1$ *p1,ZZ1$ *p2){
+    ZZ2$ *s;
+    if(!p1 || !p2)return;
+    s=p2->ZZc$; p2->ZZc$=p1->ZZc$; p1->ZZc$=s;
+    for(s=p1->ZZc$; s && s->ZZp$!=p1; s=s->ZZf$)s->ZZp$=p1;
+    for(s=p2->ZZc$; s && s->ZZp$!=p2; s=s->ZZf$)s->ZZp$=p2;
+}

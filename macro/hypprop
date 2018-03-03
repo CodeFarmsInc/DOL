@@ -1,0 +1,143 @@
+/* =========================================================
+.(l
+ TEXT type;   /* structure on which to use PROPERTY */
+.)l
+Description:
+ Declaration of PROPERTY on a given class.
+.pp
+PROPERTY allows you to add any number of labelled attributes to
+an object. A
+.i "property"
+can be an int, float, char, or string, or an array of any of these.
+A property is identified by name.
+.pp
+This is a very efficient mechanism for storing arbitrary
+attributes on a general object with the minimum overhead. Only a single
+pointer is used inside the object.
+.(l
+ structure
+    property  ->  (name + internal 1 byte identifier)
+		  union {
+		      value
+		      array  ->   array header {
+		  }                   array size
+		  next...             array pointer
+			.
+			V
+.)l
+Note the difference between the syntax for ZZ_SET_PROPERTY(), where the
+property type is given as text, for example
+.i int,
+and for setProp(), where the property type is given as a string,
+for example "int".
+.(l
+Example:
+  class Pin{
+      ZZ_EXT_Pin
+  public:
+      int x1,y1,x2,y2; /* pin limits */
+      int layer;       /* layer of the pin */
+    Pin(){ZZ_INITIAL(Pin,0,1,this);}
+    ~Pin(){ZZ_CHECK_FREE(Pin,1,this);}
+  };
+  ZZ_HYPER_PROPERTY(FormalPin)
+
+  Pin fp[200],*pp;
+  int aLayer={54}; n={4};
+  float spacing[]={1.25, 3.7, 0.11, 2.1};
+  char *p, *up={"UP}, *options[2]={"BLACK","WHITE"};
+  int i,n,*k;
+  float *val;
+  char *tp;
+
+pp=new Pin;
+ ...
+/* set a single integer property: type,label,pointer to value, number */
+&(fp[182])->setProp("int","contactAccess",&aLayer,1);
+
+/* set an array of four float numbers as -clearances- */
+&(fp[34])->setProp("float","clearances",spacing,n);
+
+WARNING - the following statement is INCORRECT, to be consistent,
+	  an address must be supplied even for a single string:
+&(fp[10])->setProp("string","dirAcess1","DOWN",1);
+
+Correct setting of the string-type property:
+p="DOWN";
+&(fp[10])->setProp("string","dirAcess1",&p,1);
+p=up;
+&(fp[11])->setProp("string","dirAcess2",&p,1);
+&(fp[12])->setProp("string","myOptions",options,2);
+
+val=(float *)(&(fp[34])->getProp("clearances",&tp,&n)); /* returns tp="float",n=4 */
+/* to print the values of this property */
+for(i=0;i<n;i++)printf("%f ",val[i]); printf("\n");
+
+/* for a single property (or the first value from the list) */
+k=(int *)(&(fp[182])->getProp("dirAccess1",&tp,&n)); /* returns tp="int",n=1; */
+printf("%d\n",*k);
+
+&(fp[34])->delProp("clearances");
+
+/* traverse all properties on pp */
+Pin_propIterator pIter(p);
+while(val=next(&label,&tp,&n)){
+   ... /* use val, label,tp,n */
+}
+
+/* prtProp() is general utility to print a property */
+FILE *fp;
+ZZ_HYPER_UTILITIES(util); 
+ ...
+/* for the next loop use */
+pIter.start(p);
+while(val=pIter.next(&label,&tp,&n)){
+    util.prtProp(fp,label,tp,val,num);
+}
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_PROPERTY(type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+class ZZFN(type,propIterator){ \
+   ZZproperty *beg;\
+   ZZproperty *nxt;\
+public:\
+   ZZFN(type,propIterator)(void){beg=nxt=NULL;}\
+   ZZFN(type,propIterator)(type *p){start(p);}\
+   void start(type *p){if(p)beg=nxt=p->ZZprop;else beg=nxt=NULL;}\
+   char *next(char **label,char **tp,ZZint *num);\
+}
+#define ZZEXTPROPERTY(type) \
+    friend class ZZFN(type,propIterator);\
+    void setProp(char *tp,char *label,void *val,ZZint num);\
+    char *getProp(char *label,char **tp,ZZint *num);\
+    void delProp(char *label);
+
+/* _______________________________________________________________________ */
+void $ :: setProp(char *tp,char *label,void *val,ZZint num){
+    ZZint i, ZZFUN_propSet();
+    if(!strcmp(tp,"int"))i=(ZZint)sizeof(ZZint);
+    else if(!strcmp(tp,"float"))i=(ZZint)sizeof(float);
+    else if(!strcmp(tp,"char"))i=(ZZint)sizeof(char);
+    else if(!strcmp(tp,"string"))i=(ZZint)sizeof(char*);
+    else ZZmsgS(13,tp);
+    ZZpropSet(&(this->ZZprop),tp,label,(char *)val,num*i);
+}
+char* $ :: getProp(char *label,char **tp,ZZint *num){ char *val;
+    ZZ_GET_PROPERTY(*tp,this,label,val,*num); return(val);}
+void $ :: delProp(char *label){ZZ_DELETE_PROPERTY(this,label);}
+char* $_propIterator::next(char **label,char **tp,ZZint *num){
+   ZZint s,ZZFUN_prSize(),ZZFUN_cnvProp();
+   char c,*val;
+
+   if(!nxt)return(NULL);
+   *label= &(nxt->codeName[1]);
+   c=nxt->codeName[0];
+   s=ZZprSize(nxt);
+   if(c=='i' || c=='f' || c=='c' || c=='s')val=nxt->propType.cProp;
+   else  val=nxt->propType.arrayProp->array;
+   (void)ZZcnvProp(&c,s,tp,num);
+   nxt=nxt->next;
+   if(nxt==beg)nxt=NULL;
+   return(val);
+}

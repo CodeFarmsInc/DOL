@@ -1,0 +1,17 @@
+no selfID on Instance
+
+netlist by instance:
+inst=INST3
+   fTerm=OUT
+   fTerm=SP1
+   fTerm=99II
+inst=INST4
+   fTerm=clock
+   fTerm=1iPi
+inst=block
+   fTerm=TERM1
+   fTerm=TERM2
+inst=MYINST1
+   fTerm=TERM3
+   fTerm=INP
+   fTerm=OLD_TERM

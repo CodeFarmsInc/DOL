@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for this hash table */
+ strType *start; /* any object in this slot, may be even NULL */
+ strType *pp;    /* object returned as traversing */
+.)l
+Description:
+ Traverses all objects within one slot of the hash table.
+When start=NULL is given, it does nothing.
+.sp
+ZZ_A_END must end the loop.
+.sp
+Generic ZZ_A_TRAVERSE() can be used.
+.sp
+ZZ_DELETE_HASH() can be used inside ZZ_A_TRAVERSE_HASH() loop.
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee *ep,*pp;
+ int i;
+
+ ZZ_FORM_HASH(byName,&h,200) /* hash table with 200 slots */
+   ....
+ /* print all Employees in the table */
+ for(i=0;i<200;i++){
+    ZZ_SLOT_HASH(byName,h,i,ep)
+    ZZ_A_TRAVERSE(byName,ep,pp)
+        printf("slot=%d employee=%s\n",i,pp->name);
+    ZZ_A_END
+ }
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_HASH(id,start,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_TRAVERSE_HASH(id,ZZFP(ZZf,id),ZZFT(2,id),start,pp)
+
+#define ZZZ_A_TRAVERSE_HASH(id,fwp,strType,start,pp) \
+{strType *ZZt;\
+    if(start)(pp)=(start)->fwp; else (pp)=NULL;\
+    for(;(pp);(pp)=ZZt){ \
+	ZZt=(pp)->fwp; if((pp)==(start))ZZt=NULL;

@@ -1,0 +1,511 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 4, Operating System: UNIX, DOS, MAC</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">4. ENVIRONMENT: UNIX, DOS, MAC</font></h1>
+
+<p>OrgC/C++ is highly portable, and requires only minor changes
+when running in different environments. The file <i>environ.h</i>,
+which contains only several <i>#define</i> statements, specifies
+the hardware, operating system, and the compiler for the whole
+system. You cannot recompile the library without properly setting
+this file. If your <i>environ.h</i> file is incorrect, you will
+get numerous strange errors when compiling or trying to use the
+library.</p>
+
+<p>Typically, you need a different <i>environ.h</i> file for the
+main <i>orgc</i> directory, and for <i>orgc/lib</i>. The class
+generator/preprocessor and utility programs are written in C
+(both the K&amp;R and ANSI forms are available). The file in <i>orgc/lib/environ.h
+</i>specifies the environment under which you plan to use the
+library. If you plan to use the library with C, you have to
+recompile it under C. If you plan to use C++, you have to
+recompile the library under C++.</p>
+
+<p>In the <i>environ.h</i> file, the first define specifies the
+operating system: <i>#define UNIX, #define DOS, </i>&nbsp;or<i>
+#define MAC</i>.</p>
+
+<p>The second define specifies the hardware: <i>&nbsp;#define
+SUN, #define HP, #define AMDAHL, #define APOLLO, #define IBM (for
+RS6000).</i></p>
+
+<p>The third define specifies the compiler: <i>#define GNU,
+#define BORLAND4,</i> or<i> #define MICROSOFT</i>7. When running
+with C++, three more defines are usually used:</p>
+
+<blockquote>
+    <p><em>#define ZZcplus .... specifies C++<br>
+    #define ZZansi .... specifies ANSI standard<br>
+    #define ZZ_INHERIT .... inheritance or member object</em></p>
+</blockquote>
+
+<p>When using large memory model under DOS, you define:</p>
+
+<blockquote>
+    <p><em>#define LARGE_POINTER</em></p>
+</blockquote>
+
+<p><a href="ch08Synt.htm">Chap.8</a> describes all of the
+available options in more detail.</p>
+
+<p>When porting to a new compiler, the key decision is on how to
+paste tokens. Look at the file <i>lib/heading.h</i> and select
+your defines depending on which of the macros ZZ_PASTE1 ... to
+ZZ_PASTE4 works with your compiler. If you change <i>heading.h</i>,
+you have to rerun <i>zzcomb</i>, which recreates <i>zzcomb.h</i>.</p>
+
+<p>The directory <i>orgc/lib</i> contains all library source
+files, plus numerous <i>env*.h</i> files for various possible
+environments. It also contains script files that compile the
+library under different environments. If you look into those
+files, you will see which <i>env*.h</i> files they use.</p>
+
+<p>Knowing the naming conventions will help you orient yourself
+in this relatively busy directory. The libraries are named in the
+following fashion: </p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>mllib</td>
+        <td>for Microsoft Visual C++</td>
+    </tr>
+    <tr>
+        <td>bmlib</td>
+        <td>for BorlandC++ medium memory model</td>
+    </tr>
+    <tr>
+        <td>bllib</td>
+        <td>for BorlandC++ large memory model</td>
+    </tr>
+    <tr>
+        <td>zzlib.a</td>
+        <td>for C on UNIX workstations</td>
+    </tr>
+    <tr>
+        <td>zgzlib.a</td>
+        <td>for UNIX GNU</td>
+    </tr>
+    <tr>
+        <td>zmlib</td>
+        <td>for ZORTECH C++ medium memory model</td>
+    </tr>
+    <tr>
+        <td>zllib</td>
+        <td>for ZORTECH C++ large memory model</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">File environ.h</font></h3>
+
+<p>The environment file describes the environment in which you
+are using the library: The operating system, physical computer,
+compiler, language (C or C++), memory model, and other
+parameters. Normally, the library administrator keeps a default
+file <i>environ.h</i> in the <i>orgc/lib</i> directory, which is
+then used by all programmers within the project or department. If
+you don't have the <i>environ.h </i>file in your current
+directory, all programs are automatically compiled with the
+default environment from <i>orgc/lib/environ.h</i>. However, if
+you have <i>environ.h</i> in your working directory, it
+overwrites the version in <i>orgc/lib</i>.</p>
+
+<p>It is essential to have a correct <i>environ.h</i> file. If
+you have wrong defines, you get many strange compile errors. If
+you are starting with OrgC/C++ and you have a problem running the
+first test, first look at your <i>environ.h</i> files. </p>
+
+<p>The directory <i>orgc/lib</i> contains many ready-to-use
+environment files; you have only to select the appropriate one
+and copy it into your current directory as <i>environ.h.</i> The
+names of these files relate to the environment for which they
+were designed. For example:</p>
+
+<blockquote>
+    <table border="3" cellpadding="3">
+        <tr>
+            <td><i>env0s.h</i></td>
+            <td>for C on SUN</td>
+        </tr>
+        <tr>
+            <td><i>env3z.h</i></td>
+            <td>for ZORTECH C++</td>
+        </tr>
+        <tr>
+            <td><i>env3g.h</i></td>
+            <td>for C++ using the GNU compiler</td>
+        </tr>
+        <tr>
+            <td><i>env3h.h</i></td>
+            <td>for the full HP C++</td>
+        </tr>
+        <tr>
+            <td><i>env3ca.h</i></td>
+            <td>for the latest version of BorlandC++</td>
+        </tr>
+        <tr>
+            <td><i>envmsft.h</i></td>
+            <td>for Microsoft Visual C++</td>
+        </tr>
+    </table>
+</blockquote>
+
+<p>and so on. </p>
+
+<b>IMPORTANT:</b> For WinNT or WinXP, add the following line to file
+ lib\envmsft.h:<br>
+    #define NT<br>
+For Win95 or Win98 remove this line if it is there.<p>
+
+<p>If you run with SUN 2.1 (or 3.0) compiler, modify files <i>env0s.h,
+env1s.h, env2s.h,</i> and <i>env3s.h</i> by replacing <i>#define
+SUN </i>with <i>#define SUN2_1 (or #define SUN3_0)</i>.</p>
+
+<p>If you are not sure which file to use, look at <i>orgc/lib/readme</i>
+or at the script files for the regression tests (next paragraph).</p>
+
+<h3><font size="3" face="Arial">Examples of the environ.h file:</font></h3>
+
+<p>For Microsoft Visual C++ under Win95:</p>
+
+<blockquote>
+    <p><i>#define DOS<br>
+    #define MICROSOFT8<br>
+    #define LARGE_POINTER<br>
+    #define ZZcplus<br>
+    #define ZZansi<br>
+    #define ZZ_INHERIT</i></p>
+</blockquote>
+
+<p>For GNU on a SUN, using C++:</p>
+
+<blockquote>
+    <p><i>#define UNIX<br>
+    #define SUN</i>3_0<i><br>
+    #define GNU<br>
+    #define GNUPLUS<br>
+    #define ZZansi<br>
+    #define ZZcplus<br>
+    #define ZZ_INHERIT</i></p>
+</blockquote>
+
+<p>For Borland C++ Ver.4.5, medium memory model:</p>
+
+<blockquote>
+    <p><i>#define DOS<br>
+    #define BORLAND4<br>
+    #define ZZcplus<br>
+    #define ZZansi<br>
+    #define ZZ_INHERIT</i></p>
+</blockquote>
+
+<p>For ZORTECH C++, large memory model:</p>
+
+<blockquote>
+    <p><i>#define DOS<br>
+    #define ZORTECH<br>
+    #define LARGE_POINTER<br>
+    #define ZZcplus<br>
+    #define ZZansi<br>
+    #define ZZ_INHERIT</i></p>
+</blockquote>
+
+<p>For AT&amp;T C++ Ver.2.1 on a SUN</p>
+
+<blockquote>
+    <p><i>#define UNIX<br>
+    #define SUN2_1<br>
+    #define ZZcplus<br>
+    #define ZZansi<br>
+    #define ZZ_INHERIT</i></p>
+</blockquote>
+
+<p>If you are running with C++ but using structures and not
+classes, the following statment will make your program more
+efficient:</p>
+
+<blockquote>
+    <p><i>#define ZZnoFriends</i></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Testing your setup.</font></h3>
+
+<p>Your new <i>orgc/test</i> directory contains examples of
+script files for running the preprocessor/class generator and for
+compiling a single program (files <i>try1</i> and <i>ctry2,
+gtry2,</i> or <i>htry2 </i>for UNIX, and files such as <i>try1.bat,
+try2.bat,</i> <i>btry2.bat,</i> or <i>ztry2.bat</i> for DOS).
+Before using these files, check that (inside these files) the
+compiler is called with a path reflecting your individual
+installation. </p>
+
+<ul>
+    <li><i>Get the appropriate environment file</i></li>
+</ul>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>Sun,C++</td>
+        <td><i>cp ../lib/env3s.h</i></td>
+    </tr>
+    <tr>
+        <td>Borland4,C</td>
+        <td><i>copy ..\lib\env0ca.h environ.h</i></td>
+    </tr>
+    <tr>
+        <td>Borland4,C++</td>
+        <td><i>copy ..\lib\env3ca.h environ.h</i></td>
+    </tr>
+    <tr>
+        <td>Visual C++</td>
+        <td><i>copy ..\lib\envmsft.h environ.h</i></td>
+    </tr>
+</table>
+
+<ul>
+    <li><i>Can you run the class generator?</i></li>
+</ul>
+
+<blockquote>
+    <p><em>cd test<br>
+    try1 test0m</em></p>
+</blockquote>
+
+<ul>
+    <li><i>Can you compile with OrgC++?</i></li>
+</ul>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>Visual C++</td>
+        <td>mtry2 test0m </td>
+    </tr>
+    <tr>
+        <td>SUN,C++</td>
+        <td>ctry2 test0m</td>
+    </tr>
+    <tr>
+        <td>Borland,C++</td>
+        <td>:ctry2 test0m</td>
+    </tr>
+    <tr>
+        <td>Zortech</td>
+        <td>:ztry2 test0m</td>
+    </tr>
+    <tr>
+        <td>GNU</td>
+        <td>gtry2 test0m</td>
+    </tr>
+    <tr>
+        <td>HP C++</td>
+        <td>htry2 test0m</td>
+    </tr>
+</table>
+
+<ul>
+    <li><i>Are the results correct?</i></li>
+</ul>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>UNIX</td>
+        <td>a.out inp0 res0m<br>
+        diff res0m out0mu</td>
+    </tr>
+    <tr>
+        <td>DOS/WIN</td>
+        <td>test0m inp0 res0m<br>
+        diff res0m out0ml</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Important</font></h3>
+
+<p>The preprocessor/code generator must be called with full pass
+(absolute or relative). For example:</p>
+
+<blockquote>
+    <p><i>..\zzprep test0m.c</i><br>
+    or<i><br>
+    c:\orgc\zzprep test0m.c</i><br>
+    or<i><br>
+    /home1/orgc/zzprep test0m.c</i></p>
+</blockquote>
+
+<p>If the path is not given <i>zzprep</i> cannot operate properly
+and prints a message about an internal error in function <i>ZZgetMaster().
+</i>Having the <i>orgc</i> directory is not sufficient in this
+case. </p>
+
+<h3><font size="3" face="Arial">Regression tests</font></h3>
+
+<p>The <i>orgc/test</i> directory contains scripts for long
+regression tests that run over 60 programs that test all of the
+features currently in the library. These tests are gradually
+expanding with the library.</p>
+
+<p>The tests are different for C and C++, and also differ
+slightly between different compilers. For example, the UNIX tests
+sometimes use larger data sets than the DOS tests limited by the
+64k data space, or some tests are excluded because the DOS
+compilers choke on them (not enough space).</p>
+
+<p>These regression tests are the ultimate test of your
+installation, but may take a long time to run (1/2hour on SUN
+SPARC2, up to several hours on an IBM 386, but just a few minutes
+on a Pentium). Each script invokes one test after another,
+compiles and runs it, and then compares the result (file <i>res*</i>)
+with the correct expected output (file <i>out*</i>). </p>
+
+<p>If you start a regression run, watch for the first couple of
+test passes<font color="#FF0000">. </font>If everything looks
+fine, you may leave the test running without supervision and when
+it is finished, you invoke a special script file that checks the
+results:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><i>msftregr </i></td>
+        <td>Visual C++ regression test</td>
+    </tr>
+    <tr>
+        <td><i>msftchk</i></td>
+        <td>Visual C++ checking results</td>
+    </tr>
+    <tr>
+        <td><i>cregr</i></td>
+        <td>SUN C++ regression test</td>
+    </tr>
+    <tr>
+        <td><i>ccheck</i></td>
+        <td>SUN checking C++ results</td>
+    </tr>
+</table>
+
+<p>Expected output (files <i>out*</i>) may sligthly differ for
+different compilers or memory models. For example, you may find:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><i>out0m</i></td>
+        <td>usual result for <i>test0m</i>.c</td>
+    </tr>
+    <tr>
+        <td><i>out0mu</i></td>
+        <td>result for UNIX</td>
+    </tr>
+    <tr>
+        <td><i>out0ml</i></td>
+        <td>result for DOS large memory model</td>
+    </tr>
+</table>
+
+<p><strong>WARNING:</strong> Regression script files are quite
+long and, without a memory extender under DOS, their execution
+may be interrupted in the middle of a run because one of the DOS
+system limits is reached. If that happens to you, it still does
+not mean that your installation is wrong. Split the batch file
+into several sections, and run each separately.</p>
+
+<p>Within each test run, file <i>environ.h</i> is reset several
+times. When splitting the batch file, make sure that <i>environ.h</i>
+is correctly set at the beginning of each section.</p>
+
+<h3><font size="3" face="Arial">Examples of regression tests</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><i>cregr</i></td>
+        <td>UNIX, AT&amp;T C++, SUN</td>
+    </tr>
+    <tr>
+        <td><i>gregr</i></td>
+        <td>UNIX, GNU, C++</td>
+    </tr>
+    <tr>
+        <td><i>mregr</i></td>
+        <td>MAC C++ (PWB only)</td>
+    </tr>
+    <tr>
+        <td><i>b4pregrm.bat</i></td>
+        <td>Borland 4.0, C++, medium memory model</td>
+    </tr>
+    <tr>
+        <td><i>b4pregrl.bat</i></td>
+        <td>Borland 4.0, C++, large memory model</td>
+    </tr>
+    <tr>
+        <td><i>msftregr.bat</i></td>
+        <td>Microsoft Visual C++ for WinNT</td>
+    </tr>
+    <tr>
+        <td><i>z3pregrm.bat</i></td>
+        <td>Zortech 3.0, C++, medium memory model</td>
+    </tr>
+    <tr>
+        <td><i>wtpregr.bat</i></td>
+        <td>Watcom 10.0+ 32 bit C++</td>
+    </tr>
+</table>
+
+<p>Checking the results:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><i>ccheck</i></td>
+        <td>UNIX, AT&amp;T C++, SUN</td>
+    </tr>
+    <tr>
+        <td><i>mcheck</i></td>
+        <td>MAC C++</td>
+    </tr>
+    <tr>
+        <td><i>msftchk.bat</i></td>
+        <td>Microsoft Visual C++</td>
+    </tr>
+    <tr>
+        <td><i>b4pchkl.bat</i></td>
+        <td>Borland 4.0, C++, large memory model</td>
+    </tr>
+</table>
+
+<p>&nbsp;... and so on (replace `regr' by `chk' or `check')</p>
+
+<h3><font size="3" face="Arial">Warning:</font></h3>
+
+<p>The environment file must not contain conditional defines. For
+example, the following sequence will not do what you may expect:</p>
+
+<blockquote>
+    <p><em>#ifdef ABC<br>
+    #define ZZansi<br>
+    #endif</em></p>
+</blockquote>
+
+<p>Regardless whether ABC is defined or not, the code generator
+will work as if <i>ZZansi</i> is defined.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch03Dirs.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        3: OrgC++ Directories</font></a></td>
+        <td align="right" width="50%"><a href="ch05What.htm"><font
+        face="Arial">Chapter 5: What is OrgC++?<img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

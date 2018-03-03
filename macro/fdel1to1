@@ -1,0 +1,36 @@
+/* =========================================================
+.(l
+ TEXT id;          /* organization id */
+ strType2 *rel;    /* relation to be deleted */
+.)l
+Description:
+ Delete the given 1_TO_1 relation. If the relation does not exist,
+nothing happens (no error message issued).
+Exactly the same as ZZ_DELETE_RELATION_1_TO_1() but implemented
+as a compiled function.
+.sp 1
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZF_DELETE_RELATION_1_TO_1(id,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+{void ZZFP(ZZF_DELETE_RELATION_1_TO_1,id)();\
+     ZZFP(ZZF_DELETE_RELATION_1_TO_1,id)(rel);}
+#endif
+#ifdef ZZ_ANSI
+#define ZZF_DELETE_RELATION_1_TO_1(id,rel) \
+{void ZZFP(ZZF_DELETE_RELATION_1_TO_1,id)(ZZFT(2,id) *r);\
+     ZZFP(ZZF_DELETE_RELATION_1_TO_1,id)(rel);}
+#endif
+
+/* ________________________________________________________ */
+#ifdef ZZ_ANSI
+void ZZF_DELETE_RELATION_1_TO_1$(ZZ2$ *rel)
+#else
+void ZZF_DELETE_RELATION_1_TO_1$(rel)
+ZZ2$ *rel;
+#endif
+{ if(rel->ZZx$ && rel->ZZy$){
+     rel->ZZx$->ZZf$=rel->ZZy$->ZZb$=NULL;
+     rel->ZZx$=NULL; rel->ZZy$=NULL;
+  }
+}     

@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;       /* organization id */
+ strType *obj1; /* first given object */
+ strType *obj2; /* second given object */
+ strType *par;  /* unused, use NULL */
+.)l
+Description:
+ Merges or splits rings. If originally obj1 and obj2 are in the same ring,
+the ring splits into two, with one of the objects in each ring.
+If originally obj1 and obj2 are in different rings, the rings merge into
+one. Generic ZZ_MERGE() can be used.
+.sp
+When obj1==obj1, no action is taken.
+.sp
+If you want to extract a single object, call ZZ_MERGE(id,p1,p2), where
+p2 is next object to p1, and p2 will form a single-object ring.
+.sp
+Error situations:
+ obj1 or obj2 equal to NULL, or not connected into any organization.
+In such a case, error message is issued, and no action is taken.
+.(l
+Example:
+
+typedef struct Obj Obj;
+ZZ_ORG_SINGLE_RING(myRing,Obj;)
+Obj *p1,*p2;
+   .....
+ZZ_MERGE(myRing,p1,p2,NULL);
+.)l
+  ========================================================== */ 
+#define ZZ_MERGE_SINGLE_RING(id,obj1,obj2,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_MERGE_SINGLE_RING(id,ZZFT(1,id),ZZFP(ZZf,id),obj1,obj2,par)
+
+#define ZZZ_MERGE_SINGLE_RING(id,strType,fwp,obj1,obj2,par) \
+{strType *ZZp,*ZZi;\
+    ZZi=(par);\
+    if(!(obj1) || !(obj2))ZZi++;\
+    else {\
+        if(!((obj1)->fwp) || !((obj2)->fwp))ZZi++;\
+        else if((obj1)!=(obj2)){\
+            ZZp=(obj2)->fwp; \
+            (obj2)->fwp=(obj1)->fwp;\
+            (obj1)->fwp=ZZp;\
+        }\
+    }\
+    if(ZZi)ZZmsgS(33,ZZ_STRINGIT(id));\
+}

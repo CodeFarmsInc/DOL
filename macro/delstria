@@ -1,0 +1,58 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *entry;/* entry to this organization, not used */
+ str2Type *pp;   /* child to be deleted from the triangle */
+.)l
+Description:
+ Disconnect the given child object from the triangle organization.
+ This macro can be called within a 'traverse' loop, see the example.
+.(l
+Example:
+From the given salary group which is implemented as
+a triangular organization, delete all employees that
+have salary lower than $20,000.
+
+typedef struct Employee Employee;
+typedef struct SalaryGroup SalaryGroup;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+struct SalaryGroup{
+    ZZ_EXT_SalaryGroup
+    int low,high;   
+};
+ZZ_ORG_SINGLE_TRIANGLE(empl,SalaryGroup,Employee);
+
+Employee *pp;
+SalaryGroup *group;
+
+ZZ_A_TRAVERSE(empl,group,pp){
+    if(pp->salary<20000){
+         ZZ_DELETE(empl,group,pp);
+    }
+}ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_SINGLE_TRIANGLE(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_DELETE_SINGLE_TRIANGLE\
+(id,ZZFT(1,id),ZZFT(2,id),ZZFP(ZZp,id),ZZFP(ZZs,id),ZZFP(ZZc,id),entry,pp)
+
+#define ZZZ_DELETE_SINGLE_TRIANGLE(id,sTop,sBot,parent,sibling,child,entry,pp) \
+{sBot *ZZv,*ZZc; sTop *ZZp;\
+    if((pp) && (pp)->parent){\
+        ZZp=(pp)->parent; ZZc=ZZp->child; if(!ZZc)ZZc=(pp); \
+        if((pp)->sibling==(pp))ZZp->child=NULL;\
+        else { \
+            for(ZZv=ZZc; ZZv->sibling!=(pp); ZZv=ZZv->sibling)continue;\
+            if(ZZp->child==(pp))ZZp->child=ZZv;\
+            ZZv->sibling=(pp)->sibling;\
+        } \
+        (pp)->sibling=NULL; (pp)->parent=NULL;\
+    }\
+}

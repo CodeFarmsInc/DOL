@@ -1,0 +1,32 @@
+/* =========================================================
+Description:
+ Returns error code that is set when unable to allocate memory,
+array index out of range, and other similar irregularities.
+.sp
+The value is binary coded:
+  01=allocation error
+  02=index out of range
+  04=using an organization that has not been formed
+ 010=object not properly disconnected, or not compatible
+ 020=internal algorithm error
+ 040=wrong structure
+ 100=unable to open file
+.sp
+The error can be reset to "no error" by
+ ZZ_ERROR=0;
+.(l
+Example:
+
+typedef struct myObj myObj;
+struct myObj {
+    ....
+};
+myObj *p;
+
+ZZ_PLAIN_ALLOC(myObj,127,p)
+if(ZZ_ERROR){printf("allocation error %d\n",ZZerror); return;}
+.)l
+.sp 1
+  ========================================================== */ 
+
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

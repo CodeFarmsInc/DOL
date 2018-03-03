@@ -1,0 +1,22 @@
+set Exit 0
+duplicate -y env3m.h environ.h
+::zzprep pager.hpp pager.k zzmaster pager.g
+duplicate -y env1m.h environ.h
+delete -i zzclib.lib
+duplicate -y pager.cc temp.c
+
+CPlus -sym off -model far -s virtarr virtarr.c
+CPlus -sym off -model far -s pager temp.c
+CPlus -sym off -model far -s msgs msgs.c
+CPlus -sym off -model far -s util util.c
+CPlus -sym off -model far -s bind bind.cc
+CPlus -sym off -model far -s sweap sweap.c
+CPlus -sym off -model far -s property property.c
+CPlus -sym off -model far -s sortring sortring.c
+CPlus -sym off -model far -s time time.c
+CPlus -sym off -model far -s array array.c
+CPlus -sym off -model far -s blast blast.c
+
+Lib -sym off -o zzclib.lib virtarr.c.o temp.c.o sweap.c.o property.c.o sortring.c.o bind.cc.o time.c.o array.c.o util.c.o blast.c.o msgs.c.o
+ 
+echo "jmcmake done... zzclib.lib in current folder"

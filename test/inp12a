@@ -1,0 +1,16 @@
+C N1 0
+C N2 0
+C N3 0
+D
+C N4 2 3
+C N5 1 4
+C N6 0
+a int 1234
+D
+a string flag
+F N4[1.3]
+a float .003
+F N3
+r
+T
+E

@@ -1,0 +1,2 @@
+mcopy -asvmpQn /share/orgc/sumake sumake1
+mcopy -asvmpQn /share/orgc/lgmake lgmake1

@@ -1,0 +1,56 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry; /* entry into the ring, NULL when new ring */
+ strType *pp;    /* element to add to the ring */
+.)l
+Description:
+ Insert the new element to the ring before
+.i "entry."
+Reset
+.i "entry"
+to the new element.
+.sp
+.i "entry"
+is not changed except when
+.i "pp"
+is the first entry into the ring.
+.sp
+Repeated use of this macro results in elements being linked in the
+same order (essentially FIFO stack). Note however that the organization
+of FIFO stack uses less memory, only on pointer per element.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORGANIZE_DOUBLE_RING(eRing,Employee)
+
+Employee *list,*pp,arr[20];
+int i;
+
+list=NULL;
+for(i=0,pp=arr;i<20;i++,pp++) ZZ_INSERT_DOUBLE_RING(eRing,list,pp)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_INSERT_DOUBLE_RING(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_INSERT_DOUBLE_RING(id,ZZFP(ZZf,id),ZZFP(ZZb,id),entry,pp)
+
+#define ZZZ_INSERT_DOUBLE_RING(id,fwp,bwp,entry,pp) \
+/* organization id is automatically converted into fwp,bwp */ \
+{\
+    if((pp)->fwp){\
+        ZZmsgSS(24,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(entry){(entry)->bwp->fwp=(pp);  (pp)->fwp=(entry);\
+              (pp)->bwp=(entry)->bwp; (entry)->bwp=(pp);}\
+    else {(entry)=(pp); (pp)->fwp=(pp)->bwp=(pp);}\
+}

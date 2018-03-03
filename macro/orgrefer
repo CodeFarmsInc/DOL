@@ -1,0 +1,76 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType1;         /* link from this structure */
+ TEXT strType2;         /* link to this structure */
+.)l
+Description:
+ One way link between two given types, with reference counting on
+ the second object. This is just like SINGLE_LINK with reference
+ counting added to the organization.
+.pp
+Internal implementation:
+ One pointer on the source object, integer counter on the target object.
+.pp
+A typical application for this organization is an efficient storage
+of text (list of variable-length words). The text of each word is recorded
+just once, with a reference count of how many times the string is used:
+.(l
+typedef struct Text Text;
+typedef struct Word Word;
+struct Text {
+    ZZ_EXT_Text
+};
+struct Word {
+    ZZ_EXT_Word
+};
+ZZ_ORG_SINGLE_RING(words,Word)
+ZZ_ORG_REFERENCE(ref,Word,Text)
+ZZ_ORG_NAME(text,Text)
+    
+Word *w;
+Text *t1,*t2,*t;
+char *p;
+int count;
+
+ZZ_STRING_ALLOC("the",p); ZZ_PLAIN_ALLOC(Text,1,t1); ZZ_ADD(text,t1,p);
+ZZ_STRING_ALLOC("dog",p); ZZ_PLAIN_ALLOC(Text,1,t2); ZZ_ADD(text,t2,p);
+
+ZZ_PLAIN_ALLOC(Word,1,w); ZZ_ADD(words,tail,w); ZZ_ADD(ref,w,t1);
+ZZ_PLAIN_ALLOC(Word,1,w); ZZ_ADD(words,tail,w); ZZ_ADD(ref,w,t2);
+ZZ_PLAIN_ALLOC(Word,1,w); ZZ_ADD(words,tail,w); ZZ_ADD(ref,w,t1);
+ ....
+
+ZZ_DELETE(ref,w,t);
+if(t){
+    ZZ_GET(ref,t,count);
+    if(count<=0){
+        ZZ_FORWARD(text,t,p);
+        ZZ_STRING_FREE(p);
+        ZZ_PLAIN_FREE(Text,1,t);
+    }
+}
+.)l
+.pp
+See also:
+ZZ_SET_REFERENCE() .. sets the count to a new value
+ZZ_GET_REFERENCE() .. returns the current count
+ZZ_ADD_REFERENCE() .. increases the count by 1
+ZZ_DELETE_REFERENCE() .. decreases the count by 1
+.(l
+WARNING:
+When allocating new objects with ZZ_PLAIN_ALLOC() or other library functions,
+the count is always initialized to 0. When using automatically allocated
+objects (from the stack), you have to initialize the count by
+calling ZZ_SET_REFERENCE():
+
+int foo(void) {
+    Text t;
+    ZZ_SET_REFERENCE(ref,&t,0);
+    ...
+};
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_REFERENCE(id,strType1,strType2) /* ZZ_ORG_REFERENCE */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

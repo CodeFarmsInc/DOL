@@ -1,0 +1,103 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers to 2 nodes to be connected */
+ edgeType *ge;   /* given edge to connect the two nodes */
+.)l
+Description:
+ Delete one edge from the graph. 
+The edge may be specified by a given pointer (ge!=NULL), or
+by a pair of nodes (ge=NULL on the entry).
+ If the macro is called for an edge that has already been deleted from the
+given graph (or has never been added to it),
+the macro does nothing, no error message is printed.
+ The two nodes can be given in any order.
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {      /* graph edge */
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+
+Town *t[2],*t1,*t2;
+Hwy *h; 
+
+....
+/* first possible form */
+ZZ_DELETE_SINGLE_GRAPH(myGraph,NULL,h)
+....
+/* second possible form */
+t[0]=t1; t[1]=t2;
+ZZ_DELETE_SINGLE_GRAPH(myGraph,t,NULL)
+....
+/* the following form is treated as the first form */
+ZZ_DELETE_SINGLE_GRAPH(myGraph,t,h)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_SINGLE_GRAPH(id,nodes,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_DELETE_SINGLE_GRAPH(ZZFT(1,id),ZZFT(2,id),\
+ZZFP(ZZe,id),ZZFP(ZZx,id),ZZFP(ZZy,id),ZZFP(ZZr,id),ZZFP(ZZs,id),nodes,ge)
+
+#define \
+    ZZZ_DELETE_SINGLE_GRAPH(nStr,eStr,edge,node1,node2,next1,next2,nodes,ge) \
+{eStr *ZZe,*ZZf; nStr *ZZa,*ZZb,**nd;\
+    ZZe=(ge);\
+    if(!ZZe){\
+        nd=nodes;\
+        ZZa=(nd)[0]; ZZb=(nd)[1]; if(ZZa==ZZb)ZZb=NULL;\
+	ZZf=ZZa->edge;\
+	for(ZZe=ZZf;ZZe;){\
+	    if     (ZZe->node1==ZZa){if(ZZe->node2==ZZb)break; ZZe=ZZe->next1;}\
+	    else if(ZZe->node2==ZZa){if(ZZe->node1==ZZb)break; ZZe=ZZe->next2;}\
+	    else {\
+                ZZmsg(47);\
+                ZZerrFLG=ZZerrFLG|020;\
+            }\
+	    if(ZZe==ZZf)ZZe=NULL;\
+	}\
+    }\
+    if(ZZe){\
+	if(!(ZZe->next1))ZZe=ZZe;\
+	else if(ZZe->next1==ZZe)ZZe->node1->edge=NULL;\
+	else {\
+	    if(ZZe->node1->edge==ZZe)ZZe->node1->edge=ZZe->next1;\
+	    for(ZZf=ZZe;;){\
+	        if(ZZf->node1==ZZe->node1){\
+		    if(ZZf->next1==ZZe){ZZf->next1=ZZe->next1; break;}\
+		    ZZf=ZZf->next1;\
+		}\
+	        else if(ZZf->node2==ZZe->node1){\
+		    if(ZZf->next2==ZZe){ZZf->next2=ZZe->next1; break;}\
+		    ZZf=ZZf->next2;\
+		}\
+	    }\
+	}\
+	if(!(ZZe->next2))ZZe=ZZe;\
+	else if(ZZe->next2==ZZe)ZZe->node2->edge=NULL;\
+	else {\
+	    if(ZZe->node2->edge==ZZe)ZZe->node2->edge=ZZe->next2;\
+	    for(ZZf=ZZe;;){\
+	        if(ZZf->node1==ZZe->node2){\
+		    if(ZZf->next1==ZZe){ZZf->next1=ZZe->next2; break;}\
+		    ZZf=ZZf->next1;\
+		}\
+	        else if(ZZf->node2==ZZe->node2){\
+		    if(ZZf->next2==ZZe){ZZf->next2=ZZe->next2; break;}\
+		    ZZf=ZZf->next2;\
+		}\
+	    }\
+	}\
+	ZZe->next1=ZZe->next2=NULL;\
+	ZZe->node1=ZZe->node2=NULL;\
+    }\
+}

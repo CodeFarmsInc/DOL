@@ -1,0 +1,34 @@
+cp env3g.h environ.h
+../zzprep pager.hpp pager.k zzmaster pager.g
+cp env3g.h environ.h
+rm *.o;\
+rm zzclib.a;\
+cp pager.cc temp.c;\
+g++ -c \
+ virtarr.c\
+ sweap.c\
+ util.c\
+ bind.cc\
+ sortring.c\
+ temp.c\
+ blast.c\
+ msgs.c\
+ time.c\
+ property.c\
+ array.c\
+ ;
+ar cr zzglib.a\
+ virtarr.o\
+ temp.o\
+ blast.o\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+ranlib zzglib.a;
+echo make zzglib.a done

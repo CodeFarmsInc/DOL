@@ -1,0 +1,46 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ str1Type *from;  /* object from which the link should be cancelled */
+ str2Type *targ;  /* returns the disconnected target of the link */
+.)l
+Description:
+ Deletes a two way link that starts at the given object.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_DOUBLE_LINK() and also ZZ_ORG_SINGLE_LINK().
+.(l
+Example:
+
+typedef struct Rectnagle Rectangle;
+typedef struct tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+     ...
+};
+struct tempRect {
+    ZZ_EXT_tempRect
+     ...
+};
+ZZ_ORG_DOUBLE_LINK(rLink,Rectangle,tempRect)
+
+Rectangle *r;
+tempRect *tr;
+
+ ....
+ZZ_ADD_DOUBLE_LINK(rLink,r,tr)
+ ....
+ZZ_DELETE_DOUBLE_LINK(rLink,r,tr)
+.)l
+.pp
+See also: ZZ_ORG_DOUBLE_LINK(), ZZ_GET_DOUBLE_LINK(),
+ZZ_SET_DOUBLE_LINK(), and ZZ_DELETE_GENERAL_LINK(),
+ZZ_DELETE_SINGLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_DELETE_DOUBLE_LINK(id,from,targ) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_DOUBLE_LINK(ZZFP(ZZf,id),ZZFP(ZZb,id),from,targ) 
+
+#define ZZZ_DELETE_DOUBLE_LINK(fwp,bwp,from,targ) \
+{(targ)=(from)->fwp; if((from)->fwp){(from)->fwp->bwp=NULL; (from)->fwp=NULL;} }

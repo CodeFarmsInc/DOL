@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Explicit definition of the organization of the double linked ring
+.pp
+In this organization, two pointers (fwp=forward pointer and
+bwp=backward pointer) are added
+to the selected structure. Any member of the ring can be the
+starting point. 
+.(l
+ A <-> B <-> C <-> D ... <-> X <->.
+ .                                .
+ ............. <-> ................
+.)l
+Note that this organization is very fast both when adding or deleting
+a member.
+ ZZ-sort available for the double ring is just as fast as for the single ring.
+.(l
+Example of the use:
+   typedef struct myStruct myStruct;
+   struct myStruct {
+       ZZ_EXT_myStruct
+       int a,b,c,d;
+   };
+   ZZ_ORG_DOUBLE_RING(my2ring,myStruct)
+.)l
+It is sometimes important to know the exact order of the objects
+in the ring. For the sake of uniformity, the double ring is handled
+exactly the same way as single ring. For example,
+if you added objects in this order: A,B,C,D,E, the ring starts with A:
+  A->E->D->C->B->
+.sp
+The following sequence returns the objects in the reverse order
+as they were loaded into the ring (LIFO):
+.(l
+ZZ_A_TRAVERSE(my2ring,start,pp)
+    printf(...,pp);
+ZZ_A_END
+.)l
+.sp
+Note that for the purpose of a stack, special organizations
+are available (LIFO,FIFO).
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_DOUBLE_RING(id,strType) /* ZZ_ORG_DOUBLE_RING */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

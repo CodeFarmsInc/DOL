@@ -1,0 +1,29 @@
+cp env3d.h environ.h
+../zzprep pager.hpp pager.k zzmaster pager.g
+cp env1d.h environ.h
+rm *.o;\
+rm zzclib.a;\
+cxx -w -c  pager.cc
+ cp msgs.c msgs.cc; cxx -w -c msgs.cc; rm msgs.cc
+ cp sortring.c sortring.cc; cxx -w -c sortring.cc; rm sortring.cc
+ cp bind.c bind.cc; cxx -w -c bind.cc; rm bind.cc
+ cp blast.c blast.cc; cxx -w -c blast.cc; rm blast.cc
+ cp util.c util.cc; cxx -w -c util.cc; rm util.cc
+ cp time.c time.cc; cxx -w -c time.cc; rm time.cc
+ cp property.c property.cc; cxx -w -c property.cc; rm property.cc
+ cp sweap.c sweap.cc; cxx -w -c sweap.cc; rm sweap.cc
+ cp array.c array.cc; cxx -w -c array.cc; rm array.cc
+ar cr zzclib.a\
+ pager.o\
+ blast.o\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+ranlib zzclib.a;
+echo make zzclib.a done

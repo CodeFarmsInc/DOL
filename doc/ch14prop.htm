@@ -1,0 +1,193 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14.1 Property (Run-Time Extensibility)</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>14. HARD-CODED UTILITIES</h1>
+
+<h4><a href="#14_1">14.1 Run-time Extensibility (PROPERTY)</a><br>
+<a href="ch14prpb.htm#14_2">14.2 Run-time Detection (SELF_ID)</a><br>
+<a href="ch14prpc.htm#14_3">14.3 Time Stamp (TIME_STAMP)</a><br>
+<a href="ch14prpd.htm#14_4">14.4 Dynamic Array and Binary Heap
+(ARRAY)</a><br>
+<a href="ch14prpe.htm#14_5">14.5 Hash Tables (HASH)</a><br>
+<a href="ch14prpf.htm#14_6">14.6 Pager (PAGER)</a><br>
+<a href="ch14prpg.htm#14_7">14.7 Access to Type Tables (TYPE)</a></h4>
+
+<h2><a name="14_1"></a>14.1 PROPERTY (RUN-TIME EXTENSIBILITY)</h2>
+
+<p><font color="#FF0000">!!TODO - Insert GIF here.</font></p>
+
+<h4>Purpose:</h4>
+
+<p>Objects that have PROPERTY may be extended at run time by any
+number of labelled attributes, called PROPERTIES. A property can
+be an <em>integer, </em>a<em> float, </em>a <em>character, </em>a
+<em>string, </em>or an array of these.</p>
+
+<p>Property exists on the object itself, it is not associated
+with a hyper-object. There can be only one set of properties per
+object.</p>
+
+<h4>Memory requirements:</h4>
+
+<p>Declaring PROPERTY on an object adds 1 pointer to all objects
+of this type. If the property is not used, the pointer is NULL.
+When allocating or initializing objects, this pointer is
+automatically set to NULL.</p>
+
+<p>Each single value property has an overhead of 2 additional
+pointers plus the string for the property name. Each array
+property has an overhead of 5 additional pointers plus the string
+for the property name.</p>
+
+<h4>Saving an object with properties:</h4>
+
+<p><em>save() </em>and <em>open()</em> consider properties to be
+part of the object. Properties are automatically saved/restored
+from disk with the object.</p>
+
+<h4>Available functions/macros:</h4>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>setProp()</em></td>
+        <td>adds a new property. If a property with this name
+        already exists on the object, the value/array is reset.
+        If the type of the property or the time of the array is
+        changed, a warning message is issued.</td>
+    </tr>
+    <tr>
+        <td><em>getProp()</em></td>
+        <td>searches properties within a given object, looking
+        for the given property name, and returns its value/array.</td>
+    </tr>
+    <tr>
+        <td><em>prtProp()</em></td>
+        <td>is a general utility which, for a given property
+        value, label, etc, prints the property in human readable
+        format. This function is different from the other <em>PROPERTY</em>
+        functions in that it belongs in the hyper_class <em>UTILITIES</em>.</td>
+    </tr>
+    <tr>
+        <td><em>&lt;type&gt;_propIterator</em></td>
+        <td>declares and initializes an iterator for an object of
+        the class type.</td>
+    </tr>
+    <tr>
+        <td><em>start()</em></td>
+        <td>restarts a loop on an iterator, which has already
+        been declared.</td>
+    </tr>
+    <tr>
+        <td>next()</td>
+        <td>is an iterator function which moves to the next
+        property on the same object.</td>
+    </tr>
+    <tr>
+        <td>delProp()</td>
+        <td>deletes a property.</td>
+    </tr>
+</table>
+
+<h4>Syntax:</h4>
+
+<p>Note that all methods are associated with the <em>PROPERTY</em>,
+except for<em> prtProp(), </em>which is a part of <em>UTILITIES</em>,
+because it does not depend on property, objects, or anything
+else. It is just a generic printing function.</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>// type is the property type: int, float,
+        char,string<br>
+        class TYPE;<br>
+        ZZ_HYPER_PROPERTY(TYPE);<br>
+        ZZ_HYPER_UTILITIES(util);<br>
+        void TYPE::setProp(char *type,char
+        *propName,char*val[],int size)</em>;</td>
+        <td>adds/resets property with name <em>propName </em>on <em>obj.
+        </em>The value of the property must be in <em>val</em>,
+        whether a single value or an array. <em>size=1</em> for a
+        single value, &gt;1 for an array.</td>
+    </tr>
+    <tr>
+        <td><em>char** TYPE::getProp(char *propName,char
+        **type,int*size)</em>; </td>
+        <td>for a given object and property name, it returns the
+        property value/values (as in array <em>val</em>) and
+        then, through parameters, returns the property <em>type</em>,
+        and the size of the array. <em>size=0</em> means the
+        property was not found. </td>
+    </tr>
+    <tr>
+        <td><em>void TYPE::delProp(char *propName);</em></td>
+        <td>deletes the property with the given name. </td>
+    </tr>
+    <tr>
+        <td><em>void util.prtProp(FILE *fp,char
+        *type,char*propName,char *val[],int size);</em></td>
+        <td>prints the given property as received for example
+        from <em>getProp()</em>. It prints this into file <em>fp </em>in
+        human readable format. </td>
+    </tr>
+    <tr>
+        <td><em>TYPE_propIterator it(obj); // initiates iterator<br>
+        it.start(obj); // restarts the iterator on obj<br>
+        char** it.next(char *propName,char **type,int *size)</em></td>
+        <td>returns the array value (<em>val</em>), and
+        associated attributes, and can be used to loop through
+        all properties on one object. It returns NULL after the
+        last property. For example:<blockquote>
+            <pre><em>// printing all properties on obj
+type_propIterator it(obj);
+while(val=it.next(&amp;propName,&amp;type,&amp;size)){
+util.prtProp(fp,propName,type,val,size);</em></pre>
+        </blockquote>
+        </td>
+    </tr>
+</table>
+
+<h4>Examples:</h4>
+
+<p>Note that the syntax of functions working with <em>PROPERTY</em>
+is quite different in C and C++.</p>
+
+<ol>
+    <li>Look at the test which adds various types of properties
+        to an object of type <em>Apple</em> (<em>test4d.c</em>).
+        This program also issues a warning message when the
+        property type is changed. If you are used to the C
+        version of Organized C, compare this program with its C
+        equivalent in <em>test4b.c</em>.</li>
+    <li>Another C example is the NIAL-like language in <em>test12a.c</em>
+        which works with objects organized in a tree. Each object
+        can have an atom - which is a single value/array-like
+        attribute. In <em>test12a.c </em>atoms are implemented as<em>
+        PROPERTY</em>. Sorry, this example is not yet available
+        in C++.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch13MemM.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        13: Memory Management</a></td>
+        <td align="right" width="50%"><a href="ch14Prpb.htm">Next
+        Section 14.2 Run Time Type Detection <img
+        src="images/next.gif" border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,32 @@
+cp env3sb.h environ.h
+../zzprep pager.hpp pager.k zzmaster pager.g
+cp env1sb.h environ.h
+rm *.o;\
+rm zzclib.a;\
+cp pager.cc temp.c;\
+CC -c -I/home/sd3/tools/CenterLine/c++_1.1.0-r1.0/sun4-40/include\
+ temp.c\
+ util.c\
+ bind.c\
+ blast.c\
+ msgs.c\
+ time.c\
+ property.c\
+ sweap.c\
+ sortring.c\
+ array.c\
+ ;
+ar cr zzclib.a\
+ temp.o\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ blast.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+ranlib zzclib.a;
+echo make zzclib.a done

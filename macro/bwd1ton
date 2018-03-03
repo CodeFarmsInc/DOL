@@ -1,0 +1,42 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *targ; /* given target entity */
+ strType *rel;  /* relation to be returned */
+.)l
+Description:
+ For a given target entity, return the relation of the 1_TO_N entity.
+.sp
+Advice: Use the generic ZZ_BACKWARD(), it makes the code simpler.
+.(l
+Example of the use:
+   typedef struct Class Class;
+   typedef struct Student Student;
+   typedef struct InClass InClass;
+   struct Class {
+       ZZ_EXT_Class
+       int id;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InClass {
+       ZZ_EXT_InClass
+   };
+   ZZ_ORG_1_TO_N(students,Class,InClass,Student)
+   ....
+   Student *s;
+   Class *c;
+   InClass *i;
+   ...
+   ZZ_BACKWARD(students,s,i);
+   ZZ_SOURCE(students,i,c);
+   printf("student=%s belongs into class=%d\n",s->name,c->id);
+.)l
+  ========================================================== */ 
+#define ZZ_BACKWARD_1_TO_N(id,targ,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_BACKWARD_1_TO_N(ZZFP(ZZb,id),targ,rel)
+
+#define ZZZ_BACKWARD_1_TO_N(nxt,targ,rel) {(rel)=(targ)->nxt;}

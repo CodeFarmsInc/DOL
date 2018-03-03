@@ -1,0 +1,151 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the hash table */
+ str1Type *obj1; /* object on which the hash table lives */
+ str2Type *obj2; /* object to add to the table */
+ int sameKey;    /* =1 allows several entries with the same key,
+		    =0 when each entry must have a different key */
+ int status;     /* returns 1 when entries must have different keys,
+		    and the key for obj2 key is already in the table */
+.)l
+Description:
+ ZZ_ADD_HASH() is the basic command that adds an object to the hash
+table without applying any special controls. ZZ_ADD2_HASH() allows
+some additional fine tuning when working with hash tables for complex,
+performance sensitive applications.
+
+ (1) You can control whether each entry in the hash table must
+have a different key, or whether several objects with the same key
+are acceptable. Permitting several objects with the same key is
+much faster, because a relatively expensive internal loop which does
+the checking is not used.
+ (2) When keys must be unique, ZZ_ADD2_HASH() returns the status
+which tells you whether the new entry was accepted or rejected
+because the same key is already in the table.
+.sp
+No allocation is needed to add an object to the table.
+.sp
+Warning: Generic ZZ_ADD() cannot be used.
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee *ep1,*ep2;
+ int stat;
+
+ ZZ_FORM_HASH(byName,&h,200)
+  ....
+ ZZ_ADD2_HASH(byName,&h,ep1,0,stat)
+ if(stat)printf("this key is already in the table\n");
+.)l
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZ_ADD2_HASH(id,obj1,obj2,sameKey,status) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD2_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2,sameKey,status)
+
+#define ZZZ_ADD2_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2,sameKey,status) \
+{ int ZZi,indF(),cmpF(); char **ZZs; type2 *ZZp,*ZZt;\
+  status=0; \
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)obj2,(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      if(sameKey)ZZt=NULL; \
+      else { \
+          for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+            if(!cmpF((char *)ZZt,(char *)obj2))break;\
+            if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+          }\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+      else status=1; \
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));};\
+}
+#endif
+
+#ifdef ZZ_ANSI
+#ifndef ZZcplus
+#define ZZ_ADD2_HASH(id,obj1,obj2,sameKey,status) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD2_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2,sameKey,status)
+
+#define ZZZ_ADD2_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2,sameKey,status) \
+{ int ZZi,indF(char *p,int s),cmpF(char *p1,char *p2);\
+  char **ZZs; type2 *ZZp,*ZZt;\
+  status=0; \
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)(obj2),(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      if(sameKey)ZZt=NULL; \
+      else { \
+          for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+            if(!cmpF((char *)ZZt,(char *)(obj2)))break;\
+            if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+          }\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+      else status=1; \
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));};\
+}
+#endif
+#endif
+
+#ifdef ZZcplus
+#define ZZ_ADD2_HASH(id,obj1,obj2,sameKey,status) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD2_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2,sameKey,status)
+
+#define ZZZ_ADD2_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2,sameKey,status) \
+{ ZZint ZZi;\
+  char **ZZs; type2 *ZZp,*ZZt;\
+  status=0; \
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)(obj2),(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      if(sameKey)ZZt=NULL; \
+      else { \
+          for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+            if(!cmpF((char *)ZZt,(char *)(obj2)))break;\
+            if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+          }\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+      else status=1; \
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));};\
+}
+#endif

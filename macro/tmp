@@ -1,0 +1,17 @@
+ZZZ_FORM_HASH(id,ZZFP(ZZa,id),ZZFT(X2,id),obj,hSize)
+
+#define ZZZ_FORM_HASH(id,aPtr,objType,obj,hSize) \
+{ ZZarray *ZZFUN_foArr(); char **ZZp; ZZint ZZi; static ZZFT(2,id)* sample=NULL;\
+    if(!sample)sample=new ZZFT(2,id);\
+    if((obj)->aPtr){\
+        ZZmsgS(26,ZZ_STRINGIT(id));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else (obj)->aPtr=ZZfoArr(hSize,0,(int)sizeof(char *),-5,\
+                              objType,ZZstrList,(char*)sample);\
+    if((obj)->aPtr){\
+        (obj)->aPtr->waterM=(obj)->aPtr->num;\
+        for(ZZi=0,ZZp=(char**)((obj)->aPtr->array);ZZi<(hSize);ZZi++,ZZp++)\
+                   *ZZp=NULL;\
+    }\
+}

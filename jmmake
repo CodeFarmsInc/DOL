@@ -1,0 +1,39 @@
+set MyToolLibs "{CLibraries}StdCLib.o {Libraries}Stubs.o {Libraries}Runtime.o
+{Libraries}Interface.o"
+
+echo "Compiling msgs.c, time.c, & util.c ..."
+duplicate -y :lib:env0m.h environ.h
+directory :lib
+duplicate -y env0m.h environ.h
+C -sym off -s msgs msgs.c
+C -sym off -s time time.c
+C -sym off -s util util.c
+directory ::
+
+echo "Building zzprep..."
+C -sym off -s zzprep zzprep.c
+C -sym off -s zzutil zzutil.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzprep zzprep.c.o zzutil.c.o :lib:util.c.o
+:lib:msgs.c.o :lib:time.c.o {MyToolLibs}
+              
+echo "Building zzcomb..."
+C -sym off -s zzcomb zzcomb.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzcomb zzcomb.c.o zzutil.c.o :lib:util.c.o
+:lib:msgs.c.o :lib:time.c.o {MyToolLibs}
+              
+echo "Building zzhelp..."
+C -sym off -s zzhelp zzhelp.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzhelp zzhelp.c.o zzutil.c.o :lib:util.c.o
+:lib:msgs.c.o {MyToolLibs}
+              
+echo "Building zzsplit..."
+C -sym off -s zzsplit zzsplit.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzsplit zzsplit.c.o {MyToolLibs}
+              
+echo "Building zzroff..."
+C -sym off -s zzroff zzroff.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzroff zzroff.c.o {MyToolLibs}
+
+zzcomb
+              
+echo "jmmake done."

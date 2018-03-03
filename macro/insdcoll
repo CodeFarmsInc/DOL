@@ -1,0 +1,58 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *chi; /* given child, already in the collection */
+ strType *new;   /* new item to be inserted before the child */
+.)l
+Description:
+ Insert the new element to the collection before the child
+.i "chi."
+
+Error conditions:
+ Inserting an element into an empty collection (chi==NULL) will cause
+an error message and the error flag to be raised.
+.(l
+Example:
+
+typedef struct Col Col;
+typedef struct Employee Employee;
+struct Col {
+    ZZ_EXT_Col
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_DOUBLE_RING(myCol,Col,Employee)
+
+Col *c;
+Employee *tail,*pp,arr[20];
+int i;
+
+c=new Col;
+tail=new Employee;
+tail=myCol.add(c,tail);
+
+for(i=0,pp=arr;i<20;i++,pp++) ZZ_INSERT_DOUBLE_COLLECT(myCol,c,pp)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_INSERT_DOUBLE_COLLECT(id,chi,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_INSERT_DOUBLE_COLLECT(id,ZZFP(ZZf,id),ZZFP(ZZb,id),chi,pp)
+
+#define ZZZ_INSERT_DOUBLE_COLLECT(id,fwp,bwp,chi,pp) \
+{\
+    if((pp)->fwp){\
+        ZZmsgSS(24,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(!chi){\
+        ZZmsgS(44,ZZ_STRINGIT(id));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {(chi)->bwp->fwp=(pp);  (pp)->fwp=(chi);\
+              (pp)->bwp=(chi)->bwp; (chi)->bwp=(pp);}\
+}

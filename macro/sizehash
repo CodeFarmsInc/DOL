@@ -1,0 +1,55 @@
+/* =========================================================
+.(l
+ TEXT id;       /* hash table id */
+ str1Type *obj; /* object on which the hash table is */
+ int hSize;      /* size of the hash table */
+ int hNum;       /* number of objects loaded in */
+.)l
+Description:
+ Returns the size of the hash table, and the number of objects
+currently loaded.
+.sp
+This command is important for two things:
+ - If you want to monitor the loading of the table you may,
+at certain point, decide to switch to a larger table by calling
+ZZ_RESIZE_HASH().
+ - If you know the size of table, you can access individual slots
+by ZZ_SLOT_HASH(), and then traverse all objects in them by 
+ZZ_A_TRAVERSE_HASH(). This can be used either to access
+all the objects presently in the table, or for the evaluation
+of the loading (distribution of objects in individual slots).
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee e1,e2;
+ int size,num;
+
+ ZZ_FORM_HASH(byName,&h,200) /* hash table with 200 slots */
+ ZZ_ADD_HASH(byName,h,e1)
+ ZZ_ADD_HASH(byName,h,e2)
+ ZZ_SIZE_HASH(byName,h,size,num)
+ /* returns size=200, num=2 */
+.)l
+  ========================================================== */ 
+#define ZZ_SIZE_HASH(id,obj,hSize,hNum) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SIZE_HASH(ZZFP(ZZa,id),obj,hSize,hNum) 
+
+#define ZZZ_SIZE_HASH(aPtr,obj,hSize,hNum) \
+{ZZarray *ZZa; \
+    ZZa=(obj)->aPtr; \
+    if(ZZa){(hSize)=ZZa->num; (hNum)=ZZa->incr;}\
+    else {(hSize)=0;      (hNum)=0;}\
+}

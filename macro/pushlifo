@@ -1,0 +1,48 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry; /* entry into the stack, NULL when new stack */
+ strType *pp;    /* object to push into the stack */
+.)l
+Description:
+ This macro pushes the new object into the stack.
+ If the object is already on the stack, it does does nothing.
+.sp
+Before you start to use the stack, initialize entry=NULL, 
+then do not touch entry at all. The values entry will resume
+within the use of the stack will be meaningless to you.
+.(l
+Example:
+typedef struct Object Object;
+struct Object {
+    ZZ_EXT_Object
+    int code;
+};
+ZZ_ORG_LIFO(objStack,Object)
+Object *a,*b,*c,*d,*r,*start;
+  ....
+start=NULL; /* don't touch this variable */
+ZZ_PUSH_LIFO(objStack,start,a)   
+ZZ_PUSH_LIFO(objStack,start,b)  
+ZZ_PUSH_LIFO(objStack,start,c) 
+ZZ_POP_LIFO(objStack,start,r) /* returns r=c */
+ZZ_PUSH_LIFO(objStack,start,d)    
+ZZ_POP_LIFO(objStack,start,r) /* returns r=d */
+ZZ_POP_LIFO(objStack,start,r) /* returns r=b */
+ZZ_POP_LIFO(objStack,start,r) /* returns r=a */
+ZZ_POP_LIFO(objStack,start,r) /* returns r=NULL */
+.)l
+See also: ZZ_ORG_LIFO(), ZZ_POP_LIFO().
+.sp 1
+  ========================================================== */ 
+#define ZZ_PUSH_LIFO(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_PUSH_LIFO(ZZFP(ZZf,id),entry,pp)
+
+#define ZZZ_PUSH_LIFO(fwp,entry,pp) \
+{\
+    if((pp) && (pp)->fwp==NULL){\
+        if(entry){(pp)->fwp=(entry)->fwp; (entry)->fwp=(pp);}\
+        else {(pp)->fwp=(pp); (entry)=(pp);}\
+    }\
+}

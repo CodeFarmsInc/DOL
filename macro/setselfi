@@ -1,0 +1,48 @@
+/* =========================================================
+.(l
+ char* sType;            /* selfID to be set */
+ strType *ptr;   /* array of objects to mark with selfID mark */
+ int num;               /* number of objects */
+.)l
+Description:
+ Sets the self-identification mark on one object or on an array of objects.
+.sp
+Since the allocators set the selfID mark automatically,
+this macro shold be used more as an exception rather than a rule,
+primarily for automatically allocated objects such as a or ap[] below:
+.sp
+Due to the special character of this command, ZZ_SET_SELF_ID() does not
+have an encapsulated equivalent in C++, as for example ZZ_GET_SELF_ID() has.
+In both C and C++, ZZ_SET_SELF_ID() must be used in this basic form.
+.sp
+.(l
+Example 1:
+
+typedef struct Apple Appple;
+struct Apple {
+    ZZ_EXT_Apple
+    char color;
+    int numSeeds;
+};
+Apple a,ap[40];
+int i;
+
+ZZ_SET_SELF_ID("Apple",&a,1)
+ZZ_SET_SELF_ID("Apple",ap,40)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SET_SELF_ID(strType,ptr,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+ZZint ZZi,ZZk;\
+    for(ZZi=0;ZZi<ZZnID;ZZi++){\
+	if(!strcmp(ZZselfArr[ZZi],strType))break;\
+    }\
+    if(ZZi>=ZZnID){\
+        ZZmsgS(22,strType);\
+        ZZerrFLG=ZZerrFLG|040;\
+    }\
+    else for(ZZk=0;ZZk<num;ZZk++)(ptr)[ZZk].ZZselfID= (char*)(&(ZZselfArr[ZZi]));\
+}

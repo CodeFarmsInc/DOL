@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ TEXT id;   /* instance name (OrgC id) */
+ TEXT type; /* class of the object to be in the FIFO queue */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for the FIFO 
+(first-in first-out) queue, made from objects class 'type'.
+This is the C++ equivalent of ZZ_ORG_FIFO().
+.sp
+The organization is implemented as a single-linked ring and
+uses one pointer per object. Both the PUSH and POP operation
+on this organization are very fast.
+.sp
+.(l
+Example:
+class Object {
+    ZZ_EXT_Object
+public:
+    int code;
+};
+ZZ_HYPER_FIFO(myStack,Object)
+Object *a,*b,*c,*d,*r;
+  ....
+myStack.push(a)   
+myStack.push(b)  
+myStack.push(c) 
+r=myStack.pop() // returns r=a
+myStack.push(d)    
+r=myStack.pop() // returns r=b
+r=myStack.pop() // returns r=c
+r=myStack.pop() // returns r=d
+r=myStack.pop() // returns r=NULL
+
+// The following loop gradually empties the stack
+while(r=myStack.pop()){
+    ....
+}
+.)l
+.sp 1
+ For local scope use ZZ_LOCAL_FIFO(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.sp 1
+  ========================================================== */ 
+#define ZZ_HYPER_FIFO(id,type)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_FIFO(id,type,ZZ_EXTERN,id) 
+
+#define ZZ_LOCAL_FIFO(id,type,where)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_FIFO(id,type,static,where :: id) 
+
+#define ZZ_BASIC_FIFO(id,type,scope,where)  \
+class ZZFP(ZZH,id) { \
+    type *start;\
+public: \
+    void push(type *p);\
+    type * pop(void);\
+    ZZFP(ZZH,id)(){start=NULL;} \
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: push(ZZ1$ *p){ZZ_PUSH_FIFO($,start,p);}
+ZZ1$* ZZV$ ZZH$ :: pop(void){ZZ1$ *p; ZZ_POP_FIFO($,start,p); return(p);}

@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;          /* organization id */
+ strType2 *rel;    /* relation to be deleted */
+.)l
+Description:
+ Delete the given M_TO_N relation. Exactly like ZZ_DELETE_RELATION_M_TO_N(),
+except that a compiled function is being used.
+.sp 1
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZF_DELETE_RELATION_M_TO_N(id,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+{void ZZFP(ZZF_DELETE_RELATION_M_TO_N,id)();\
+    ZZFP(ZZF_DELETE_RELATION_M_TO_N,id)(rel);}
+#endif
+#ifdef ZZ_ANSI
+#define ZZF_DELETE_RELATION_M_TO_N(id,rel) \
+{void ZZFP(ZZF_DELETE_RELATION_M_TO_N,id)(ZZFT(2,id) *r);\
+    ZZFP(ZZF_DELETE_RELATION_M_TO_N,id)(rel);}
+#endif
+
+/* _________________________________________________________ */
+#ifdef ZZ_ANSI
+void ZZF_DELETE_RELATION_M_TO_N$(ZZ2$ *rel)
+#else
+void ZZF_DELETE_RELATION_M_TO_N$(rel)
+ZZ2$ *rel;
+#endif
+{
+    if(rel){
+        if(rel->ZZx$ && rel->ZZy$ && rel->ZZr$ && rel->ZZs$){
+	    if(rel->ZZr$==rel)(rel->ZZx$->ZZf$)=NULL;
+	    else {
+	        if(rel==(rel->ZZx$->ZZf$))(rel->ZZx$->ZZf$)=rel->ZZv$;
+	        rel->ZZv$->ZZr$=rel->ZZr$;
+	        rel->ZZr$->ZZv$=rel->ZZv$;
+	    }
+	    rel->ZZr$=rel->ZZv$=NULL; rel->ZZx$=NULL;
+	    if(rel->ZZs$==rel)rel->ZZy$->ZZb$=NULL;
+	    else {
+	        if(rel==(rel->ZZy$->ZZb$))rel->ZZy$->ZZb$=rel->ZZw$;
+	        rel->ZZw$->ZZs$=rel->ZZs$;
+	        rel->ZZs$->ZZw$=rel->ZZw$;
+	    }
+	    rel->ZZs$=rel->ZZw$=NULL; rel->ZZy$=NULL;
+	}
+    }
+}

@@ -1,0 +1,83 @@
+0 #define DOS
+0 #define MICROSOFT8
+0 #define LARGE_POINTER
+0 #define ZZansi
+0 #define ZZcplus
+0 #define ZZ_INHERIT
+0 #define NT
+1 #include "environ.h"
+2 #include "types.h"
+4 #ifdef __VMS
+5 #include <unixio.h>
+6 #include <types.h>
+7 #include <stat.h>
+8 #include <file.h>
+9 #endif
+11 #define zzLIB
+12 #include <stdio.h>
+13 #include <stdlib.h>
+14 #define ZZlocal
+15 #include "pager.k"
+17 #ifdef TURBOC
+18 #include <sys\stat.h>
+19 #include <fcntl.h>
+20 #include <io.h>
+21 #endif
+23 #ifdef MICROSOFT
+24 #include <fcntl.h>
+25 #include <sys\types.h>
+26 #include <sys\stat.h>
+27 #include <io.h>
+28 #endif
+30 #ifdef UNIX
+31 #include <fcntl.h>
+32 #ifndef MAC
+33 #include <sys/stat.h>
+34 #include <sys/types.h>
+35 #endif
+36 #ifdef SUN
+37 #ifdef UPP
+38 #include <io.h>
+39 #else
+40 #ifndef MAC
+41 #include <sys/uio.h>
+42 #endif
+43 #endif
+44 #endif
+45 #endif
+46 #ifdef HP
+47 #include <unistd.h>
+48 #endif
+50 #ifdef SABERCPLUS
+51 #include <sysent.h>
+52 #endif
+55 class zzHead {
+56     ZZ_EXT_zzHead
+57 public:
+58     zzHead ();
+59     ~zzHead ();
+60     ZZint numPages;  
+61     ZZint pageSize;  
+62     ZZlong fileFill; 
+63     ZZint buffFill;  
+64     ZZint buffSize;  
+65     char *mb;      
+66     ZZint handle;    
+67     char *ini;     
+68     ZZlong hwm;    
+69 };
+70 static zzHead *hStart=NULL;
+72 class Page {
+73     ZZ_EXT_Page
+74 public:
+75     Page();
+76     ~Page();
+77     ZZint pageNo;
+78     char *where;
+79     ZZint dirty;
+80 };
+82 ZZ_HYPER_DOUBLE_RING(zz_heads,zzHead); 
+83 ZZ_HYPER_HASH(zz_pageHash,zzHead,Page); 
+84 ZZ_HYPER_DOUBLE_COLLECT(zz_pages,zzHead,Page); 
+85 ZZ_HYPER_NAME(zz_fileName,zzHead); 
+86 ZZ_HYPER_UTILITIES(zz_util);

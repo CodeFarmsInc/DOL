@@ -1,0 +1,5 @@
+echo "test60d"
+../zzprep test60d.c
+g++ test60d.c ../lib/zzglib.a
+./a.out > res60d
+./diff res60d out60

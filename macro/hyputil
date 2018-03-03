@@ -1,0 +1,97 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance the UTILITIES class */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for UTILITIES, which
+contains general utilities such as ZZ_STRING_ALLOC(), ZZ_OPEN(),
+or ZZ_SAVE().
+ Utilities have always global scope.
+.pp
+Example of the use:
+.(l
+ZZ_HYPER_UTILITIES(util);
+ZZ_HYPER_NAME(eName,Employee);
+
+class Employee {
+    ZZ_EXT_Employee
+    char *name;
+    long int salary;
+public:
+    void setName(char *n){n=new char[strlen(n)+1]; strcpy(name,n);}
+    char *getName(){return(name);}
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+
+Employee *ep;
+char *nn,*name={"abc"};
+
+ep=new Employee;   // create a new Employee object
+nn=util.str(name); // allocates a new copy of 'name'
+eName.add(ep,nn);  // adds the name to the Employee
+.)l
+Special features:
+ ok() resets the error flag to "no error".
+ guess(g) provides the initial guess for the number of objects
+  involved in the sweep operation (i.e. in every save operation).
+  The default is g=0, which uses internal count of all allocated objects.
+  When calling guess(g), g remains stored permanently until explicitely
+  reset by another call to guess(). Revert to internal count
+  by calling guess(0).
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_UTILITIES(id)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+class ZZFP(ZZH,id) { \
+public: \
+    char * strAlloc(const char *s){char *p; ZZ_STRING_ALLOC(s,p); return(p);}\
+    char * strAlloc(ZZint sz);\
+    void strFree(char *p){ZZ_STRING_FREE(p);}\
+    ZZint error(void){return(ZZerror);}\
+    void ok(void){ZZerror=0;}\
+    void guess(long g){ZZbestGuess=(ZZsigIntType)g;}\
+    void save(const char *file,ZZint n,void **v, char **t){save(file,n,(char**)v,t);}\
+    void save(const char *file,ZZint n,char **v, char **t);\
+    void deep(const char *file,void *v, char *t);\
+    void open(const char *file,ZZint n,void **v, char **t){open(file,n,(char**)v,t);}\
+    void open(const char *file,ZZint n,char **v, char **t);\
+    void clear(ZZint n,void **v, char **t){clear(n,(char**)v,t);}\
+    void clear(ZZint n,char **v, char **t);\
+    ZZint swpSet(ZZint n,char **v, char **t){ZZ_SWEEP_SET(n,v,t);}\
+    void swpFun(ZZTswpFun myFun,const char *par){ZZ_SWEEP_FUNCTION(myFun,par);}\
+    void swpFree(void){ZZ_SWEEP_FREE;}\
+    void keepTbl(void){ZZ_KEEP_TABLES();}\
+    void freeTbl(void){ZZ_FREE_TABLES();}\
+    void debug(void *p,char *tp){ZZ_DEB_PRT(p,tp);}\
+    void blkAlloc(unsigned ZZint memLim,ZZint bits){ZZ_BLOCK_ALLOC(memLim,bits);}\
+    void blkActive(char *blkName,ZZint act){ZZ_BLOCK_ACTIVE(blkName,act);}\
+    char *blkUtil(char *blkName,void **hook,ZZint mode){char *name; void *hk;\
+    hk=(*hook); ZZ_BLOCK_UTIL(blkName,hk,mode,name); *hook=hk; return(name);}\
+    void blkFree(ZZint m);\
+    void objClear(void){ZZ_OBJECT_CLEAR();}\
+    void mode(ZZint i,ZZint j,ZZint k,ZZint m){ZZ_MODE_SAVE(i,j,k,m);}\
+    char *type(ZZint i){char *p; ZZ_TYPE_NAME(i,p); return(p);}\
+    void close(const char *fileName){ZZ_CLOSE_BIND(fileName);}\
+    char *getID(char *p);\
+    char *bind(char *p){char *s; ZZ_BIND_POINTER(p,s); return(s);}\
+    void prtProp(FILE *fp,char *tp,char *label,char *val,ZZint num){\
+                                 ZZ_PRINT_PROPERTY(fp,tp,label,val,num);} \
+    ZZint getNumObjects(){return ZZnumObjects;}\
+};\
+ZZ_EXTERN ZZFP(ZZH,id) id; 
+/* _______________________________________________________________________ */
+void ZZH$ :: save(const char *file,ZZint n,char **v, char **t){
+                                            ZZ_SAVE(file,n,v,t);}
+void ZZH$ :: deep(const char *file,void *v, char *t){ZZ_DEEP(file,v,t);}
+void ZZH$ :: open(const char *file,ZZint n,char **v, char **t){
+                                            ZZ_OPEN(file,n,v,t);}
+void ZZH$ :: clear(ZZint n,char **v, char **t){ZZ_CLEAR(n,v,t);}
+char* ZZH$ :: getID(char *p){char *n;ZZ_GET_SELF_ID(p,n);return(n);}
+void ZZH$ :: blkFree(ZZint m){ZZ_BLOCK_FREE(m);}
+char* ZZH$ :: strAlloc(ZZint sz){
+    void *ZZFUN_galloc();
+    char* p=(char*)ZZgalloc(sz);
+    if(!p) {ZZmsgS(7,"ZZ_STRING_ALLOC()"); ZZerrFLG=ZZerrFLG|01;}
+    return p;
+}

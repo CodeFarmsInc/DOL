@@ -1,0 +1,88 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType1 *source; /* source entity */
+ strType2 *rel;    /* relation to add */
+ strType3 *target; /* target entity */
+.)l
+Description:
+ Add the new M_TO_1 relation between two entities.
+.sp
+The relation must be disconnected. If a relation to the source entity
+already exists, no action is taken, an error message is issued,
+and the error flag is set.
+.sp
+Source and target (in fact even the relation) can have the same type.
+.sp
+Advice: Use generic ZZ_ADD_RELATION(), it simplifies the code.
+.sp
+Warning: If this macro causes problems on Microsoft software, use
+compiled version ZZF_ADD_RELATION().
+.(l
+Example:
+   typedef struct River River;
+   typedef struct Ocean Ocean;
+   typedef struct FlowsInto FlowsInto;
+   struct River {
+       ZZ_EXT_River
+       int length;
+       char *name;
+   };
+   struct Ocean {
+       ZZ_EXT_Ocean
+       char *name;
+   };
+   struct FlowsInto {
+       ZZ_EXT_FlowsInto
+       char *mouth;
+   };
+   ZZ_ORG_M_TO_1(intoOcean,River,FlowsInto,Ocean)
+   ....
+   River *r;
+   Ocean *o;
+   FlowsInto *f;
+   ....
+   ZZ_PLAIN_ALLOC(FlowsInto,1,f);
+   ZZ_ADD_RELATION(intoOcean,r,f,o);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_RELATION_M_TO_1(id,source,rel,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_RELATION_M_TO_1(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZx,id),ZZFP(ZZy,id), \
+ZZFP(ZZb,id),ZZFP(ZZs,id),ZZFP(ZZr,id),source,rel,target)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_RELATION_M_TO_1(id,type2,fwd,src,trg,bwd,sib,ret,source,rel,target)\
+{type2 *ZZe;\
+        ZZe=(target)->bwd;\
+        (source)->fwd=(rel);\
+        if((target)->bwd){\
+            ZZe->sib->ret=(rel); (rel)->ret=ZZe;\
+            (rel)->sib=ZZe->sib; ZZe->sib=(rel);\
+        }\
+        else {((target)->bwd)=(rel)->sib=(rel)->ret=(rel);}\
+        (rel)->src=(source); (rel)->trg=(target);\
+}
+#else
+#define ZZZ_ADD_RELATION_M_TO_1(id,type2,fwd,src,trg,bwd,sib,ret,source,rel,target)\
+{type2 *ZZe;\
+    if((rel)->src || (rel)->trg || (rel)->sib){\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if((source)->fwd){\
+        ZZmsgSS(18,ZZ_STRINGIT(id),(char *)(rel));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        ZZe=(target)->bwd;\
+        (source)->fwd=(rel);\
+        if((target)->bwd){\
+            ZZe->sib->ret=(rel); (rel)->ret=ZZe;\
+            (rel)->sib=ZZe->sib; ZZe->sib=(rel);\
+        }\
+        else {((target)->bwd)=(rel)->sib=(rel)->ret=(rel);}\
+        (rel)->src=(source); (rel)->trg=(target);\
+    }\
+}
+#endif

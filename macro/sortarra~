@@ -1,0 +1,82 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id of the array */
+ int sortFun();        /* function that controls the sort */ 
+ str1Type *obj; /* object on which the array is */
+.)l
+Description:
+ Sorts the array using the given function to compare objects.
+.sp
+Internal stored high water mark is used as the size of the array.
+The macro uses UNIX qsort().
+Generic ZZ_SORT can be used.
+.sp
+If you want to sort only a section of the array, or smaller part
+than given in the water mark, you have access to the array directly
+(see ZZ_FORM_ARRAY).
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example:
+
+typedef struct Branch Branch;
+typedef struct Employee Employee;
+struct Branch {
+    ZZ_EXT_Header
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_ARRAY(inBranch,Branch,Employee)
+ZZ_ORG_SINGLE_RING(company,Branch)
+Branch *b,*bs;
+int salarySort();
+
+ ....
+/* sort employees of each branch by salary */
+ZZ_A_TRAVERSE(company,bs,b)
+    ZZ_SORT_ARRAY(inBranch,salarySort,b);
+ZZ_A_END
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SORT_ARRAY(id,sortFun,obj) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SORT_ARRAY(id,ZZFP(ZZa,id),ZZFT(2,id),sortFun,obj) 
+
+#ifdef GNUPLUS
+extern "C" {
+    QSORT_TYPE qsort(void *,unsigned int,unsigned int,
+                                 int(*)(const void *, const void *));
+} 
+#endif
+
+#define ZZZ_SORT_ARRAY(id,aPtr,str2Type,sortFun,obj) \
+{ ZZarray *ZZa; ZZFUN_QSORT \
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+      if(ZZa->waterM>0)\
+            qsort(ZZa->array,ZZa->waterM+1,(ZZint)sizeof(str2Type),(int)((ZZTsortExt)sortFun));\
+    }\
+    else {\
+      ZZerrFLG=04;\
+      ZZmsgS(24,ZZ_STRINGIT(id));\
+    }\
+}
+

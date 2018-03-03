@@ -1,0 +1,39 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the array */
+ str1Type *obj;  /* object on which the array is */
+ int ind;               /* given index */
+ str2Type *elem; /* returned pointer into the array */
+ void (*heapBck)(void *p1,int i); /* callback function from the heap */
+.)l
+Description:
+ This is an equivalent of ZZ_INDEX_ARRAY, but calling the heap
+callback function. Normally, this macro is used only internally,
+and is needed when reallocating heaps automatically.
+  ========================================================== */ 
+#define ZZ_INDEX_HEAP(id,obj,ind,elem,bck) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_INDEX_HEAP(id,ZZFT(2,id),ZZFP(ZZa,id),obj,ind,elem,bck)
+
+#define ZZZ_INDEX_HEAP(id,str2Type,aPtr,obj,ind,elem,bck) \
+{ZZint ZZi,ZZk,ZZFUN_upArr(); \
+ ZZarray *ZZa; static str2Type *sample=NULL;\
+    if(!sample)sample=new str2Type;\
+    ZZa=(obj)->aPtr;\
+    ZZk=ZZupArr(ZZa,ind,(char*)sample);\
+    if(ZZk>0){\
+        ZZmsgSS(12,ZZ_STRINGIT(id),ZZ_STRINGIT(str2Type));\
+        (elem)=NULL;\
+    }\
+    else {\
+        ZZi=(ind);\
+        if(ZZa->waterM<ZZi)ZZa->waterM=ZZi;\
+        if(ZZk<0){\
+            for(ZZk=0;ZZk<ZZi;ZZk++){\
+                (elem)=(str2Type *)(&(ZZa->array[ZZk*(ZZa->size)]));\
+                if(bck)bck((void*)(elem),ZZk);\
+            }\
+        }\
+        (elem)=(str2Type *)(&(ZZa->array[ZZi*(ZZa->size)]));\
+    }\
+}

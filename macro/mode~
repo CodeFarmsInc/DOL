@@ -1,0 +1,120 @@
+/* =========================================================
+.(l
+ int ascii;  /* 0=binary, 1=ASCII format, 2=memory blasting */
+ int diskIO; /* 0=direct, 1=buffered disk IO, 2=user controlled IO */
+ int version;/* 0=current version, 164=ver.1.64, 200 version 2.0, etc */
+ int cntrl; /*0=automatically open/closed file, 1=outside control,
+              2=do not close output file after SAVE */
+.)l
+Description:
+ Turns on/off internal flags which control allocation and the style of saving to disk.
+.sp
+What happens:
+Ifyou use util.mode()  BEFORE   util.blkAllc() which invokes allocation
+in memory pages, whatever mode() was before is discarded and the io is set
+to memory blasting. 
+.(l
+Example of switching between blasting and ascii:
+#define ZZascii
+#define ZZZmain
+#include "zzincl.h"
+#include <stdio.h>
+main() {
+  ....
+    util.mode(0,0,0,0);
+    util.blkAlloc(20000000,8); // both allocation and saving in mem.blasting
+    ...
+    util.mode(1,0,0,0); // ASCII mode to save it
+Next run:
+    util.blkAlloc(20000000,8); // allocation as for mem.blasting
+    util.mode(1,0,0,0);        // ASCII open/save
+    util.open(...); 
+    ...
+    util.mode(2,0,0,0); // mem. blasting save/open
+    util.save(...); 
+.sp
+If mode() is called after util.blkAlloc(), allocation in pages remains, but
+the style of saving to disk is determined by the first parameter in mode(...),
+and it can change several times
+.sp
+A call to util.mode() also allows to read data saved under old versions of OrgC.
+.sp
+Important:
+ If the ASCII format is being used at all, the ZZascii define must
+be present. 
+.sp
+The normal control mode is cntrl=0. Outside control (cntrl=1 or cntrl=2) is 
+for advanced use, and for special applications only. 
+If you want to close/open the file yourself, select cntrl=1. This option
+allows you, for example, to write a label at the beginning of the file,
+or to combine OrgC disk data with other information. It is your responsibility,
+however, that the disk will be positioned at exactly the same place
+when calling SAVE/OPEN (it must be at the beginning or the OrgC data).
+ cntrl=2 is exactly as contrl=0, except that the output file
+is not closed after saving, and several calls to util.save()
+can be used one after another. When all the data is saved,
+you have to call ZZ_CLOSE_BIND() to close the file.
+.sp
+Another example, switching between binary and ascii:
+.(l
+#define ZZascii
+#define ZZZmain
+#include "zzincl.h"
+#include <stdio.h>
+main() {
+  ....
+/* any SAVE/OPEN here uses ASCII format */
+  ....
+ZZ_MODE_SAVE(0,1,0,0);
+  ....
+/* any SAVE/OPEN here uses binary format */
+  ....
+ZZ_MODE_SAVE(1,1,0,0);
+  ....
+/* any SAVE/OPEN here uses ASCII format */
+  ....
+.)l
+.sp
+When selecting the user-controlled IO (diskIO=2), you replace
+the IO operation for the binary save/open operations:
+open(),close(),read(), and write(), by calling function ZZinstallUserIO(),
+ with pointers to your own functions that customize the IO.
+.sp
+Example:
+.(l
+  .....
+  FILE *myOpen(char *fileName,char *mode){ ..... }
+  int   myRead(FILE *fp,char *buff,int n){ ..... }
+  int   myWrite(FILE *fp,char *buff,int n){ ..... }
+  int   myClose(FILE *fp){ ..... }
+
+  .....
+  ZZinstallUserIO(myOpen,myRead,myWrite,myClose);
+  ZZ_MODE_SAVE(0,2,0,0); // use util.mode(0,2,0,0); in C++
+.)l
+If you forget to call ZZinstallUserIO() prior to ZZ_MODE_SAVE(),
+the library will detect the error and print an error message.
+The default functions will not be replaced by your functions.
+.sp
+Note that you must supply both open/close or read/write, never
+just one of the pair. If you suply NULL for some functions,
+the system default will be used.
+.sp
+  ========================================================== */ 
+
+#define ZZ_MODE_SAVE(ascii,diskIO,version,cntrl) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZv;\
+ ZZbindASCII=(ascii);ZZdiskIO=(diskIO);ZZv=(version);ZZbindCntrl=(cntrl);\
+ if(ascii<2)ZZioSwitch=0; else ZZioSwitch=1; \
+ if((ZZdiskIO)==2){\
+    if(!((ZZuserOpen && ZZuserClose) || (ZZuserRead && ZZuserWrite))){\
+        ZZmsg(65);\
+    }\
+ }\
+ if     (ZZv==0  ){ZZnTbType=9; ZZpTbType=1;}\
+ else if(ZZv< 150){ZZnTbType=7; ZZpTbType=0;}\
+ else if(ZZv<=164){ZZnTbType=8; ZZpTbType=0;}\
+ else if(ZZv==165){ZZnTbType=8; ZZpTbType=1;}\
+ else             {ZZnTbType=9; ZZpTbType=1;}\
+}

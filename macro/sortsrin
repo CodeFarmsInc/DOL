@@ -1,0 +1,69 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ int sortFun();     /* function that controls the sort */ 
+ strType *start; /* beginning of the ring */
+.)l
+Description:
+ Sorts the ring using the given function to compare objects.
+.sp
+This is a fast merge sort that reorganizes the whole ring and
+returns the pointer to the new start.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+};
+ZZ_ORG_SINGLE_RING(eRing,Employee);
+Employee *start;
+int salarySort();
+
+/* sort employees by the increasing salary */
+ZZ_SORT(eRing,salarySort,start);
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+.)l
+If you traverse a ring, you get the objects in the sorted order.
+If you want the beginning of the ring (employee with the smallest
+salary, use ZZ_FORWARD():
+.(l
+Employee *ep,*start;
+
+ZZ_SORT(eRing,salarySort,start);
+
+/* print all employees sorted by salary */
+ZZ_A_TRAVERSE(eRing,start,ep){
+    printf("%s salary=%d\n",ep->name,ep->salary);
+}ZZ_A_END
+
+/* get the employee with the minimum salary */
+ZZ_FORWARD(eRing,start,ep);
+printf("%s has the smallest salary\n",ep->name);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SORT_SINGLE_RING(id,sortFun,start) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SORT_SINGLE_RING(ZZFP(ZZf,id),ZZFT(1,id),sortFun,start) 
+
+#define ZZZ_SORT_SINGLE_RING(fwp,strType,sortFun,start) \
+{ char *ZZFUN_rSRfun();\
+    (start)=(strType *)ZZrSRfun((char*)(&((start)->fwp)),(char*)(start),sortFun);\
+}

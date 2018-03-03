@@ -1,0 +1,59 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* given parent */
+ str2Type *pp;    /* new child to be set */
+.)l
+Description:
+ The 'child' pointer on the parent decides about the order in which
+the bottom elements are returned by ZZ_A_TRAVERSE() or other traversal
+functions. ZZ_SET_DOUBLE_COLLECT() resets the child pointer to
+a different child.
+.sp
+Warning:
+ This command sets the 'child pointer', not the child. The new first
+child listed by ZZ_A_TRAVERSE() will be the next child to 'pp',
+which can be obtained by ZZ_FORWARD().
+.sp
+Possible errors:
+ When applying to a child from a different collection, the old
+collection is left without a parent, and the new collection has two
+parents. There is no protection against such mistake as it is for
+a TRIANGLE where, because we know the parent for each child, we
+can prevent such situation.
+.(l
+Example:
+
+typedef struct Country Country;
+typedef struct Town Town;
+struct Country{
+    ZZ_EXT_Country
+    int population;
+    float sqMiles;
+    char *name;
+};
+struct Town{
+    ZZ_EXT_Town
+    char river; /* yes or no */
+    char color; /* color people hate most */
+    char *contryName;
+    char *townName;
+};
+/* each contry contains number of towns */
+ZZ_ORG_DOUBLE_COLLECT(myCol,Country,Town);
+
+Country *c;
+Town *t;
+
+    /* using the following 2 lines when loading new object
+       results in objects ordered as loaded */
+    ZZ_ADD(myCol,c,t);
+    ZZ_SET(myCol,c,t);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SET_DOUBLE_COLLECT(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_SET_DOUBLE_COLLECT(ZZFP(ZZc,id),par,pp)
+
+#define ZZZ_SET_DOUBLE_COLLECT(child,par,pp) { (par)->child=(pp); }

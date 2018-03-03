@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id for the instance of the organization */
+ strType *obj;  /* object to which to add the name */
+ char *name;           /* name to add */
+.)l
+Description:
+ Adds the name to the given object. Note that an object can have
+several names identified by the instances of the 'name' organization.
+.pp
+This macro does not allocate the name, only links the object to it.
+.pp
+If the name already exists, you have to delete it first by
+calling ZZ_DELETE_NAME() before you can add the new name.
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+ZZ_ORG_NAME(fName,Fruit)
+
+Fruit *f;
+char *p,*r,*s;
+int n;
+
+ZZ_ADD_NAME(fName,f,"Bartlet")
+ZZ_FORWARD_NAME(fName,f,p)
+printf("fruit name=%s\n",p)
+ZZ_DELETE_NAME(fName,f,NULL)
+
+r="MacIntosh";
+n=strlen(r)+1;
+s=malloc(n);
+strcpy(s,r);
+ZZ_ADD_NAME(fName,f,s)
+ZZ_FORWARD_NAME(fName,f,p)
+printf("new name=%s\n",p)
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_ADD_NAME(id,obj,name) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_NAME(id,ZZFP(ZZn,id),obj,name)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_NAME(id,nPtr,obj,name) {(obj)->nPtr=name;}
+#else
+#define ZZZ_ADD_NAME(id,nPtr,obj,name) \
+{if((obj)->nPtr){\
+    ZZmsgSS(10,(obj)->nPtr,name);\
+    ZZerrFLG=ZZerrFLG|010;\
+ }\
+ else (obj)->nPtr=name;}
+#endif

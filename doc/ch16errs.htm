@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 16, Error Messages</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>16. ERROR MESSAGES</h1>
+
+<p>When you program with OrgC++, errors are reported at three
+levels:</p>
+
+<p>Level 1: The class generator (<em>zzprep</em>) reports some
+errors, referring to the line numbers of the code that you ran
+through it. In most cases, this is only your header file with the
+definitions of organizations (<em>ZZ_HYPER_ statements</em>). The
+rule of thumb is that all OrgC++ calls which start with the
+prefix <em>ZZ_</em> should run through the class generator. If
+you have several header files, concatenate them into a single
+file, and run the class generator on that file.</p>
+
+<p>Level 2: The compiler reports additional errors. The class
+generator is designed to force the compiler into more checking.
+With OrgC++, it takes a bit longer to get the code through the
+compiler, but the resulting program is safer to run.</p>
+
+<p>Level 3: At run-time, OrgC++ provides more checking, mainly to
+prevent dangling pointers.</p>
+
+<p>Normally, messages at all levels come out on standard output (<em>stdout</em>)
+- see below. When you receive your copy of OrgC++, the output
+language is set to English. You can convert level 1 and 3
+messages to any other language, if you translate all the messages
+in the file <em>orgC/lib/msgs.c</em> and then recompile the
+entire library, including the class generator (see <a
+href="ch02Inst.htm">Chap.2 </a>on how to recompile the library).</p>
+
+<p>In addition to run-time error messages, programs coded with
+OrgC++ may set a special error flag that may be checked by your
+program. The flag is binary coded, and can be accessed through
+the following function: <em>int util.error(void)</em>;</p>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_UTILITIES(util);
+util.strAlloc(...);
+if(util.error()){
+    printf(&quot;error=%o\n&quot;,util.error());
+    return;
+}</em></pre>
+</blockquote>
+
+<p>The error condition is bit encoded (shown as octal here):</p>
+
+<blockquote>
+    <p>01=allocation error<br>
+    02=index out of range<br>
+    04=using an organization that has not been formed<br>
+    010=object not disconnected, or not compatible<br>
+    020=internal algorithm failure<br>
+    040=wrong structure<br>
+    0100=wrong file or unable to open a file</p>
+</blockquote>
+
+<p>The error condition can be set to the no-error state by
+calling <em>void util.ok(void).</em></p>
+
+<p>If you don't want your messages on the standard output (<em>stdout</em>),
+provide your own error handling function somewhere in your code.
+The default version of<em> zzReportError()</em> is in file<em>
+orgC/lib/heading.h</em> and consequently also in file<em>
+orgC/zzcomb.h</em>. If you include <em>#define ZZcallBack</em> in
+your environment file, the default version will be disabled and
+prevent multiple declaration of this function. The default
+version contains a single call to<em> printf()</em> which you can
+replace by a <em>fprintf()</em>, or turn it into a call-back
+function that handles the errors.</p>
+
+<p>In particular, when using Microsoft Visual C++, the <em>printf(...)</em>
+statement inside <em>zzReportError()</em> can be replaced by <em>TRACE(...)</em>.
+Sending messages to <em>stdout</em> is usually not practical in
+the visual environment. Note however, that <em>TRACE(...)</em>
+displays the messages only in the debugging mode, not in the
+release mode. That is not sufficient since OrgC++ may display
+run-time error messages which are vital for detecting serious
+errors. If you don't want error codes which include both alpha
+and numeric characters, use function <em>errorCodeConvert()</em>
+which converts the error code string into a unique long integer
+(file <em>msgs.c</em>).</p>
+
+<h3>Installation Error 2104</h3>
+
+<p>For instructions see <a href="ch02Inst.htm#2_6">Chap. 2.6</a>.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch15Debg.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        15: Debugging with OrgC++</a></td>
+        <td align="right" width="50%"><a href="ch17Addf.htm">Chapter
+        17: Adding New Features <img src="images/next.gif"
+        border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

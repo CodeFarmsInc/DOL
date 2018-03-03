@@ -1,0 +1,76 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the array */
+ str1Type *obj;  /* object on which the array is */
+ str2Type *elem; /* element to push at the stack */
+.)l
+Description:
+ Using the array as a stack (LIFO queue), push the given element
+onto the stack. 
+.sp
+The array keeps all bookkeeping internally. If the array has fixed
+size (see ZZ_FORM_ARRAY), the error is detected in case of the size
+overflow. If the array had been declared as adjustable, the size
+automatically increases as needed.
+.sp
+If, for a fixed size array, the stack size overflows, the new value
+is not inserted until at least one element is POP-ed out.
+.sp
+Note that generic ZZ_PUSH() can be used for the ARRAY.
+.sp
+Also note that, in
+.i "Organized C,"
+you can use two forms of a stack: an array type stack as used here,
+or a stack based on a linked chain (see ZZ_PUSH_LIFO).
+.sp
+.(l
+Example:
+
+ typedef struct Header Header;
+ typdef struct Record Record;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Record {
+     int time;
+     int cost;
+     char *name;
+ };
+ ZZ_ORG_ARRAY(myStack,Header,Record)
+
+ int i;
+ Header h;
+ Record r,*a,*s;
+
+ /* form adjustable stack of 20 records, increment 100 */
+ ZZ_FORM_ARRAY(myStack,&h,20,100,a)
+
+    ....
+ ZZ_PUSH_ARRAY(myStack,&h,&r)
+    ....
+ ZZ_PUSH_ARRAY(myStack,&h,&r)
+    ....
+
+ /* print content of stack index i */
+ printf("time=%d cost=%d name=%s\\n",a[i].time,a[i].cost,a[i].name);
+    ....
+
+ ZZ_POP_ARRAY(myStack,&h,s)  /* pop off the top of the stack */
+.)l
+  ========================================================== */ 
+#define ZZ_PUSH_ARRAY(id,obj,elem) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_PUSH_ARRAY(id,ZZFT(2,id),ZZFP(ZZa,id),obj,elem)
+
+#define ZZZ_PUSH_ARRAY(id,str2Type,aPtr,obj,elem) \
+{ str2Type *ZZs; ZZarray *ZZa;\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        ZZ_INDEX_ARRAY(id,obj,ZZa->waterM+1,ZZs);\
+        if(!ZZerrFLG) (*ZZs)=(*(elem));\
+    }\
+    else {\
+       ZZerrFLG=04;\
+       ZZmsgS(24,ZZ_STRINGIT(id));\
+    }\
+}

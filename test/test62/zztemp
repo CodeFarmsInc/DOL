@@ -1,0 +1,239 @@
+0 #define DOS
+0 #define MICROSOFT8
+0 #define LARGE_POINTER
+0 #define ZZansi
+0 #define ZZcplus
+0 #define ZZ_INHERIT
+0 #define NT
+1 #ifndef _NETWORK_H_
+2 #define _NETWORK_H_
+4 #include "zzincl.h"
+6 class Network
+7 {
+8  ZZ_EXT_Network
+9 };
+11 class Place
+12 {
+13  ZZ_EXT_Place
+14 public:
+15  Place(){ZZ_INIT(Place);}
+16  Place(char *name, Network *net);
+17  Station* getStation();
+18 };
+20 class Station
+21 {
+22  ZZ_EXT_Station
+23 public:
+24  const char* getName();
+25 };
+27 class Connection
+28 {
+29  ZZ_EXT_Connection
+30 private:
+31  static int cnt;
+32 public:
+33  bool visited;
+34  int distance;
+35  Connection(){ZZ_INIT(Connection);cnt++;}
+36  Connection(int dist, char *name);
+37  const char* getName(); 
+38  ~Connection(){cnt--;}
+39  static  int getCount(){return cnt;}
+40 };
+42 ZZ_HYPER_NAME(pName, Place);
+43 ZZ_HYPER_NAME(cName, Connection);
+44 ZZ_HYPER_ARRAY(placesArr, Network, Place);
+45 ZZ_HYPER_DOUBLE_LINK(station, Place, Station);
+46 ZZ_HYPER_PAGER(info, Station);
+47 ZZ_HYPER_SINGLE_TREE(placesTree, Place);
+48 ZZ_HYPER_SINGLE_GRAPH(flights, Station, Connection);
+49 ZZ_HYPER_SINGLE_GRAPH(roads, Station, Connection);
+50 ZZ_HYPER_UTILITIES(util);
+51 #endif 
+52 #define ZZmain
+53 #include "network.h"
+54 const char* getText(Station *s, int start, int num);
+56 void prtPlaces(Place *root, int level)
+57 {
+58  for(int i=0; i<level; i++)
+59  {
+60   printf("--");
+61  }
+62  printf("%s\n", pName.fwd(root));
+63  Station *s = station.fwd(root);
+64  if(s!=NULL)
+65  {
+66   const char * info = getText(s, 1200, 500);
+67   if(info != NULL)
+68   {
+69    printf("INFO:\n");
+70    printf("%s\n\n", info);
+71   }
+72  }
+73  placesTree_iterator it;
+74  it.start(root);
+75  Place *p;
+76  ITERATE(it, p)
+77  {
+78   prtPlaces(p, level+1);
+79  }
+80 }
+82 void prtRoads(Station *s)
+83 {
+84  roads_iterator it;
+85  it.start(s);
+86  Connection *c;
+87  Station *sa;
+89  ITERATE(it, c)
+90  {
+91   if(c->visited)
+92   {
+93    continue;
+94   }
+95   c->visited = true;
+96   sa = it.adj();
+97   printf("%s - %s (%s): %d\n", s->getName(), sa->getName(), c->getName(), c->distance);
+98   prtRoads(sa);
+99  }
+100 }
+102 void prtFlights(Station *s)
+103 {
+104  flights_iterator it;
+105  it.start(s);
+106  Connection *c;
+107  Station *sa;
+109  ITERATE(it, c)
+110  {
+111   if(c->visited)
+112   {
+113    continue;
+114   }
+115   c->visited = true;
+116   sa = it.adj();
+117   printf("%s - %s (%s): %d\n", s->getName(), sa->getName(), c->getName(), c->distance);
+118   prtFlights(sa);
+119  }
+120 }
+122 void generateText(Station *s, const char* filename)
+123 {
+124  FILE *f = fopen(filename, "r");
+125  static char buf[81];
+126  int cnt = 0;
+127  int i,k;
+128  for(i=0, k=0;; i++, k=k+cnt)
+129  {
+130   if(!fgets(buf, 80, f))
+131   {
+132    break;
+133   }
+134   cnt = strlen(buf);
+136   info.io(s, k, buf, cnt, 1);
+137  }
+140  fclose(f);
+141         info.flush(s);
+142 }
+144 const char* getText(Station *s, int start, int num)
+145 {
+146  static char buf[1024];
+147  memset(buf, 0, sizeof(buf));
+148  int ret = info.io(s, start, buf, num, 0);
+149  printf("requested: %d, returned: %d, returned buffer length=%d\n", num, ret, strlen(buf));
+150  if(ret==-1)
+151   return NULL;
+152  return buf;
+153 } 
+155 int main()
+156 {
+157  Network *net = new Network();
+159  Place *p1 = new Place("USA", net);
+160  Place *p11 = new Place("Texas", net);
+161  placesTree.add(p1, p11);
+162  Place *p111 = new Place("Dallas", net);
+163  placesTree.add(p11, p111);
+164  station.add(p111, new Station());
+165  Place *p112 = new Place("Forth Worth", net);
+166  placesTree.add(p11, p112);
+167  station.add(p112, new Station());
+169  Place *p12 = new Place("Alabama", net);
+170  placesTree.add(p1, p12);
+171  Place *p121 = new Place("Montgomery", net);
+172  placesTree.add(p12, p121);
+173  station.add(p121, new Station());
+175  info.form(p121->getStation(), "infoMontgomery", 64, 8, 2);
+176  generateText(p121->getStation(), "info.txt");
+179  Place *p122 = new Place("Birmingham", net);
+180  placesTree.add(p12, p122);
+181  station.add(p122, new Station());
+184  Place *p13 = new Place("Florida", net);
+185  placesTree.add(p1, p13);
+186  Place *p131 = new Place("Miami", net);
+187  placesTree.add(p13, p131);
+188  station.add(p131, new Station());
+189  Place *p132 = new Place("Tampa", net);
+190  placesTree.add(p13, p132);
+191  station.add(p132, new Station());
+192  Place *p133 = new Place("Jacksonville", net);
+193  placesTree.add(p13, p133);
+194  station.add(p133, new Station());
+196  printf("\n");
+197  prtPlaces(p1, 0);
+199  Place *p2 = new Place("Canada", net);
+200  Place *p21 = new Place("Ontario", net);
+201  placesTree.add(p2, p21);
+202  Place *p211 = new Place("Ottawa", net);
+203  placesTree.add(p21, p211);
+204  station.add(p211, new Station());
+205  Place *p212 = new Place("North Bay", net);
+206  placesTree.add(p21, p212);
+207  station.add(p212, new Station());
+209  Place *p22 = new Place("Quebec", net);
+210  placesTree.add(p2, p22);
+211  Place *p221 = new Place("Chicoutimi", net);
+212  placesTree.add(p22, p221);
+213  station.add(p221, new Station());
+214  Place *p222 = new Place("Quebec", net);
+215  placesTree.add(p22, p222);
+216  station.add(p222, new Station());
+218  printf("\n");
+219  prtPlaces(p2, 0);
+221  
+222  Station *s[2];
+224  s[0]=p112->getStation();s[1]=p111->getStation();
+225  roads.add(s, new Connection(200, "r112-111"));
+226  s[0]=p111->getStation();s[1]=p122->getStation();
+227  roads.add(s, new Connection(1000, "r111-122"));
+228  s[0]=p122->getStation();s[1]=p121->getStation();
+229  roads.add(s, new Connection(100, "r122-121"));
+230  s[0]=p122->getStation();s[1]=p211->getStation();
+231  roads.add(s, new Connection(2500, "r122-211"));
+232  s[0]=p211->getStation();s[1]=p212->getStation();
+233  roads.add(s, new Connection(400, "r211-212"));
+234  s[0]=p211->getStation();s[1]=p222->getStation();
+235  roads.add(s, new Connection(500, "r211-222"));
+236  s[0]=p222->getStation();s[1]=p221->getStation();
+237  roads.add(s, new Connection(100, "r222-221"));
+238  s[0]=p221->getStation();s[1]=p133->getStation();
+239  roads.add(s, new Connection(3500, "r221-133"));
+240  s[0]=p133->getStation();s[1]=p132->getStation();
+241  roads.add(s, new Connection(150, "r133-132"));
+242  s[0]=p132->getStation();s[1]=p131->getStation();
+243  roads.add(s, new Connection(100, "r132-131"));
+244  printf("\nROADS:\n");
+245  prtRoads(p132->getStation());
+247  
+248  s[0]=p112->getStation();s[1]=p122->getStation();
+249  flights.add(s, new Connection(800, "f112-122"));
+250  s[0]=p122->getStation();s[1]=p211->getStation();
+251  flights.add(s, new Connection(2500, "f122-211"));
+252  s[0]=p122->getStation();s[1]=p132->getStation();
+253  flights.add(s, new Connection(2000, "f122-132"));
+254  s[0]=p211->getStation();s[1]=p132->getStation();
+255  flights.add(s, new Connection(3000, "f211-132"));
+256  s[0]=p132->getStation();s[1]=p222->getStation();
+257  flights.add(s, new Connection(3200, "f132-222"));
+258  printf("\nFLIGHTS:\n");
+259  prtFlights(p112->getStation());
+261         info.close(p121->getStation());
+262  return 0;
+263 } 
+265 #include "zzfunc.c"

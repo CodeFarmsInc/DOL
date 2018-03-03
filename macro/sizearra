@@ -1,0 +1,72 @@
+/* =========================================================
+.(l
+ TEXT id;              /* array id */
+ str1Type *obj; /* object on which the array is */
+ int number;           /* current number of elements in the array */
+ int waterMark;        /* high water mark of the used elements */
+ int increment;        /* increment for the re-allocation */
+.)l
+Description:
+ Returns the current size (number of elements) of the array, and
+the current high water mark.
+.sp
+Note that the array may dynamically increase its size during the
+run, so that the size with which it was formed, may change.
+Normally, you don't have to worry about the size, except some rare
+cases or debugging.
+.sp
+In case that the array does not exist on the object, the macro
+returns number=0. No error messages are printed.
+ Water mark = -1 means the array has not been used yet.
+.sp
+The high water mark is not used in some applications, however
+it is an important indicator in case of
+.i "stack"
+or
+.i "heap,"
+which both are just special uses of the ARRAY organization.
+.(l
+Example of the use: List of headers, each leading to 2 arrays
+
+ typedef struct Header Header;
+ typedef struct Animal Animal;
+ typedef struct Plant Plant;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Animal {
+     ZZ_EXT_Animal
+     int numLegs;
+ };
+ struct Plant {  /* note has no ZZ_EXT.. */
+     char annual;
+     int pageIn;
+ };
+ ZZ_ORG_SINGLE_RING(myList,Header)
+ ZZ_ORG_ARRAY(animals,Header,Animal)
+ ZZ_ORG_ARRAY(plants,Header,Plant)
+ ZZ_ORG_NAME(aName,Animal)
+
+ int i,size,waterM,incr;
+ Header h;
+ Animal *a,b;
+
+ ZZ_FORM_ARRAY(animals,&h,40,-4,a) /* forms array of 40 animals on h */
+
+  ... lot of calculation being done ...
+
+ /* display current size */
+ ZZ_SIZE_ARRAY(animals,&h,size,waterM,incr)
+ /* for example, may return size=160, waterM=98 incr=-4 */
+.)l
+  ========================================================== */ 
+#define ZZ_SIZE_ARRAY(id,obj,number,waterMark,increment) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SIZE_ARRAY(ZZFP(ZZa,id),obj,number,waterMark,increment) 
+
+#define ZZZ_SIZE_ARRAY(aPtr,obj,number,waterMark,increment) \
+{ZZarray *ZZa; \
+    ZZa=(obj)->aPtr; \
+    if(ZZa){(number)=ZZa->num; (waterMark)=ZZa->waterM; (increment)=ZZa->incr;}\
+    else {(number)=0; (waterMark)= -1; (increment)=0;}\
+}

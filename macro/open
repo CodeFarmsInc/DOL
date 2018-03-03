@@ -1,0 +1,91 @@
+/* =========================================================
+.(l
+ char *fileName;     /* name of the file to input */
+ int n;       /* number of key entries to be returned */
+ void **pp;   /* array with the first n pointers (any type) */ 
+ char **type; /* array to be filled with pointers to the first n types */
+.)l
+Description:
+ Opens the given file, reads its content and restores completely
+the whole organization including the allocation of all objects,
+then it closes the file.
+ Use "#define ZZascii", if you want an ASCII file. Otherwise, for the sake
+of memory efficiency and speed, the file will be binary.
+.sp
+If 
+ZZ_OPEN() leaves behind an index conversion table, which can be
+used in subsequent calls of ZZ_OPEN(), or it can be used by
+ZZ_CONVERT_FIELD() for the conversion of 'outside' pointers
+that link other structures to this organization.
+.sp
+ZZ_CLOSE_BIND() removes the table.
+.sp
+Example:
+ To restore the complete organization created in the example shown
+in the description of ZZ_WRITE_BIND(), all you have to do is this:
+.(l
+#include <stdio.h>
+#include "zzincl.h"
+
+typedef struct Instance Instance;
+typedef struct Net Net;
+typedef struct ActTerm ActTerm;
+
+struct Instance{
+    ZZ_EXTInstance
+    char *name;
+};
+
+struct Net{
+    ZZ_EXTNet
+    char *name;
+};
+
+struct ActTerm{
+    ZZ_EXTActTerm
+    char *fTerm;
+};
+
+main()
+{
+    Instance *iStart;
+    Net *nStart
+    char *pp[2],*type[2];
+
+    ZZ_OPEN("myFile",2,pp,type)
+    ZZ_CLOSE_BIND("myFile");  /* will de-allocate the conversion table */
+    iStart=(Instance*)pp[0];
+    nStart=(Net*)pp[1];
+}
+.)l
+See also: ZZ_CLOSE_BIND(), ZZ_WRITE_BIND(), ZZ_CONVERT_FIELD()
+.sp
+SPECIAL CASE:
+ If you want, for some reason, to open/close the disk file yourself,
+use ZZ_MODE_SAVE() with cntrl=1. In this special case, instead of calling
+ZZ_SAVE() and ZZ_OPEN() with the file name, you call it with the file
+pointer or file handle casted as (char *). For example:
+.(l
+   FILE *fp;
+   char *v[2],*t[2];
+
+   ZZ_MODE_SAVE(0,1,0,1);
+   fp=fopen("myFile","w");
+    ...
+   ZZ_SAVE((char *)fp,2,v,t);
+.)l   
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_OPEN(fileName,n,pp,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_readBind(),ZZi;\
+ void ZZFUN_blastOpen();\
+ZZ_GENERAL_EXT(); \
+if(ZZerrFLG){ZZmsgD(32,ZZerrFLG); ZZerrFLG=0;}\
+if(ZZioSwitch==1 && ZZmemSwitch==2){ZZi=0; ZZblastOpen(fileName,n,(char **)(pp));}\
+else ZZi=ZZreadBind(fileName,n,(char **)(pp),type,ZZnID);\
+if(ZZi==1)ZZerrFLG=ZZerrFLG|01;\
+else if(ZZi==2)ZZerrFLG=ZZerrFLG|0100;\
+else if(ZZi==4)ZZerrFLG=ZZerrFLG|020;\
+}

@@ -1,0 +1,44 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[2]; /* nd[0]=from node, nd[1]=to node */
+ edgeType *ge;   /* given edge */
+.)l
+Description:
+ For a given directed edge, returns the adjacent node, nd[1].
+Value of nd[0] is unused and unchanged (this is a directed graph).
+.pp
+Note that the TRAVERSE function for this organization automatically
+provides both the edge and the two nodes. The use of ZZ_NODES_DIRECT_GRAPH()
+can be avoided in many cases.
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Flight Flight;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Flight {      /* graph edge */
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Flight)
+
+Town *t[2];
+Flight *f; 
+
+f=...;
+ZZ_NODES(myGraph,t,f)
+printf("Fight no.%d is to town=%s\n",
+	       f->number,t[1]->name);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_NODES_DIRECT_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_NODES_DIRECT_GRAPH(ZZFP(ZZy,id),nd,ge)
+
+#define ZZZ_NODES_DIRECT_GRAPH(node2,nd,ge) \
+{ (nd)[1]=ge->node2;}

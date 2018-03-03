@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry; /* entry into the stack, NULL when new stack */
+ strType *pp;    /* object that popped from the stack */
+.)l
+Description:
+ Pops the next object from the stack.
+ If the stack is empty, it return NULL.
+.sp
+Before you start to use the stack, initialize entry=NULL, 
+then do not touch entry at all. The values entry will resume
+within the use of the stack will be meaningless to you.
+.(l
+Example:
+typedef struct Object Object
+struct Object {
+    ZZ_EXT_Object
+    int code;
+};
+ZZ_ORG_FIFO(objStack,Object)
+Object *a,*b,*c,*d,*r,*start;
+  ....
+start=NULL; /* don't touch this variable */
+ZZ_PUSH_FIFO(objStack,start,a)   
+ZZ_PUSH_FIFO(objStack,start,b)  
+ZZ_PUSH_FIFO(objStack,start,c) 
+ZZ_POP_FIFO(objStack,start,r) /* returns r=a */
+ZZ_PUSH_FIFO(objStack,start,d)    
+ZZ_POP_FIFO(objStack,start,r) /* returns r=b */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=c */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=d */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=NULL */
+.)l
+See also: ZZ_ORG_FIFO(), ZZ_PUSH_FIFO().
+.sp 1
+  ========================================================== */ 
+#define ZZ_POP_FIFO(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_POP_FIFO(ZZFP(ZZf,id),entry,pp)
+
+#define ZZZ_POP_FIFO(fwp,entry,pp) \
+{\
+    if(entry){\
+        (pp)=(entry)->fwp;\
+        if((entry)==(pp))(entry)=NULL; else (entry)->fwp=(pp)->fwp;\
+        (pp)->fwp=NULL;}\
+    else (pp)=NULL;\
+}

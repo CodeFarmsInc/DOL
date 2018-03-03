@@ -1,0 +1,29 @@
+/* =========================================================
+.(l
+ TEXT id;       /* organization id */
+ int sortFun(); /* function that controls the sort */ 
+ strType *par;  /* parent of the collection */
+.)l
+Description:
+ Sorts children using the given function to compare objects.
+.sp
+This is a fast merge sort similar to the one used for sorting a RING
+and a COLLECTION.
+.sp 1
+  ========================================================== */ 
+#define ZZ_SORT_DOUBLE_TRIANGLE(id,sortFun,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SORT_DOUBLE_TRIANGLE(ZZFP(ZZf,id),ZZFP(ZZc,id),ZZFT(2,id),sortFun,par);\
+ZZ_UPD_DOUBLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),(par)->ZZFP(ZZc,id))
+
+#define ZZZ_SORT_DOUBLE_TRIANGLE(fwp,child,str2Type,sortFun,par) \
+{str2Type *ZZstart;\
+    char *ZZFUN_rSRfun();\
+    if(par){\
+        ZZstart=(par)->child;\
+        if(ZZstart){\
+            (par)->child=(str2Type *)\
+                ZZrSRfun((char*)(&(ZZstart->fwp)),(char*)(ZZstart),sortFun);\
+        }\
+    }\
+}

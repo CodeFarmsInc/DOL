@@ -1,0 +1,34 @@
+/* =========================================================
+Description:
+ Any A-type traverse macro which starts with ZZA... forms a loop
+which must end with ZZ_A_END. ZZ_A_BREAK allows to break out
+of this loop.
+.sp
+You have to keep your own record to detect whether you exited
+through the end of the loop end, or by the break - see the example.
+.(l
+Example:
+
+typedef struct ActTerm ActTerm;
+struct ActTerm{
+    ZZ_EXTActTerm
+     ...
+};
+ZZ_ORG_SINGLE_RING(myRing,ActTerm);
+ActTerm *at,*start,*aa;
+   
+at=NULL;
+ZZ_A_TRAVERSE(myRing,start,aa){
+       ....
+    if(...){at=aa; ZZ_A_BREAK;}
+       ....
+}ZZ_A_END
+if(at){ ..  exit through the break ... }
+else  { ..  exit through the end of the loop ... }
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_A_BREAK \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{break;}

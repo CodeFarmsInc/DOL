@@ -1,0 +1,48 @@
+/* =========================================================
+.(l
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Explicit definition, organization of the self-identification
+for all objects of the given type.
+.pp
+Limitations:
+ In large multi-programmer projects, ZZ_ORG_SELF_ID() may be called
+only from the top (project global) level. This is a centrally controlled
+function, individual programmers cannot add selfID in their subprojects.
+ Also, selfID can be used only on objects that have ZZ_EXT_... statement
+right at the beginning of the structure. If this condition is not met,
+you may get false readings (unidentified objects) or error messages
+when saving.
+.pp
+It is a good practice to work with strongly typed objects.
+However, in some situations programmers prefer to cast and re-use the same
+pointer for several different purposes. In such case, it is useful
+to be identify the type of object.
+.pp
+The identification requires one pointer field (4 bytes) per structure.
+and you should consider whether using selfID really represents a memory
+saving in your case; sometimes it does not and it certainly makes
+your code less structured.
+.pp
+ZZ-macros allow you either to select specific structures
+that should be equipped with the selfID field, or you can requrest
+all structures with ZZ_EXT_... to have the selfID field by declaring
+     ZZ_ALL_SELF_ID
+.pp
+Note that the ID is carefully programmed so that if your pointer
+leads to a section of memory that does not have a selfID field,
+ZZ_GET_SELF_ID() macro detects the situation with extrememly high probablility
+(almost always, though a mistake is theoretically possible).
+.(l
+Example of the use:
+   typedef struct myStruct myStruct;
+   struct myStruct {
+       ZZ_EXT_myStruct
+       int a,b,c,d;
+   };
+   ZZ_ORG_SELF_ID(myStruct)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_SELF_ID(strType) /* ZZ_ORG_SELF_ID */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

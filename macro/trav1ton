@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *sour;  /* given source entity */
+ strType *rel; /* forward relation to be returned */
+.)l
+Description:
+ For a given source entity, traverse all relations of the 1_TO_N entity.
+This macro is the beginning of a loop that must end with ZZ_A_END.
+Since this is 1_TO_N entity, the loop is either executed N times, or not
+executed at all (if no relation is recorded).
+.sp
+Relations can be deleted while traversing them using ZZ_A_TRAVERSE().
+.sp
+Advice: Use generic ZZ_A_TRAVERSE(), it makes the code simpler.
+.(l
+Example:
+   typedef struct Class Class;
+   typedef struct Student Student;
+   typedef struct InClass InClass;
+   struct Class {
+       ZZ_EXT_Class
+       int id;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InClass {
+       ZZ_EXT_InClass
+   };
+   ZZ_ORG_1_TO_N(students,Class,InClass,Student)
+   ....
+   Student *s;
+   Class *c;
+   InClass *i;
+   ...
+   printf("students in class=%d: ",c->id);
+   ZZ_A_TRAVERSE(students,c,i)
+       ZZ_TARGET(students,i,s);
+       printf("%s, ",s->name);
+   ZZ_A_END
+.)l
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_1_TO_N(id,sour,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_TRAVERSE_1_TO_N(ZZFP(ZZf,id),ZZFP(ZZs,id),ZZFT(2,id),sour,rel)
+
+#define ZZZ_TRAVERSE_1_TO_N(nxt,sibl,strType,sour,rel) \
+{strType *ZZt,*ZZs;\
+    if(sour)ZZt=(sour)->nxt; else ZZt=NULL;\
+    if(ZZt)(rel)=(ZZt)->sibl; else (rel)=NULL;\
+    for(;(rel);(rel)=ZZs){ \
+	ZZs=(rel)->sibl; if((rel)==(ZZt))ZZs=NULL;

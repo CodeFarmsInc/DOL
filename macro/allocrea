@@ -1,0 +1,65 @@
+/* =========================================================
+.(l
+ TEXT strType;          /* structure on which to use this organization */
+ strType *ptr;   /* returned pointer to the allocated block */
+ TEXT FORMT;            /* format for reading from a file */
+.)l
+Description:
+ One relatively frequent operation in processing structured data
+is to allocate space for one data structure, and then read its content
+(or some of its fields) from a file. This macro provides
+just that in a convenient compact form, which is flexible enough
+to handle most variations that can happen in practice.
+ The macro works both for the structures with ZZ_EXT_ and for
+structures without it.
+ Note that before reading the requested information, all allocated
+space is initialized to 0, including pointers hidden in ZZ_EXT_...
+Then the timeStamp is automatically set, if used on this structure.
+ If this structure type has been setup to support selfID (see for example
+ZZ_SET_SELF_ID() ), then also the selfId mark is automatically set with
+the allocation.
+.sp
+ Error conditions:
+ -The macro returns a NULL pointer in the case of an allocation failure.
+ -In case that the read statement reaches the end of file (EOF condition
+in fscanf()), the allocated space is freed and NULL pointer returned.
+.(l
+Example:
+
+typedef struct Street Street;
+struct Street{
+    ZZ_EXTStreet
+    float width;
+    float length;
+    short numHouses;
+    char pavementType;
+    char lampType;
+};
+
+Street *list,*p;
+
+/* read in street records that contain partial information,
+ * allocate the space and link the records into a ring */
+
+list=NULL;
+for(;;){
+    ZZ_ALLOCATE_AND_READ(Street,p,
+	       (inFile,"%d,%c",&(p->numHouses),&(p->pavementType)))
+    if(!p)break;
+    ZZ_ADD_SINGLE_RING(0,Street,list,p)
+}
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_ALLOCATE_AND_READ(strType,ptr,FORMT) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+    ZZ_PLAIN_ALLOC(strType,1,ptr);\
+    if(ptr){\
+        if(EOF==fscanf FORMT ){\
+	    ZZ_PLAIN_FREE(strType,1,ptr);\
+	    (ptr)=NULL;\
+        }\
+    }\
+}

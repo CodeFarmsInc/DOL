@@ -1,0 +1,36 @@
+original result:
+Adam(22,12.500000) Eva(19,9.300000) child=10
+Michael(65,400.000000) Gizella(62,91.099998) child=2
+Peter(53,12.500000) Alena(45,120.300003) child=0
+
+list of all objects:
+object type=2 Header size=8
+object type=1 Person size=16
+  Person Eva age=19 salary=9.300000
+object type=1 Person size=16
+  Person Adam age=22 salary=12.500000
+object type=1 Person size=16
+  Person Gizella age=62 salary=91.099998
+object type=1 Person size=16
+  Person Michael age=65 salary=400.000000
+object type=1 Person size=16
+  Person Alena age=45 salary=120.300003
+object type=1 Person size=16
+  Person Peter age=53 salary=12.500000
+object type=-1 char* size=0
+object type=-1 char* size=0
+object type=1 Person size=16
+  Person Tom age=52 salary=55.349998
+object type=-1 char* size=0
+object type=-1 char* size=0
+object type=-1 char* size=0
+object type=-1 char* size=0
+object type=1 Person size=16
+  Person Grace age=73 salary=11.100000
+object type=-1 char* size=0
+object type=-1 char* size=0
+
+restored from disk:
+Adam(22,12.500000) Eva(19,9.300000) child=10
+Michael(65,400.000000) Gizella(62,91.099998) child=2
+Peter(53,12.500000) Alena(45,120.300003) child=0

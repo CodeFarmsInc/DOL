@@ -1,0 +1,17 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+.)l
+Description:
+ Macro for the pointer of the organization SINGLE_LINK. This is only
+an internal macro; normally you should use the generic ZZ_PTR().
+.sp
+This is a fully typed pointer link between two objects. For pointer
+link to a character string (name) look at ZZ_PTR_NAME().
+.sp
+For more description and examples, look at ZZ_PTR().
+.sp 1
+  ========================================================== */ 
+#define ZZ_PTR_SINGLE_LINK(id) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFP(ZZf,id)

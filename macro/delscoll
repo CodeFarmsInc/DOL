@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT id;           /* id for the instance of the organization */
+ str1Type *par;     /* parent of this collection */
+ str2Type *child;   /* child to be deleted from the collection */
+.)l
+Description:
+ Disconnect the given child object from the collection.
+ This macro can be called within a 'traverse' loop, see the example.
+.(l
+Example:
+From the given salary group which is implemented as
+a collection, delete all employees that have salary lower than $20,000.
+
+typedef struct Employee Employee;
+typedef struct SalaryGroup SalaryGroup;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+struct SalaryGroup{
+    ZZ_EXT_SalaryGroup
+    int low,high;   
+};
+ZZ_ORG_SINGLE_COLLECT(empl,SalaryGroup,Employee);
+
+Employee *pp;
+SalaryGroup *group;
+
+ZZ_A_TRAVERSE(empl,group,pp){
+    if(pp->salary<20000) {
+        ZZ_DELETE(empl,group,pp);
+    }
+}ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_SINGLE_COLLECT(id,par,child) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_DELETE_SINGLE_COLLECT\
+(id,ZZFT(2,id),ZZFP(ZZs,id),ZZFP(ZZc,id),par,child)
+
+#define ZZZ_DELETE_SINGLE_COLLECT(id,sBot,sibling,child,entry,pp) \
+{sBot *ZZv,*ZZc; \
+    if(pp) {\
+      if((pp)->sibling==(pp))(entry)->child=NULL;\
+      else { \
+        ZZc=(entry)->child; if(!ZZc)ZZc=(pp); \
+        for(ZZv=ZZc;ZZv->sibling!=(pp);ZZv=ZZv->sibling)continue;\
+        if((entry)->child==(pp))(entry)->child=ZZv;\
+        ZZv->sibling=(pp)->sibling;\
+      } \
+      (pp)->sibling=NULL;\
+    }\
+}

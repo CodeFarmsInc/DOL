@@ -1,0 +1,60 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *from;  /* link from this object */
+ AnyStructure *to;      /* link to this object, type irrelevant */
+.)l
+Description:
+ Adds a link between the given structure and another untyped
+structure.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_GENERAL_LINK().
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+typedef struct Apple Apple;
+typedef struct Plum Plum;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+struct Apple {
+     ...
+};
+struct Plum {
+     ...
+};
+ZZ_ORG_GENERAL_LINK(fLink,Fruit)
+
+Fruit *f1,*f2;
+Apple *a;
+Plum  *p;
+
+ ....
+ZZ_ADD_GENERAL_LINK(fLink,f1,a)
+ZZ_ADD_GENERAL_LINK(fLink,f2,p)
+.)l
+.pp
+See also: ZZ_ORG_GENERAL_LINK(), ZZ_FORWARD_GENERAL_LINK(),
+ZZ_DELETE_GENERAL_LINK(), and
+also similar functions for typed single/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_ADD_GENERAL_LINK(id,from,to) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_GENERAL_LINK(id,ZZFP(ZZg,id),from,to)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_GENERAL_LINK(id,ptr,from,to) \
+{ (from)->ptr=(char*)(to); }
+#else
+#define ZZZ_ADD_GENERAL_LINK(id,ptr,from,to) \
+{if((from)->ptr){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(from));\
+        ZZerrFLG=ZZerrFLG|010;\
+ }\
+ else (from)->ptr=(char*)(to);\
+}
+#endif

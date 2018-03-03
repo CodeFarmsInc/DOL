@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.3 Aggregation Triangle</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.3 AGGREGATION (TRIANGLE)</font></h2>
+
+<p align="center"><img src="images/dol11_4.jpg" width="500"
+height="277"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>A triangle represents one level of a general hierarchy, with
+one object type at the top (<em>TOP</em>), and another object
+type at the bottom (<em>BOT</em>).</p>
+
+<p>Note the difference between a <em>TRIANGLE</em> and a <em>TREE</em>.
+A<em> TREE</em> is composed of objects that all have the same
+type; a <em>TRIANGLE</em> works with two different object types.
+Also, a <em>TRIANGLE</em> requires about 30% less memory than a <em>TREE</em>
+because the <em>child</em> pointer on the bottom objects is
+absent.</p>
+
+<h3><font size="3" face="Arial">ADD and DELETE:</font></h3>
+
+<p>These commands add/delete objects to/from the bottom level. In
+order to make a <em>TRIANGLE</em> empty, delete all of its bottom
+objects. <em>delete()</em> can be used while traversing the set
+with the <em>iterator.</em></p>
+
+<h3><font size="3" face="Arial">Order of objects:</font></h3>
+
+<p>The objects on the bottom level are handled as a ring. If
+objects ABCD have been added to a <em>TRIANGLE</em>, the <em>iterator
+</em>returns them in reverse order: DCBA. The <em>child</em>
+pointer of the top object works as the <em>start</em> pointer of
+the <em>RING</em>. Function <em>set()</em> allows you to reset
+this pointer. Therefore, for example, the following sequence
+results in the bottom objects being ordered in the same sequence
+as they were loaded:</p>
+
+<blockquote>
+    <p><em>...<br>
+    id.add(par,obj1);<br>
+    id.set(obj1);<br>
+    ...<br>
+    id.add(par,obj2);<br>
+    id.set(obj2);<br>
+    ...</em></p>
+</blockquote>
+
+<p>The function <em>sort()</em> sorts all children using a user
+supplied compare function similar to the one needed for <em>qsort().</em></p>
+
+<h3><font size="3" face="Arial">Moving around the TRIANGLE:</font></h3>
+
+<p>The <em>iterator </em>traverses the bottom elements of the <em>TRIANGLE</em>.</p>
+
+<blockquote>
+    <p><em>id_iterator it(parent);<br>
+    while(obj= ++it){<br>
+    ...<br>
+    };</em></p>
+</blockquote>
+
+<p><em>fwd() </em>returns the next object in the bottom ring;<br>
+<em>par() </em>returns the parent object for a given bottom
+object;<br>
+<em>child() </em>returns the starting child object.</p>
+
+<h3><font size="3" face="Arial">Merging or Splitting Triangles</font></h3>
+
+<p>Because all the children of a triangle form a ring, triangles
+can be merged or split just like a ring (see the illustration in <a
+href="ch11aorg.htm#11_1">Chap.11.1</a>).</p>
+
+<p>The merge command must be given two children and one parent
+object. If the two children are in the same triangle, the
+operation results in splitting the triangle in two. If the two
+children are in different triangles, the operation merges them
+into one.</p>
+
+<p><em>id.merge(c,c,par)</em> results in no action. In order to
+extract a single object into a new <em>TRIANGLE</em>, proceed as
+shown for the <em>RING</em>.</p>
+
+<p>When merging, the given <em>parent</em> must be the parent of
+the second<em> child</em>. When splitting, an empty parent must
+be given to receive the second part of the set.</p>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_SINGLE_TRIANGLE (myTriangle,parType,chiType);
+parType *p1,*p2;
+chiType *c1,*c2;
+    ....
+p1=myTriangle.par(c1);
+p2=myTriangle.par(c2); </em></pre>
+    <pre><em>if(p1==p2){ // case of splitting
+    p2=new parType;
+    myTriangle.merge(c1,c2,p2);
+    // p1 and p2 now hold the two triangles
+}
+else { // case of merging
+    myTriangle.merge(c1,c2,p2);
+    // p1 contains the result, p2 is empty
+}</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_SINGLE_TRIANGLE(id,TOP,BOT);<br>
+        ZZ_HYPER_SINGLE_AGGREGATE(id,TOP,BOT);</em></td>
+        <td>Both statements declare identical organizations (both
+        names are acceptable).</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(TOP *parent,BOT *newChild);</em></td>
+        <td>Adds new <em>child</em> under the given <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.del(BOT *childToRemove);</em></td>
+        <td>Removes the given <em>child</em> from the
+        aggregation.</td>
+    </tr>
+    <tr>
+        <td><em>BOT* id.fwd(BOT *child);</em></td>
+        <td>Returns the next <em>child</em> under the same
+        aggregation (<em>fwd=FORWARD</em>)</td>
+    </tr>
+    <tr>
+        <td><em>TOP* id.par(BOT *obj);</em></td>
+        <td>Returns the parent of the given object.</td>
+    </tr>
+    <tr>
+        <td><em>BOT* id.child(TOP *obj);</em></td>
+        <td>Returns the first child of the given object.</td>
+    </tr>
+    <tr>
+        <td><em>void id.set(newFirstChild);</em></td>
+        <td>Sets the given object as the first <em>child</em>
+        under the same aggregation.</td>
+    </tr>
+    <tr>
+        <td><em>void id.merge(BOT *child1,BOT *child2,TOP
+        *parent);</em></td>
+        <td>If the two children are in the same aggregation, the
+        aggregation will split, and <em>parent</em> will be the
+        parent of the new section, which will contain <em>child2</em>.
+        If the two children are in different aggregations, the
+        two aggregations will merge, and the<em> parent</em> of <em>child1</em>
+        will be its<em> parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.switchParents(TOP *parent1,TOP *parent2);</em></td>
+        <td>Exchanges parents of two aggregates. If one aggregate
+        is empty, it effectively moves an aggregate under a new <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.sort(int (*sortFun)(const void*,const
+        void*),TOP *parent);</em></td>
+        <td>Will sort children under the given <em>parent</em>,
+        using the given function to compare them.</td>
+    </tr>
+    <tr>
+        <td><em>TOP *parent; BOT *obj;<br>
+        id_iterator it(parent); while(obj= ++it){ ... };</em></td>
+        <td>Will traverse all children of the given parent. <em>obj
+        </em>must not be modified from within the loop, but
+        objects can be deleted using <em>id.del()</em>. You can
+        break from the loop as usual.</td>
+    </tr>
+</table>
+
+<p><strong>Comment: </strong><em>id.sort() </em>does not work for
+the ZORTECH compiler.</p>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>Netlist in electrical circuits, storing pins by block and
+        by signal net (<em>test0a.c, test2.c</em>).</li>
+    <li>Storing a list of towns under the state to which they
+        belong (<em>test 14a.c</em>).</li>
+    <li>Loading Pins by Blocks and by Nets into netlist, without
+        reversing their order (<em>test0a.c</em>).</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11b.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Previous Section 11.2 COLLECTION</font></a></td>
+        <td align="right" width="50%"><a href="ch11d.htm"><font
+        face="Arial">Next Section 11.4 TREE <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

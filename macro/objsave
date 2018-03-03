@@ -1,0 +1,156 @@
+/* =========================================================
+.(l
+ TEXT strType;       /* structure type */
+ char *fileName;     /* file name for output */
+ strType *pp; /* pointer to the block to be saved */
+ int num; /* number of elements in the array to be written out */
+.)l
+Description:
+ Write out an object, or an array of objects (data structure blocks), onto
+a file. Any number of the output files may be open at the same time.
+First call to ZZ_OBJECT_SAVE() or ZZ_KEY_SAVE() referencing the file
+automatically opens it, ZZ_CLOSE_BIND() must be used to close it.
+.sp
+This command replaces two older commands ZZ_WRITE_ASCII() and
+ZZ_WRITE_BIND() which have been removed from the system.
+.sp
+ZZ_MODE_SAVE() changes the mode of binary/ASCII format, and allows to
+specify more detail for the binary format. For details, see the description
+of ZZ_MODE_SAVE(). Binary format provides faster save/open and smaller
+storage; ASCII format is useful for a transfer of data between different
+computers, or for a visual examination of data.
+.sp
+For how to save individual objects in C++, look at macro ZZ_STORE().
+.sp
+Properties and arrays are automatically written with the objects.
+.sp
+ strType=char and num=0 handles the block like a string,
+ strType=char and num>0 handles the block like a block of bytes.
+.sp
+Hierarchical object types are automatically decomposed and stored
+as subsequent records, but you do not have to worry about that. All you
+have to issue is only one command for the top level of the object.
+An object can be stored more than once, without impairing the ability
+to restore the data form the disk later. However, many duplications should
+be avoided for the sake of efficiency. If an object and its part are both
+being written out, the object must be written out before its part.
+.sp
+The objects will be read from the file in the same order, which helps
+to identify key entries, such as the top of the hierarchy, 
+beginning of the main chain, etc.
+ZZ_OPEN() will return pointers to the first n converted objects.
+.sp
+Properties are automatically stored with their objects. SelfID is
+stored and then automatically restored by ZZ_OPEN().
+.sp
+ When using the binary format, the required disk space is:
+ dskSpace=tot+n*s, 
+ where tot=total size of all objects,
+         n=number of objects,
+         s=sizeof(char *)+sizeof(int)
+ The size of ASCII space is difficult to determine, because it depends
+on the size of numbers. In unusual cases dealing with mostly small numbers,
+ASCII storage can actually require less space.
+Example:
+.(l
+#include <stdio.h>
+#define ZZascii
+#include "zzincl.h"
+
+typedef struct Instance Instance;
+typedef struct Net Net;
+typedef struct ActTerm ActTerm;
+struct Instance{
+    ZZ_EXT_Instance
+    char *name;
+};
+struct Net{
+    ZZ_EXT_Net
+    char *name;
+};
+struct ActTerm{
+    ZZ_EXT_ActTerm
+    char *fTerm;
+};
+ZZ_ORG_SINGLE_RING(inst,Instance);
+ZZ_ORG_SINGLE_RING(nets,Net);
+ZZ_ORG_SINGLE_TRIANGLE(byInst,Instance,ActTerm);
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,ActTerm);
+
+main()
+{
+    ActTerm *at;
+    Instance *ip,*iStart;
+    Net *np,*nStart;
+
+    /* here we setup four organizations:
+     *  - all instances in a ring starting from 'iStart';
+     *  - all nets in a ring starting from 'nStart';
+     *  - ActTerms in triangles under the instances
+     *  - ActTerms in triangles under the nets
+     */
+	    ...........
+
+
+    /* start with the two key entries into the main rings */
+    ZZ_OBJECT_SAVE(Instance,"myFile",iStart,1); /* will be duplicated */
+    ZZ_OBJECT_SAVE(Net,"myFile",nStart,1); /* will be duplicated */
+
+    /* traverse the whole organization, enter each object only once */
+    ZZ_A_TRAVERSE(nets,nStart,np){
+	ZZ_OBJECT_SAVE(Net,"myFile",np,1);
+    }ZZ_A_END;
+    ZZ_A_TRAVERSE(inst,iStart,ip){
+	ZZ_OBJECT_SAVE(Instance,"myFile",ip,1);
+        ZZ_A_TRAVERSE(byInst,ip,at){
+	    ZZ_OBJECT_SAVE(ActTerm,"myFile",at,1);
+	}ZZ_A_END;
+    }ZZ_A_END;
+    ZZ_CLOSE_BIND("myFile"); /* closes the output file and the 'save' operation */
+    /* note no need to traverse the triangles under nets */
+}
+#include "zzfunc.c"
+.)l
+.sp
+SPECIAL CASE:
+ If you want, for some reason, to open/close the disk file yourself,
+use ZZ_MODE_SAVE() with cntrl=1. In this special case, instead of calling
+ZZ_OBJECT_SAVE() with the file name, you call it with the file
+pointer or file handle casted as (char *). For example:
+.(l
+   class Employee;
+   FILE *fp;
+   Employee *ep;
+
+   ZZ_MODE_SAVE(0,1,0,1);
+   fp=fopen("myFile","w");
+    ...
+   ZZ_OBJECT_SAVE(Employee,(char *)fp,ep,1);
+.)l   
+.sp 1
+  ========================================================== */ 
+#define ZZ_OBJECT_SAVE(strType,fileName,pp,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+    char *ZZs; ZZint ZZt,ZZn;\
+    void ZZFUN_writeASCII();\
+    void ZZFUN_writeBind();\
+    strType *ZZp;\
+    ZZ_GENERAL_EXT(); \
+    ZZp=(pp);\
+    ZZs=ZZ_STRINGIT(strType);\
+    ZZt=ZZFP(ZZI,strType);\
+    if(ZZbindASCII){\
+      if(!strcmp(ZZs,"char")){\
+          ZZn=num;\
+          if(ZZn)ZZt= -8;\
+          ZZwriteASCII(1,ZZt,fileName,(char*)ZZp,num,0);\
+      }\
+      else ZZwriteASCII((ZZint)sizeof(strType),ZZt,fileName,(char*)ZZp,\
+                                                num,0);\
+    }\
+    else {\
+      if(!strcmp(ZZs,"char"))ZZwriteBind(1,ZZt,fileName,(char *)ZZp,num,0);\
+      else ZZwriteBind((ZZint)sizeof(strType),ZZt,fileName,(char*)ZZp,num,0);\
+    }\
+}

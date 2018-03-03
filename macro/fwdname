@@ -1,0 +1,40 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *given; /* given object */
+ char *name;            /* returned name */
+.)l
+Description:
+ Returns selected name associated with the object.
+Returns NULL, if the name does not exist.
+.pp
+For the description of purpose, see ZZ_ORG_NAME(). 
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+ZZ_ORG_NAME(fName,Fruit)
+
+char *pp;
+Fruit *f;
+
+ ....
+ZZ_FORWARD_NAME(fName,f,pp)
+printf("fruit name=%s\n",pp);
+.)l
+.pp
+See also: ZZ_ORG_GENERAL_LINK(), ZZ_ADD_GENERAL_LINK(),
+ZZ_DELETE_GENERAL_LINK(), and
+also similar functions for typed single/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_FORWARD_NAME(id,given,name) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FORWARD_NAME(ZZFP(ZZn,id),given,name)
+
+#define ZZZ_FORWARD_NAME(nPtr,given,name) \
+{(name)=(given)->nPtr;}

@@ -1,0 +1,59 @@
+/* =========================================================
+.(l
+ TEXT id;              /* array id */
+ str1Type *obj; /* object on which the array is */
+ int waterMark;        /* new water mark to be set */
+ int increment;        /* new increment to be set */
+.)l
+Description:
+ Resets the the control parameters of the array. The actual content and
+the size of the array remains unchanged. 
+.sp
+The macro can be used to reset a stack or a heap as empty, without
+having to pop out all the remaining objects. This is a fast, essentially
+two assignment statements operation.
+.sp
+To reset a wave or stack as empty, set waterMark = -1.
+Reset
+.i "increment"
+if you want to change the re-allocation policy when the array is full.
+To get the current values, use ZZ_SIZE_ARRAY().
+.sp
+For how to set the increment (or factor), see the description of
+ZZ_FORM_ARRAY().
+.(l
+Example of the use:
+
+ typedef struct Header Header;
+ typedef struct Plant Plant;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Plant {
+     char *name;
+     int pageIn;
+ };
+ ZZ_ORG_ARRAY(plants,Header,Plant)
+
+ Header *h;
+ Plant *p1,*p2;
+ int i,s,w;
+
+ ZZ_PLAIN_ALLOC(Header,1,h)
+ ZZ_FORM_ARRAY(plants,h,40,0,a) 
+
+   ....
+ ZZ_IN_HEAP(plants,h,p1)
+ ZZ_IN_HEAP(plants,h,p2)
+   ....
+ /* reset the heap as empty */
+ ZZ_SIZE_ARRAY(plants,h,s,w,i)
+ ZZ_RESET_ARRAY(plants,h,-1,i)
+.)l
+  ========================================================== */ 
+#define ZZ_RESET_ARRAY(id,obj,newWater,newInc) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+{ZZarray *ZZa; \
+    ZZa=(obj)->ZZFP(ZZa,id); \
+    if(ZZa){ZZa->waterM=(newWater); ZZa->incr=(newInc);}\
+}

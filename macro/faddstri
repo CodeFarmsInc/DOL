@@ -1,0 +1,50 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ str1Type *par;   /* parent of this triangle */
+ str2Type *pp;    /* element to add to the triangle */
+.)l
+Description:
+ Exactly the same functionality as ZZ_ADD_SINGLE_TRIANGLE(), except
+that it is implemented as a parameteric function.
+.sp 1
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZF_ADD_SINGLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZFT(1,id) *ZZFP(ZZF_ADD_SINGLE_TRIANGLE,id)();\
+ (par)=ZZFP(ZZF_ADD_SINGLE_TRIANGLE,id)(par,pp);}
+#endif
+#ifdef ZZ_ANSI
+#define ZZF_ADD_SINGLE_TRIANGLE(id,par,pp) \
+{ZZFT(1,id) *ZZFP(ZZF_ADD_SINGLE_TRIANGLE,id)(ZZFT(1,id) *e,ZZFT(2,id) *p);\
+ (par)=ZZFP(ZZF_ADD_SINGLE_TRIANGLE,id)(par,pp);}
+#endif
+
+/* _________________________________________________________ */
+#ifdef ZZ_ANSI
+ZZ1$ *ZZF_ADD_SINGLE_TRIANGLE$(ZZ1$ *par,ZZ2$ *pp)
+#else
+ZZ1$ *ZZF_ADD_SINGLE_TRIANGLE$(par,pp)
+ZZ1$ *par; ZZ2$ *pp;
+#endif
+{
+    if(pp->ZZp$!=NULL || pp->ZZs$!=NULL){
+        ZZmsgSS(14,"$",(char *)pp);
+                        /* cannot add object to .. child not disconnected */
+        return(par);
+    }
+    else {
+        if(par->ZZc$==NULL){
+            par->ZZc$=pp;
+            pp->ZZp$=par;
+            pp->ZZs$=pp;
+        }
+	else {
+            pp->ZZs$=par->ZZc$->ZZs$;
+            par->ZZc$->ZZs$=pp;
+            pp->ZZp$=par;
+        }
+    }
+    return(par);
+}

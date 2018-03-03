@@ -1,0 +1,454 @@
+rm environ.h
+cp ../lib/env0l.h ../lib/environ.h
+cp ../lib/env0l.h environ.h
+rm res*
+rm multi/main/res
+echo "test0a"
+../zzprep test0a.c zzincl.h
+lcc test0a.c ../lib/zzlib.a
+a.out inp0 res0a
+diff res0a out0a
+echo "test0b"
+../zzprep test0b.c zzincl.h
+lcc test0b.c ../lib/zzlib.a
+a.out inp0 res0b
+diff res0b out0b
+rm sfile
+echo "test0c"
+../zzprep test0c.c zzincl.h
+lcc test0c.c ../lib/zzlib.a
+a.out inp0 res0c
+diff res0c out0a
+echo "test0d"
+../zzprep test0d.c zzincl.h
+lcc test0d.c ../lib/zzlib.a
+a.out inp0 res0d
+diff res0d out0a
+rm sfile
+rm bfile
+echo "test0e"
+../zzprep test0e.c zzincl.h
+lcc test0e.c ../lib/zzlib.a
+a.out inp0 res0e
+diff res0e out0e
+echo "test0f"
+../zzprep test0f.c zzincl.h
+lcc test0f.c ../lib/zzlib.a
+a.out inp0 res0f
+diff res0f out0a
+echo "test0i"
+../zzprep test0i.c zzincl.h
+lcc test0i.c ../lib/zzlib.a
+a.out inp0 res0i
+diff res0i out0i
+rm sfile
+echo "test0j"
+../zzprep test0j.c zzincl.h
+lcc test0j.c ../lib/zzlib.a
+a.out inp0 res0j
+diff res0j out0i
+rm sfile
+echo "test0k"
+../zzprep test0k.c zzincl.h
+lcc test0k.c ../lib/zzlib.a
+a.out < inp0 > res0k
+diff res0k out0ku
+rm afile
+rm bfile
+echo "test0p"
+../zzprep test0p.c zzincl.h
+lcc test0p.c ../lib/zzlib.a
+a.out < inp0 > res0p
+diff res0p out0i
+rm sfile
+echo "test0q"
+../zzprep test0q.c zzincl.h
+lcc test0q.c ../lib/zzlib.a
+a.out < inp0q > res0q
+diff res0q out0q
+rm sfile
+echo "test1"
+../zzprep test1.c zzincl.h
+lcc test1.c ../lib/zzlib.a
+a.out inp1 res1
+diff res1 out1
+echo "test2"
+../zzprep test2.c zzincl.h
+lcc test2.c ../lib/zzlib.a
+a.out inp2 res2
+diff res2 out2
+echo "test3a"
+../zzprep test3a.c zzincl.h
+lcc test3a.c ../lib/zzlib.a
+a.out inp3 res3a
+diff res3a out3a
+echo "test3b"
+../zzprep test3b.c zzincl.h
+lcc test3b.c ../lib/zzlib.a
+a.out inp3 res3b
+diff res3b out3b
+echo "test4a"
+../zzprep test4a.c zzincl.h
+lcc test4a.c ../lib/zzlib.a
+a.out inp4 > res4a
+diff res4a out4a
+echo "test4b"
+../zzprep test4b.c zzincl.h
+lcc test4b.c ../lib/zzlib.a
+a.out > res4b
+diff res4b out4b
+rm sfile
+echo "test5"
+../zzprep test5.c zzincl.h
+lcc test5.c ../lib/zzlib.a
+a.out > res5
+echo "test7a 7b"
+cp test7.h temp
+cat test7a.c>>temp
+cat test7b.c>>temp
+cat test7x.c>>temp
+../zzprep temp zzincl.h
+lcc  test7a.c test7x.c ../lib/zzlib.a
+a.out inp7 res7a
+lcc  test7b.c test7x.c ../lib/zzlib.a
+a.out res7b
+diff res7a res7b
+echo "test7c 7d"
+cp test7.h temp
+cat test7c.c>>temp
+cat test7d.c>>temp
+cat test7x.c>>temp
+../zzprep temp zzincl.h
+lcc  test7c.c test7x.c test7y.c ../lib/zzlib.a
+a.out inp7 res7c
+lcc  test7d.c test7x.c test7y.c ../lib/zzlib.a
+a.out res7d
+diff res7c res7d
+echo "test7e 7f"
+cp test7.h temp
+cat test7a.c>>temp
+cat test7x.c>>temp
+../zzprep temp zzincl.h
+lcc  test7a.c test7x.c ../lib/zzlib.a
+a.out inp7 res7aa
+cp test7e.h temp
+cat test7e.c>>temp
+../zzprep temp zzincl.h
+lcc  test7e.c ../lib/zzlib.a
+a.out>res7e
+diff res7e out7e
+cp test7f.h temp
+cat test7f.c>>temp
+../zzprep temp zzincl.h
+lcc  test7f.c ../lib/zzlib.a
+a.out>res7f
+diff res7f res7aa
+echo "test7g"
+cp test7.h temp
+cat test7c.c>>temp
+cat test7d.c>>temp
+cat test7x.c>>temp
+../zzprep temp zzincl.h
+lcc  test7c.c test7x.c test7y.c ../lib/zzlib.a
+a.out inp7 res7lcc
+cp test7e.h temp
+cat test7g.c>>temp
+../zzprep temp zzincl.h
+lcc  test7g.c ../lib/zzlib.a
+a.out res7g
+diff res7e res7g
+echo "test7h"
+cp test7f.h temp
+cat test7h.c>>temp
+../zzprep temp zzincl.h
+lcc  test7h.c ../lib/zzlib.a
+a.out res7h
+diff res7h res7lcc
+echo "test7i"
+cp test7i.h temp
+cat test7i.c>>temp
+../zzprep temp zzincl.h
+lcc  test7i.c ../lib/zzlib.a
+a.out res7i
+diff res7i out7i
+echo "test8"
+../zzprep test8.c zzincl.h
+lcc test8.c ../lib/zzlib.a
+a.out inp8 res8
+diff res8 out8
+echo "test9"
+../zzprep test9.c zzincl.h
+lcc test9.c ../lib/zzlib.a
+a.out inp9 res9
+diff res9 out9
+echo "test9b"
+../zzprep test9b.c zzincl.h
+lcc test9b.c ../lib/zzlib.a
+a.out > res9b
+diff res9b out9b
+echo "multi"
+cp ../lib/env0l.h ../lib/environ.h
+cd multi/main
+prep
+cd ../jdir
+jlm
+cd ../pdir
+jlm
+cd ../sdir
+jlm
+cd ../main
+jlm
+main inp res
+diff res out
+cd ../..
+echo "test10a"
+../zzprep test10a.c zzincl.h
+lcc test10a.c ../lib/zzlib.a
+a.out inp10 res10a
+diff res10a out10a
+echo "test10b"
+../zzprep test10b.c zzincl.h
+lcc test10b.c ../lib/zzlib.a
+a.out inp10 res10b
+diff res10b out10b
+echo "test11a"
+../zzprep test11a.c zzincl.h
+lcc test11a.c ../lib/zzlib.a
+a.out > res11a
+diff res11a out11
+rm sfile
+echo "test11b"
+../zzprep test11b.c zzincl.h
+lcc test11b.c ../lib/zzlib.a
+a.out > res11b
+diff res11b out11
+rm sfile
+echo "test12a"
+../zzprep test12a.c zzincl.h
+lcc test12a.c ../lib/zzlib.a
+a.out inp12a res12a
+a.out inp12b res12a
+diff res12a out12
+echo "test12b"
+../zzprep test12b.c zzincl.h
+lcc test12b.c ../lib/zzlib.a
+a.out inp12a res12b
+a.out inp12b res12b
+diff res12b out12
+echo "test12c"
+../zzprep test12c.c zzincl.h
+lcc test12c.c ../lib/zzlib.a
+a.out inp12a res12c
+a.out inp12b res12c
+diff res12c out12
+rm backup
+echo "test14a"
+../zzprep test14a.c zzincl.h
+lcc test14a.c ../lib/zzlib.a
+a.out inp14a res14a
+diff res14a out14a
+a.out inp14b res14b
+diff res14b out14b
+echo "test14b"
+../zzprep test14b.c zzincl.h
+lcc test14b.c ../lib/zzlib.a
+a.out inp14a res14a
+diff res14a out14a
+a.out inp14b res14b
+diff res14b out14b
+rm file1
+echo "test15a"
+../zzprep test15a.c zzincl.h
+lcc test15a.c ../lib/zzlib.a
+a.out inp15 res15a
+diff res15a out15
+echo "test15b"
+../zzprep test15b.c zzincl.h
+lcc test15b.c ../lib/zzlib.a
+a.out inp15 res15b
+diff res15b out15
+echo "test15c"
+../zzprep test15c.c zzincl.h
+lcc test15c.c ../lib/zzlib.a
+a.out inp15 res15c
+diff res15c out15
+rm sorttest
+echo "test15d"
+../zzprep test15d.c zzincl.h
+lcc test15d.c ../lib/zzlib.a
+a.out inp15 res15d
+diff res15d out15
+echo "test15e"
+../zzprep test15e.c zzincl.h
+lcc test15e.c ../lib/zzlib.a
+a.out inp15 res15e
+diff res15e out15
+rm sorttest
+echo "test16a"
+../zzprep test16a.c zzincl.h
+lcc test16a.c ../lib/zzlib.a
+a.out inp16 res16a
+diff res16a out16a
+rm savefile
+echo "test16b"
+../zzprep test16b.c zzincl.h
+lcc test16b.c ../lib/zzlib.a
+a.out inp16 res16b
+diff res16b out16b
+rm sfile
+echo "test17a"
+../zzprep test17a.c zzincl.h
+lcc test17a.c ../lib/zzlib.a
+a.out inp17a res17a
+diff res17a out17
+echo "test17b"
+../zzprep test17b.c zzincl.h
+lcc test17b.c ../lib/zzlib.a
+a.out inp17b res
+a.out inp17c res17b
+mv a.out test17b
+diff res17b out17
+rm sfile
+echo "test17c"
+../zzprep test17c.c zzincl.h
+lcc test17c.c ../lib/zzlib.a
+a.out inp17b res
+a.out inp17c res17c
+mv a.out test17c
+diff res17c out17
+rm sfile
+echo "test17d"
+../zzprep test17d.c zzincl.h
+lcc test17d.c ../lib/zzlib.a
+test17b inp17b res
+a.out inp17c res17d
+diff res17d out17
+rm test17b
+rm sfile
+echo "test17e"
+../zzprep test17e.c zzincl.h
+lcc test17e.c ../lib/zzlib.a
+test17c inp17b res
+a.out inp17c res17e
+diff res17e out17e
+rm test17c
+echo "test18a"
+../zzprep test18a.c zzincl.h
+lcc test18a.c ../lib/zzlib.a
+a.out inp18a res18a
+diff res18a out18a
+echo "test18b"
+../zzprep test18b.c zzincl.h
+lcc test18b.c ../lib/zzlib.a
+a.out inp18d res18b
+a.out inp18e res18b
+diff res18b out18a
+rm sfile
+echo "test18c"
+../zzprep test18c.c zzincl.h
+lcc test18c.c ../lib/zzlib.a
+a.out inp18b res18c
+a.out inp18c res18c
+diff res18c out18c
+rm sfile
+echo "test18d"
+../zzprep test18d.c zzincl.h
+lcc test18d.c ../lib/zzlib.a
+a.out inp18a res18d
+diff res18d out18a
+echo "test19a"
+../zzprep test19a.c zzincl.h
+lcc test19a.c ../lib/zzlib.a
+a.out
+echo "test19b"
+../zzprep test19b.c zzincl.h
+lcc test19b.c ../lib/zzlib.a
+a.out > res19b
+diff res19b out19b
+rm sfile
+echo "test20a"
+../zzprep test20a.c
+lcc test20a.c ../lib/zzlib.a
+a.out>res20a
+diff res20a out20a
+rm outzz
+echo "test20b"
+../zzprep test20b.c
+lcc test20b.c ../lib/zzlib.a
+a.out>res20b
+echo "test20c"
+../zzprep test20c.c
+lcc test20c.c ../lib/zzlib.a
+a.out>res20c
+diff res20c out20c
+rm outzz
+echo "test21"
+cp inp21u inp21
+../zzprep test21.c
+lcc test21.c ../lib/zzlib.a
+a.out>res21
+diff res21 out21
+echo "test22a"
+../zzprep test22a.c
+lcc test22a.c ../lib/zzlib.a
+a.out<inp22>res22a
+diff res22a out22a
+echo "test22b"
+../zzprep test22b.c
+lcc test22b.c ../lib/zzlib.a
+a.out>res22b
+diff res22b out22b
+rm ascfile
+rm binfile
+echo "test24"
+../zzprep test24.c
+lcc test24.c ../lib/zzlib.a
+a.out inp0 res<inp24>res24
+rm afile
+rm bfile
+echo "test25a"
+../zzprep test25a.c
+lcc test25a.c ../lib/zzlib.a
+a.out <inp25>res25a
+diff res25a out25
+echo "test29a"
+rm pfile
+../zzprep test29a.c
+lcc test29a.c ../lib/zzlib.a
+a.out inp29a res29a
+diff res29a out29a
+echo "test29b"
+../zzprep test29b.c
+lcc test29b.c ../lib/zzlib.a
+a.out inp29b res29b
+diff res29b out29b
+rm file1
+rm file2
+echo "test30"
+../zzprep test30.c
+lcc test30.c ../lib/zzlib.a
+a.out > res30
+diff res30 out30
+rm myfile
+echo "test32a"
+../zzprep test32a.c
+lcc test32a.c ../lib/zzlib.a
+a.out > res32a
+diff res32a out32
+echo "test33a"
+../zzprep test33a.c
+lcc test33a.c ../lib/zzlib.a
+a.out G
+a.out A
+a.out R > res33a
+diff res33a out33a
+rm file1
+rm file2
+echo "test33b"
+../zzprep test33b.c
+lcc test33b.c ../lib/zzlib.a
+a.out 4 res33b > rest
+diff res33b out33b
+rm db
+rm file1
+rm file2

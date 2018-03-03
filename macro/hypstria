@@ -1,0 +1,103 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT pType;            /* parent class type */
+ TEXT cType;            /* child class type */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for SINGLE_TRIANGLE, which
+links together parent objects type 'pType' with child objects, type 'cType'.
+ For local scope use ZZ_LOCAL_SINGLE_TRIANGLE(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Example of the use:
+.(l
+class Employee {
+    char *name;
+    long int salary;
+public:
+    ZZ_EXT_Employee
+    void setName(char *n){n=new char[strlen(n)+1]; strcpy(name,n);}
+    char *getName(){return(name);}
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+class Manager : public Employee {
+    int deptNo;
+public:
+    ZZ_EXT_MANAGER
+};
+
+ZZ_HYPER_SINGLE_TRIANGLE(hier,Manager,Employee);
+
+Manager *mp;
+Employee *ep;
+
+mp=new Employee;
+ep=new Employee;
+hier.add(mp,ep);
+ep=new Employee;
+hier.add(mp,ep);
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_SINGLE_TRIANGLE(id,pType,cType)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_SINGLE_TRIANGLE(id,pType,cType,ZZ_EXTERN,id)
+
+#define ZZ_HYPER_SINGLE_AGGREGATE(id,pType,cType)  \
+ZZ_BASIC_SINGLE_TRIANGLE(id,pType,cType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_SINGLE_TRIANGLE(id,pType,cType,where)  \
+ZZ_BASIC_SINGLE_TRIANGLE(id,pType,cType,static,where :: id)
+
+#define ZZ_LOCAL_SINGLE_AGGREGATE(id,pType,cType,where)  \
+ZZ_BASIC_SINGLE_TRIANGLE(id,pType,cType,static,where :: id)
+
+#define ZZ_BASIC_SINGLE_TRIANGLE(id,pType,cType,scope,where)  \
+class ZZFP(ZZH,id) { \
+  friend class pType;\
+  friend class cType;\
+public: \
+  pType *par(cType *s){pType *p;\
+                  ZZ_PARENT_SINGLE_TRIANGLE(id,s,p); return(p);}\
+  cType *child(pType *s){cType *p;\
+                   ZZ_CHILD_SINGLE_TRIANGLE(id,s,p); return(p);}\
+  cType *chld(pType *s){return(s->ZZFP(ZZc,id));}\
+  cType * fwd(cType *s){cType *p;\
+                 ZZ_FORWARD_SINGLE_TRIANGLE(id,s,p); return(p);}\
+  void set(cType *t){ZZ_SET_SINGLE_TRIANGLE(id,NULL,t);}\
+  void add(pType *s,cType *p);\
+  void del(cType *p);\
+  void merge(cType *s,cType *t,pType *p);\
+  void sort(ZZTsortFun cmpF,pType *p);\
+  void switchParents(pType *p1,pType *p2); \
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   cType *beg;\
+   cType *nxt;\
+public:\
+   ZZFN(id,iterator)(pType *p){start(p);}\
+   ZZFN(id,iterator)(){beg=nxt=NULL;}\
+   void start(pType *p){if(p){beg=where.chld(p);\
+            if(beg)nxt=where.fwd(beg); else nxt=NULL;}\
+                        else beg=nxt=NULL;} \
+   cType* operator++(){cType *p;\
+      p=nxt; if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p);\
+                                                return(p);}\
+}
+
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ2$ *t){ZZ_ADD_SINGLE_TRIANGLE($,s,t); }
+void ZZV$ ZZH$ :: del(ZZ2$ *t){ZZ_DELETE_SINGLE_TRIANGLE($,NULL,t); }
+void ZZV$ ZZH$ :: merge(ZZ2$ *s,ZZ2$ *t,ZZ1$ *p){
+                                 ZZ_MERGE_SINGLE_TRIANGLE($,s,t,p); }
+void ZZV$ ZZH$ :: sort(ZZTsortFun cmpF,ZZ1$ *p){ZZ_SORT_SINGLE_TRIANGLE($,cmpF,p);}
+void ZZV$ ZZH$ :: switchParents(ZZ1$ *p1,ZZ1$ *p2){
+    ZZ2$ *s;
+    if(!p1 || !p2)return;
+    s=p2->ZZc$; p2->ZZc$=p1->ZZc$; p1->ZZc$=s;
+    for(s=p1->ZZc$; s && s->ZZp$!=p1; s=s->ZZs$)s->ZZp$=p1;
+    for(s=p2->ZZc$; s && s->ZZp$!=p2; s=s->ZZs$)s->ZZp$=p2;
+}

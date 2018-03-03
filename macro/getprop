@@ -1,0 +1,66 @@
+/* =========================================================
+.(l
+ char *pType;           /* property type retuned by this macro */
+ strType *ptr;   /* entity from which to get the property */
+ char *name;            /* property name to be used as ID */
+ pType *val;            /* pointer to value/array to be used for the results */
+ int num;               /* returned size of the array, 1=single value */
+
+ The following pType are returned: "int", "float", "char", "string"
+ Note the difference in ZZ_SET_PROPERTY where this field must be
+ supplied as TEXT, not as a string.
+.)l
+Description:
+ This is an inverse function to ZZ_SET_PROPERTY().
+.i "ptr,"
+and
+.i "name"
+must be given. The function returns the character code
+.i "pType,"
+and fills the array
+.i "arr"
+and the number of the elements in the array,
+.i "num."
+ Sorry for the order of the parameters here, inputs and outputs
+are not groupped together as usual, the reason is to make the call compatible
+with ZZ_SET_PROPERTY().
+.pp
+When a property of the given name is not found, the macro returns
+.i "pType="
+"notFound"  and 
+.i "num=0."
+.pp
+See also: ZZ_ORG_PROPERTY, ZZ_SET_PROPERTY, ZZ_TRAVERSE_PROPERTY
+.(l
+Examples:
+
+typedef struct myStructure myStructure;
+struct myStructure {
+    ZZ_EXT_myStructure
+   ....
+};
+ZZ_ORG_PROPERTY(myStructure)
+
+myStructure a[200];
+int n,*val;
+char *tp;
+
+ZZ_GET_PROPERTY(tp,&(a[127]),"largePin",val,n);
+
+/* to print the values of this property */
+for(i=0;i<n;i++)printf("%d ",val[k]); printf("\n");
+
+/* for a single property (or the first value from the list) */
+printf("%d\n",*val);
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_GET_PROPERTY(pType,ptr,name,val,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+ZZint ZZi,ZZFUN_propGet(),ZZFUN_cnvProp();\
+char ZZc;\
+    (void)ZZpropGet(&((ptr)->ZZprop),name,&ZZc,(char **)(&(val)),&ZZi);\
+    (void)ZZcnvProp(&ZZc,ZZi,&pType,&num);\
+}

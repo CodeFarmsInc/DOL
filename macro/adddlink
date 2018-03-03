@@ -1,0 +1,56 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ strType1 *from;  /* link from this object */
+ strType2 *to;    /* link to this object */
+.)l
+Description:
+ Adds a two way link between the two given objects. Typing is maintained.
+The link objects become essentially one object.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_DOUBLE_LINK() and also ZZ_ORG_SINGLE_LINK().
+.(l
+Example:
+
+typedef struct Rectangle Rectangle;
+typedef tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+     ...
+};
+struct tempRect {
+    ZZ_EXT_tempRect
+     ...
+};
+ZZ_ORG_DOUBLE_LINK(rLink,Rectangle,tempRect)
+
+Rectangle *r;
+tempRect *tr;
+
+ ....
+ZZ_ADD_DOUBLE_LINK(rLink,r,tr)
+.)l
+.pp
+See also: ZZ_ORG_DOUBLE_LINK(), ZZ_FORWARD_DOUBLE_LINK(),
+ZZ_BACKWARD_DOUBLE_LINK(),
+ZZ_DELETE_DOUBLE_LINK(), and ZZ_ADD_GENERAL_LINK(),
+ZZ_ADD_SINGLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_ADD_DOUBLE_LINK(id,from,to) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_DOUBLE_LINK(id,ZZFP(ZZf,id),ZZFP(ZZb,id),from,to)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_DOUBLE_LINK(id,fwp,bwp,from,to) \
+{(from)->fwp=(to); (to)->bwp=(from);} 
+#else
+#define ZZZ_ADD_DOUBLE_LINK(id,fwp,bwp,from,to) \
+{if((from)->fwp || (to)->bwp){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(from));\
+        ZZerrFLG=ZZerrFLG|010;\
+ }\
+ else {(from)->fwp=(to); (to)->bwp=(from);}\
+}
+#endif

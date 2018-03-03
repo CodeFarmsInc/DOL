@@ -1,0 +1,34 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* structure to free */
+.)l
+Description:
+ Checks whether all transparent pointers of this object are
+properly disconnected before the object can be freed.
+If the object is a part of any organization, a warning
+message is issued, and the error flag is set: ZZerror=010.
+  There is no need to use this function in C programs, where PLAIN_FREE
+takes care of checking together with the deallocation. The main purpose
+of ZZ_CHECK() is to check objects in C++ destructors.
+.sp
+The macro checks only one object. For checking an array of objects,
+use ZZ_CHECK_FREE().
+.(l
+Example:
+
+class Insect{
+private:
+    short numLegs;
+    char color;
+    char category;
+public:
+    ZZ_EXT_Insect
+    Insect(){ZZ_INIT(Insect);}
+    ~Insect(){ZZ_CHECK(Insect);}
+};
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_CHECK(strType) ZZ_CHECK_FREE(strType,1,this)
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+

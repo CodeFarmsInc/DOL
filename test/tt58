@@ -1,0 +1,9 @@
+echo "test57"
+cp test58a.h temp.h
+cat test58b.h >> temp.h
+cat test58r.h >> temp.h
+../zzprep temp.h
+g++ test58m.cpp test58a.cpp test58b.cpp ../lib/zzglib.a
+./a.out > res58
+./diff res58 out58
+rm tile.odb

@@ -1,0 +1,62 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name (OrgC id) */
+ TEXT sTp;   /* source type */
+ TEXT tTp;   /* target type */
+.)l
+Description:
+ Generates a  back-and-forth link between two objects of the different types.
+The link generates one instance of the hyper-class id, and inserts one
+pointer into each of the two objects.
+.pp
+ For local scope use ZZ_LOCAL_DOUBLE_LINK(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Example of the use:
+.(l
+class Husband {
+    ZZ_EXT_Husband
+    char *name;
+public:
+    Husband(){ZZ_INITIAL(Husband,0,1,this);};
+    ~Husband(){ZZ_CHECK_FREE(Husband,1,this);};
+};
+class Wife {
+    ZZ_EXT_Wife
+    char *name;
+public:
+    Wife(){ZZ_INITIAL(Wife,0,1,this);};
+    ~Wife(){ZZ_CHECK_FREE(Wife,1,this);};
+};
+
+ZZ_HYPER_DOUBLE_LINK(marriage,Husband,Wife);
+
+Husband *hp;
+Wife *wp;
+
+wp=new Wife;
+hp=new Husband;
+marriage.add(hp,wp);
+  ...
+wp=marriage.fwd(hp); // returns wife of hp
+hp=marriage.bwd(wp); // returns husband of wp
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_DOUBLE_LINK(id,sTp,tTp)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_DOUBLE_LINK(id,sTp,tTp,ZZ_EXTERN,id) 
+
+#define ZZ_LOCAL_DOUBLE_LINK(id,sTp,tTp,where)  \
+ZZ_BASIC_DOUBLE_LINK(id,sTp,tTp,static,where :: id) 
+
+#define ZZ_BASIC_DOUBLE_LINK(id,sTp,tTp,scope,where)  \
+class ZZFP(ZZH,id) { \
+public: \
+    tTp * fwd(sTp *s){tTp *t; ZZ_FORWARD_DOUBLE_LINK(id,s,t); return(t);} \
+    sTp * bwd(tTp *t){sTp *s; ZZ_BACKWARD_DOUBLE_LINK(id,t,s); return(s);} \
+    void add(sTp *s,tTp *t){ZZ_ADD_DOUBLE_LINK(id,s,t); }\
+    tTp * del(sTp *s){tTp *t;ZZ_DELETE_DOUBLE_LINK(id,s,t); return(t);}\
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */

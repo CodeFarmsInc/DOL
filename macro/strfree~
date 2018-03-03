@@ -1,0 +1,75 @@
+/* =========================================================
+.(l
+ char *ptr;           /* pointer to the string to be freed */
+.)l
+Description:
+ Frees the given text string that normally should be allocated with
+ZZ_STRING_ALLOC().
+.sp
+If the macro is called with ptr=NULL, there is no error, the freeing is
+by-passed.
+.(l
+Example 1 (direct use of the name):
+-----------------------------------
+
+typedef struct Town Town;
+struct Town{
+    ZZ_EXT_Town
+    int population;
+    char *name;
+};
+ZZ_ORG_SINGLE_RING(towns,Town)
+Town *start,*t;
+char buff[40],*nn;
+int i;
+
+start=NULL;
+ ....
+scanf("%s %d\\n",buff,&i);
+ZZ_PLAIN_ALLOC(Town,1,t)
+ZZ_NAME_ALLOC(buff,nn)
+t->population=i;
+t->name=nn;
+ZZ_ADD_SINGLE_RING(towns,start,t)
+ ....
+ZZ_DELETE_SINGLE_RING(towns,start,t)
+ZZ_STRING_FREE(t->name)
+ZZ_PLAIN_FREE(Town,1,t)
+
+
+
+Example 2 (treating name as an organization):
+---------------------------------------------
+
+typedef struct Town Town;
+struct Town{
+    ZZ_EXT_Town
+    int population;
+};
+ZZ_ORG_SINGLE_RING(towns,Town)
+ZZ_ORG_NAME(tName,Town)
+Town *start,*t;
+char buff[40],*nn;
+int i;
+
+start=NULL;
+ ....
+scanf("%s %d\\n",buff,&i);
+ZZ_PLAIN_ALLOC(Town,1,t)
+ZZ_NAME_ALLOC(buff,nn)
+t->population=i;
+ZZ_ADD_SINGLE_RING(towns,start,t)
+ZZ_ADD_NAME(tName,nn)
+ ....
+ZZ_DELETE_SINGLE_RING(towns,start,t)
+ZZ_FORWARD_NAME(tName,t,nn)
+ZZ_STRING_FREE(nn)
+ZZ_DELETE_NAME(tName,t,NULL)
+ZZ_PLAIN_FREE(Town,1,t)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_STRING_FREE(ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ int ZZFUN_gfree(); if(ptr)ZZgfree(ptr); }

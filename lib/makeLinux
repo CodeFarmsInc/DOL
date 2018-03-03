@@ -1,0 +1,19 @@
+cp envmsft.h environ.h
+del *.o
+del mllib.a
+..\zzprep pager.hpp pager.k zzmaster pager.g
+cp bind.cc bind.cpp
+cp pager.cc pager.cpp
+cp sweap.c sweap.cpp
+cp array.c array.cpp
+cp property.c property.cpp
+cp sortRing.c sortRing.cpp
+cp time.c time.cpp
+cp util.c util.cpp
+cp msgs.c msgs.cpp
+cp blast.c blast.cpp
+cp virtarr.c virtarr.cpp
+gcc -c virtarr.cpp pager.cpp util.cpp bind.cpp sweap.cpp array.cpp
+gcc -c blast.cpp time.cpp msgs.cpp property.cpp sortRing.cpp 
+del *.cpp
+ar cr mllib.lib pager.o time.o property.o util.o bind.o sortring.o array.o sweap.o msgs.o blast.o virtarr.o

@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure type of the parent */
+ TEXT str2Type;         /* structure type of the children */
+.)l
+Description:
+ Explicit definition of the organization of the single triangle
+.pp
+Single triangle is a one-level hierarchical organization, where
+the parent is of one type, and all the children are of another type.
+Each child points to the parent, all children are linked into a ring,
+and the parent points to one element of the ring.
+.(l
+ parent
+ .
+ V
+ .
+ A -> E -> D -> C  -> B ->.
+ .                        .
+ ............ <- ..........
+
+ in this diagram, links from all children to the parent
+ are not shown.
+.)l
+The order of the objects is as if added in this order: A,B,C,D,E.
+When using ZZ_A_TRAVERSE_SINGLE_TRIANGLE(), the objects will be returned
+in the reverse order: E,D,C,B,A.
+.sp
+Note that this organization is quite efficient in using small memory,
+and it is fast when adding new members. But it is slow when deleting
+a child.
+.(l
+Example of the use:
+   typedef struct myStr1 myStr1;
+   typedef struct myStr2 myStr2;
+   struct myStr1 { /* will be parent of myTriangle */
+       ZZ_EXT_myStr1
+       int a,b,c,d;
+   };
+   struct myStr2 { /* will be child of myTriangle */
+       ZZ_EXT_myStr2
+       char *x,*y,*z;
+   };
+   ZZ_ORG_SINGLE_TRIANGLE(myTriangle,myStr1,myStr2)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_SINGLE_TRIANGLE(id,strType1,strType2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_SINGLE_TRIANGLE */
+
+#define ZZ_ORG_SINGLE_AGGREGATE(id,strType1,strType2) \
+/* ZZ_ORG_SINGLE_AGGREGATE */

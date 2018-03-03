@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ str1Type *par;   /* parent of this collection */
+ str2Type *pp;    /* element to add to the collection */
+.)l
+Description:
+ This macro adds a new child to a triangle under the parent
+.i "par."
+If the triangle does not exist yet, the macro sets the new element
+as the first and only child.
+.sp
+ This works exactly like ZZ_ADD_SINGLE_TRIANGLE() or ZZ_ADD_DOUBLE_COLLECT()
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_DOUBLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_ADD_DOUBLE_TRIANGLE\
+(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),ZZFP(ZZc,id),ZZFP(ZZp,id),par,pp)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_DOUBLE_TRIANGLE(id,type2,fwd,bwd,child,parent,par,pp) \
+{ type2 *ZZa,*ZZb;\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->fwd=(pp);\
+            (pp)->bwd=(pp);\
+        }\
+	else {\
+            ZZa=(par)->child; ZZb=ZZa->fwd;\
+            (pp)->fwd=ZZb; (pp)->bwd=ZZa;\
+            ZZa->fwd=(pp); ZZb->bwd=(pp);\
+        }\
+        (pp)->parent=(par);\
+}
+#else
+#define ZZZ_ADD_DOUBLE_TRIANGLE(id,type2,fwd,bwd,child,parent,par,pp) \
+{ type2 *ZZa,*ZZb;\
+    if((pp)->fwd!=NULL){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->fwd=(pp);\
+            (pp)->bwd=(pp);\
+        }\
+	else {\
+            ZZa=(par)->child; ZZb=ZZa->fwd;\
+            (pp)->fwd=ZZb; (pp)->bwd=ZZa;\
+            ZZa->fwd=(pp); ZZb->bwd=(pp);\
+        }\
+        (pp)->parent=(par);\
+    }\
+}
+#endif

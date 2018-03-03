@@ -1,0 +1,103 @@
+/* =========================================================
+.(l
+ char *ptr;      /* pointer to any structure */
+ char *strName;  /* name of the structure to which ptr points */
+.)l
+Description:
+ Returns the name of the structure of this block.
+ Two pointers point to the same type of object if either
+both pointers are equal, or if the names are equal - see the examples
+below.
+ Return
+.i "strName=NULL"
+means that the macro is not able to identify the object.
+.sp
+Error conditions:
+ If
+.i "ptr"
+points to a an area not marked for self-identification (this can
+happen only due to a programming error), there is an extremely small
+probability of false identification.
+ What is the most likely error that could create a pointer into
+an unmarked area?
+ - not declaring ZZ_ORG_SELF_ID() for this structure, nor using
+   ZZ_ALL_SELF_ID;
+ - using ZZ_ALL_SELF_ID, but not declaring ZZ_EXT_.. on this structure;
+ - allocating the object by other means than ZZ-macros and not
+   using ZZ_SET_SELF_ID();
+ - total programming mishap (mixed-up pointers).
+.sp
+.(l
+Examples:
+
+/* all examples will use the same data structure */
+/* --------------------------------------------- */
+typedef struct Apple Apple;
+typedef struct Plum Plum;
+typedef struct Mellon Mellon;
+struct Apple {
+    ZZ_EXT_Apple
+    char color;
+    int numSeeds;
+};
+struct Plum {
+    ZZ_EXT_Plum
+    int zone;
+    float pitSize;
+};
+struct Mellon {
+    ZZ_EXT_Mellon
+    float weight;
+    float cost;
+};
+char *n1,*n2;
+int *i;
+Apple a,ap[6];
+Plum p;
+Mellon *m;
+
+/* Example 1: selfID globally declared for all ZZ_EXT_... */
+/* -------------------------------------------------------- */
+ZZ_ALL_SELF_ID
+
+ZZ_GET_SELF_ID(&p,n1)
+/* returns n1=NULL, because p is automaticlaly allocated */
+
+ZZ_SET_SELF_ID(Apple,ap,6)
+ZZ_GET_SELF_ID(&(ap[4]),n2)
+/* returns n2="Apple", ap is automatic, but selfID has been set */
+
+ZZ_PLAIN_ALLOC(Mellon,1,m)
+ZZ_GET_SELF_ID(m,n2)
+/* returns n2="Mellon", allocator sets selfID automatically */
+
+/* Example 2: selfID set on selected structures */
+/* ---------------------------------------- */
+ZZ_ORG_SELF_ID(Apple)
+ZZ_ORG_SELF_ID(Mellon)
+
+ZZ_GET_SELF_ID(p,n1)
+ZZ_GET_SELF_ID(i,n2)
+/* returns n1=n2=NULL, neither object can be identified */
+
+ZZ_SET_SELF_ID(Apple,ap,6)
+ZZ_GET_SELF_ID(&(ap[4]),n2)
+/* returns n2="Apple", ap is automatic, but selfID has been set */
+
+ZZ_PLAIN_ALLOC(Mellon,1,m)
+ZZ_GET_SELF_ID(m,n2)
+/* returns n2="Mellon", allocator sets selfID automatically */
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_GET_SELF_ID(ptr,strName) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+char ***ZZp;\
+ZZint ZZi,ZZFUN_pOffset();\
+    ZZp=(char***)(ptr);\
+    ZZi=ZZpOffset((char*)(*ZZp),(char*)ZZselfArr);\
+    if(ZZi<0 || ZZi>=ZZnID*(int)sizeof(char *)) (strName)=NULL;\
+    else (strName)= **ZZp;\
+}

@@ -1,0 +1,49 @@
+Testing specified selfID
+
+before allocation or set
+a id=Apple
+m no id
+p no id
+ap id=Apple
+ad[3] id=Apple
+
+after allocation & set
+a id=Apple
+m no id
+p id=Plum
+ap[11] id=Apple
+ad[3] id=Apple
+
+testing properties
+
+group: A B C
+Type: B
+type: melba mcintosh idared granny
+owner: soukup
+cost: 1.200000 1.300000 1.400000
+grade: 10 20 30
+year: 1988
+street: -9
+
+delete and add properties
+warning: non-unique use of property named=grade
+         type=int changed to int, size=3 changed to 2
+
+grade: 11 21
+owner: lapid
+Type: B
+type: melba mcintosh idared granny
+year: 1978
+
+delete all properties
+
+
+it should have printed no properties
+
+properties on ring 1
+cost: 1.200000 1.300000 1.400000
+year: 1978
+
+properties on ring 2
+grade: 10 20 30
+year: 1978

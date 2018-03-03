@@ -1,0 +1,68 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT type   ;          /* structure type used in this tree */
+.)l
+Description:
+ Encapsulated form of the single tree for C++.
+For more description, see ZZ_ORG_SINGLE_TREE()
+ For local scope use ZZ_LOCAL_SINGLE_TREE(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.sp
+Note that the iterator has both ++ and -- operators.
+.(l
+Example of the use:
+   class myStr {
+       ZZ_EXT_myStr
+       int a,b,c,d;
+   };
+   ZZ_HYPER_SINGLE_TREE(myTree,myStr)
+
+   myStr *p,*c;
+
+    ...
+   myTree_iterator ti(p); // visit all children of p
+   while(c=ti++){
+     ...  // c is the next child
+   }
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_SINGLE_TREE(id,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_SINGLE_TREE(id,type,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_SINGLE_TREE(id,type,where) \
+ZZ_BASIC_SINGLE_TREE(id,type,static,where :: id)
+
+#define ZZ_BASIC_SINGLE_TREE(id,type,scope,where) \
+class ZZFP(ZZH,id) { \
+public: \
+  type *par(type *c){type *p;\
+                  ZZ_PARENT_SINGLE_TREE(id,c,p); return(p);}\
+  type *child(type *p){type *c;\
+                   ZZ_CHILD_SINGLE_TREE(id,p,c); return(c);}\
+  type *chld(type *p){return p->ZZFP(ZZc,id);}\
+  type * fwd(type *t){type *s;\
+                 ZZ_FORWARD_SINGLE_TREE(id,t,s); return(s);}\
+  void set(type *c){ZZ_SET_SINGLE_TREE(id,NULL,c);}\
+  void add(type *p,type *c);\
+  void app(type *t,type *c);\
+  void del(type *t);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   type *beg;\
+   type *nxt;\
+public:\
+   ZZFN(id,iterator)(type *p){start(p);}\
+   ZZFN(id,iterator)(){beg=nxt=NULL;}\
+   void start(type *p){if(p){beg=where.chld(p);\
+    if(beg)nxt=where.fwd(beg); else nxt=NULL;} else beg=nxt=NULL;} \
+   type* operator++(){type *p;\
+      p=nxt; if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p); return(p);}\
+}
+
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ *p,ZZ1$ *c){ZZ_ADD_SINGLE_TREE($,p,c); }
+void ZZV$ ZZH$ :: app(ZZ1$ *t,ZZ1$ *c){ZZ_APPEND_SINGLE_TREE($,t,c); }
+void ZZV$ ZZH$ :: del(ZZ1$ *t){ZZ_DELETE_SINGLE_TREE($,NULL,t); }

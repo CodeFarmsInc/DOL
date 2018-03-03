@@ -1,0 +1,882 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 8, Syntax</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">8. SYNTAX</font></h1>
+
+<h4><a href="#8_1"><font size="2" face="Arial">8.1 Includes and
+Defines</font></a><font size="2" face="Arial"><br>
+</font><a href="#8_2"><font size="2" face="Arial">8.2 ZZ_EXT</font></a><font
+size="2" face="Arial"><br>
+</font><a href="#8_3"><font size="2" face="Arial">8.3 ZZ_ORG</font></a><font
+size="2" face="Arial"><br>
+</font><a href="#8_4"><font size="2" face="Arial">8.4 ZZ_HYPER</font></a><font
+size="2" face="Arial"><br>
+</font><a href="#8_5"><font size="2" face="Arial">8.5 ZZ_LOCAL</font></a><font
+size="2" face="Arial"><br>
+</font><a href="#8_6"><font size="2" face="Arial">8.6 Other ZZ
+Calls</font></a><font size="2" face="Arial"><br>
+</font><a href="#8_7"><font size="2" face="Arial">8.7 Version of
+this Library</font></a><font size="2" face="Arial"><br>
+</font><a href="#8_8"><font size="2" face="Arial">8.8 CMP() and
+Other Auxillary Functions</font></a></h4>
+
+<h2><a name="8_1"></a><font size="4" face="Arial">8.1 INCLUDES
+AND DEFINES</font></h2>
+
+<h3><font size="3" face="Arial">8.1.1 ZZmain</font></h3>
+
+<p>DOL uses only a few global variables, and <em>#define
+ZZmain</em> designates the file where these variables will be
+declared. This often is the file with the <em>main()</em>
+program, but it does not have to be. Simply select one of your
+files to be the <em>main </em>DOL file. If your program is all
+in one file, you need <em>#define ZZmain</em>.</p>
+
+<p>If several programmers use DOL in a hierarchical fashion,
+as described in <a href="ch18Mult.htm">Chap.18</a>, only one file
+can have <em>ZZmain</em>. Using<em> ZZmain</em> in more than one
+file will cause the linker to complain about multiply declared
+variables.</p>
+
+<p>See also <em>ZZlocal</em> below.</em>
+
+<h3><font size="3" face="Arial">8.1.2 <em>zzincl.h</em> and <em>zzfunc.c</em></font></h3>
+
+<p>The DOL class generator creates two files, with which you
+have to compile your source. The default names for these files
+are<em> zzincl.h</em> and <em>zzfunc.c.</em> Your program usually
+starts with <em>#include</em> <em>&quot;zzincl.h.</em>&quot;, and
+has <em>#include &quot;zzfunc.c&quot;</em> at the end of one of
+your files, or compiles <em>zzfunc.c</em> separately.</p>
+
+<p>Note that <em>zzincl.h</em> also contains, besides other
+include directives, the statement <em>#include
+&quot;../zzcomb.h.&quot;, </em>which includes the whole macro
+library.</p>
+
+<p><em>zzincl.h</em> (not <em>zzfunc.c</em>) is protected against
+multiple inclusion. Simply, you can use it everywhere without
+worrying about multiple declarations.</p>
+
+<p>If you want to choose different names for these files, avoid
+using the prefix ZZ, which is reserved for DOL variables and
+functions. The general syntax for calling the class generator is:</p>
+
+<blockquote>
+    <p><em>orgCpath/zzprep prog.c &lt;incl.h&gt; &lt;zzmaster&gt;
+    &lt;func.c&gt;</em></p>
+</blockquote>
+
+<p>where prog.c is the file with your program, and <em>incl.h</em>
+and <em>func.c</em> are the files equivalent to <em>zzincl.h</em>
+and <em>zzfunc.c</em>, and <em>master</em> is the master-control
+file of your macro library, usually <em>zzmaster</em>.</p>
+
+<p><em>zzprep</em> must be given a full or relative path to the
+orgC directory; other files are given without the path. <em>incl.h</em>
+and <em>func.c</em> will automatically be in the current
+directory, <em>master</em> in the macro directory under the
+directory where <em>zzprep</em> is (typically <em>orgC/macro</em>).</p>
+
+<p>If your program consists of several files, you have two
+options:</p>
+
+<p>Either run the class generator only on your header file, which
+contains the declarations of all objects and their organizations,
+or concatenate all your files together and run them through the
+class generator. </p>
+
+<p>File <em>zzincl.h</em> automatically pulls in <em>stdio.h</em>.
+Most examples in the test directory include<em> stdio.h</em>
+explicitely, as it was needed in OrgC/C++ prior to version 3.0.
+Today it is not necessary.</p>
+
+<p>If you use VisualC++ from Microsoft, note that file <em>zzincl.h</em>
+must be included after <em>stdafx.h:</em></p>
+
+<blockquote>
+    <p><em>#include &lt;stdafx.&gt;<br>
+    #include &quot;zzincl.h&quot;</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">8.1.3 ZZimplicit</font></h3>
+
+<p>ZZimplicit is one of the important defines in the C version of
+the library (Data Manager for C, OrgC), but it is not used in
+DOL.</p>
+
+<h3><font size="3" face="Arial">8.1.4 ZZselectMacros</font></h3>
+
+<p>When delivering a finished software product, it is not
+necessary to send the whole macro library (<em>zzcomb.h</em>)
+with it. If <em>#define ZZselectMacros</em> is used, the class
+generator selects those macros that are actually used by your
+program, and places them into the file <em>zzcomb.h</em> in your
+current(!) directory. File <em>zzincl.h</em> is then instructed
+to pick up that file, and not<em> zzcomb.h</em> from the main
+OrgC directory.</p>
+
+<p><em>ZZselectMacros</em> causes a relatively long class
+generator run, makes shorter include files, and slightly shorter
+compilation, with no effect on run-time. It is a good idea to
+develop a program without this <em>#define</em>, and add it only
+just before compiling the final version of the software.</p>
+
+<h3><font size="3" face="Arial">8.1.6. ZZascii</font></h3>
+
+<p>Normally, when saving data to disk, binary format is used. For
+ASCII format, (also see <a href="ch13mmmb.htm#13_2">Chap.13.2</a>),
+use <em>#define ZZascii</em>. This define must also be used when
+using both formats within the same program - see macro <em>ZZ_MODE_SAVE()</em>.
+As an example, compare <em>test16a.c</em> (saving in binary
+format) with <em>test16b.c</em> (saving in ASCII format).</p>
+
+<p>When using the interactive browser, this define must be used,
+because the browser is printing objects in the ASCII format on
+the screen.</p>
+
+<h3><font size="3" face="Arial">8.1.7. ZZcplus</font></h3>
+
+<p>When running with C++, <em>#define ZZcplus</em> must always be
+present in your<em> lib/environ.h </em>file. For example, when
+using ZORTECH C++ the file should contain, and possibly other
+defines, the following statements: </p>
+
+<blockquote>
+    <p><em>#define DOS<br>
+    #define ZORTECH<br>
+    #define ZZcplus</em></p>
+</blockquote>
+
+<p>The class generator automatically creates necessary friend
+declarations and inserts them under the appropriate <em>ZZ_EXT</em>
+statements. The generation of friends may be disabled by using </p>
+
+<blockquote>
+    <p><em>#define ZZnoFriends.</em></p>
+</blockquote>
+
+<p>This may be useful if running C++ in C-like style, with
+structures instead of classes. </p>
+
+<p>If you are running with C++ Ver.2.1 or higher, declare <em>ZZcplus21</em>
+instead of<em> ZZcplus</em>. For example, when running C++
+Ver.3.0 on Sun, you need: </p>
+
+<blockquote>
+    <p><em>#define UNIX<br>
+    #define SUN3_0<br>
+    #define ZZcplus21<br>
+    #define ZZansi<br>
+    #define ZZ_INHERIT</em></p>
+</blockquote>
+
+<h3><a name="8_1_8"></a><font size="3" face="Arial">8.1.8
+ZZ_INHERIT and ZZinheritAll</font></h3>
+
+<p>When you use DOL with C++, you must define either <i>ZZ_INHERIT</i>
+or <i>ZZinheritAll</i>.
+The only situation when you do not need these two defines is
+when your entire design is based on simple C-like classes
+called <i>lightweight</i> classes. 
+Lightweight classes neither inherit nor include member objects.
+For example:
+
+<blockquote><pre><em>
+    class A {  // would be lightweigh by itself
+        int i;
+        A *ap; // pointer, not an object
+        ...
+    };
+
+    class B : A { // not lightweight, inheritance
+        ...
+    };
+
+    class C { // not lightweight
+        A a;  // object, not a pointer
+        ...
+    };
+</blockquote></pre></em>
+
+
+<p>When you have even a single class which is not lightweight, you must define
+either <i>ZZ_INHERIT</i> or <i>ZZinheritAll</i>.
+If you don't, after saving your objects
+to disk they will not be restored properly. But why do we have two options?</p>
+
+<p><i>ZZinheritAll</i> requires no other considerations and it guarantees that 
+all the general situations that can happen in C++ are properly handled,
+including multiple inheritance and pointers that
+lead inside other objects. If you are starting with DOL or if you don't care
+much about the memory and disk footprints, this is the define
+you should use.</p>
+
+<p>If you want the most efficient data storage and speed, you should use
+<i>ZZ_INHERIT</i>. However, this option requires that all base classes
+have at least one virtual function. This normally is the case (why would you
+use inheritance without virtual functions?), but if it isn't the case you have
+to add a dummy virtual function:
+
+<blockquote><pre><em>
+    // base class with a virtual function(s)
+    class A {  
+        int i;
+        virtual void prt(){printf("%d",i);}
+        ...
+    };
+
+    class B : A { 
+        ...
+    };
+
+    class C {  // base class without virtual functions
+        int i;
+        virtual void foo(){} // added dummy function
+        ...
+    };
+
+    class D : C { 
+        ...
+    };
+
+</blockquote></pre></em>
+
+<p>The advantage of using <i>ZZ_INHERIT</i> is a smaller footprint both
+in memory and on disk, and a slightly faster data access. Objects of
+lightweight classes are 8 bytes smaller compared to using <i>ZZinheritAll</i>.
+Classes involved in inheritance have the same size.</p>
+
+<p>The main reason for using <i>ZZinheritAll</i> is the safety of maintenance.
+When adding a new class to an existing design using <i>ZZ_INHERIT</i>,
+it is easy to forget
+that the base class must have a virtual function. The program seems to save
+and restore data from the disk (there is not crash or error messages), and
+it may take some time to discover that members of the derived class are
+not saved correctly.</p>
+
+<p><i>IMPORTANT NOTES:</i></p>
+<p>(1) Everything what we discussed about <i>ZZ_INHERIT</i> and
+<i>ZZinheritAll</i>
+applies to saving data in the ASCII or binary modes. When saving data
+with memory blasting, you don't have to worry about the presence of virtual
+functions, and ZZ_INHERIT</i> is the better choice. </p>
+
+<p>(2) If you have only lightweight classes and, for the sake of performance,
+you decide to use neither <i>ZZ_INHERIT</i> nor <i>ZZinheritAll</i>, 
+all classes with <em>ZZ_EXT_</em> must have a void constructor, and all
+constructors must call either 
+<em>ZZ_INIT()</em> or<em> ZZ_OBJECT_ALLOC()</em>.
+For examples, see <em>test11a.c</em> or <em>test11b.c.</em></p>
+
+<blockquote><pre>
+    <p>SUMMARY:<br><br>
+    (a) <i>ZZinheritAll</i> - always works, but may use more memory and disk
+    (b) <i>ZZ_INHERIT</i>   - clear choice for memory blasting; for ASCII/binary modes base classes must have a virtual function
+    (c) neither used - lightweight classes only, special rule about constructors<br>
+    All environment files in orgc/lib use <i>ZZ_INHERIT</i>. Change it to <i>ZZinheritAll</i>, if you want to play it safe.</p>
+</pre></blockquote>
+
+<p>Test programs <i>orgc/test/test60*.c</i> illustrate all what has been discussed in this
+chapter:</p>
+<p><i>test60a.c</i> shows the situation where the dummy virtual function must be
+added (binary saving mode, <i>ZZ_INHERIT</i>, no virtual function used by class
+ShapeType).<br>
+<i>test60b.c</i> shows the same program using <i>ZZinheritAll</i> (no dummy virtual
+function is needed).<br>
+<i>test60c.c</i> shows the same program coded in a better style - with
+<i>ZZ_INHERIT</i> and natural virtual functions. The disk size is 1,158 bytes compared to 
+1,238 for <i>test60b</i>.<br>
+<i>test60d.c</i> shows <i>test60a</i> when saving in the memory blasting mode. The dummy
+virtual function is not needed. <br></p>
+
+<h3><font size="3" face="Arial">8.1.9 ZZansi</font></h3>
+
+<p>This define must be used in the <em>environ.h</em> file, if
+you run with a compiler that adheres to the ANSI standard. This
+include is required for most C++ compilers.</p>
+
+<p>Except for this one define, do not use the word ZZansi
+anywhere in your code. If you want to differentiate between ANSI
+and non-ANSI code, use </p>
+
+<blockquote>
+    <p><em>#ifdef ZZ_ANSI.</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">8.1.10 ZZmultiProj</font></h3>
+
+<p>This define must be used in the main header file of a
+multi-project, where DOL is used hierarchically by several
+programmers or projects (see an example in directory <em>orgC/test/multi</em>).
+Normally, only one set of internal type tables is kept by DOL,
+but in the case of a multi-project, type tables are different at
+each level. In this case, DOL uses tables which are static.
+For this reason in a multi-project design, larger files with more
+functions in them are more memory efficient than individual files
+for each small function. Note that in the multi-project example
+supplied in the <em>orgC/test/multi</em> directory, <em>-ZZmultiProj</em>
+is needed only in the file <em>orgC/test/multi/main/proj.h.</em></p>
+
+<h3><font size="3" face="Arial">8.1.11 ZZnoCheck</font></h3>
+
+<p>This define disables run-time checking. The use of this define
+is potentially dangerous, but it makes some sense in two
+situations:</p>
+
+<ol>
+    <li>When trying to speed-up a well debugged version of the
+        code;</li>
+    <li>when trying to avoid error messages caused by discarding
+        automatically allocated objects.</li>
+</ol>
+
+<p>For example, when leaving the following function</p>
+
+<blockquote>
+    <p><em>void foo(int i){ Block b; ... }</em></p>
+</blockquote>
+
+<p>a C++ compiler automatically deallocates b. If b had been used
+in some data organizations and had not been explicitely
+disconnected, this results in an DOL error message.</p>
+
+<p>If the data organization, to which b had been connected, was
+only temporary, then disconnecting it is a waste of time. If all
+this is not intentional, however, using <em>ZZnoCheck</em> will
+leave a substantial bug hidden in the code.</p>
+
+<p>In this version, some commands are not sensitive to this
+option. You can update the files yourself, however, by adding
+appropriate if-statements inside the macros. For an example, see <em>macro/delname</em>
+or <em>macro/delslink</em>.</p>
+
+<h3><font size="3" face="Arial">8.1.12 ZZ_NOLEAK</font></h3>
+
+<p>SUN compilers use a very inefficient (quadratic) deallocator,
+which is very slow especially if many small objects are being
+freed. For this reason, the default of OrgC/C++ on SUN is not to
+free any objects or temporary structures. If you are concerned
+more about memory than about the time your program needs to run,
+please specify <em>#define ZZ_NOLEAK.</em> </p>
+
+<p>For platforms other than <em>SUN, ZZ_NOLEAK</em> is the
+default. </p>
+
+<h3><font size="3" face="Arial">8.1.13 ZZlocal</font></h3>
+
+<p>This define replaces <em>ZZmain</em> for a subproject, which
+is using OrgC/C++ in parallel, but independently from other
+subprojects. Saving to disk is not permitted on programs running
+in this mode.</p>
+
+<p>For example, the PAGER organization in <em>orgC/lib/pager.cc</em>
+is coded with OrgC/C++, and though it is a part of the library,
+it does not interfere with your application code. <em>#define
+ZZlocal</em> forces global declarations to be static.</p>
+
+<p>HINT: If you have several independent subprojects, none of them saves
+data to disk, all can be coded in (or concatenated into) one file,
+and you want them to be coded in a uniform style, then make this
+change inside the library:
+   Edit file <em>orgc/lib/pager.cc</em>,
+   find the line with <em>#define ZZlocal</em>,
+   replace <em>ZZlocal</em> by <em>ZZmain</em>,
+   and recompile the library (for example by executing <em>msft.bat</em>.
+</p>
+
+<h3><font size="3" face="Arial">8.1.14 ZZnoDestr</font></h3>
+
+<p>From Version 3.01, void constructors/destructors containing <em>ZZ_INIT()</em>
+and <em>ZZ_CHECK()</em> are generated automatically. That means
+that automatically allocated objects are also automatically
+checked for disconnection before exiting from any function. In
+some programs, which generate a lot of data without taking care
+of how to dispose of it on the exit from the program, this full
+checking generates a lot of error messages, which are irrelevant
+to what the programmer wants to do. <em>#define ZZnoDestr</em>
+blocks the automatic generation of destructors.</p>
+
+<p>For an example of how to use <em>ZZnoDestr</em> together with
+multiple inheritance, see <em>test28.c</em></p>
+
+<h3><a name="8_1_15"></a><font size="3" face="Arial">8.1.15
+ZZbreakLine</font></h3>
+
+<p>This statement is not a define, but a special mark to be used
+to split long files that must run through <em>zzprep</em> into
+smaller, independently processed segments. Normally, <em>zzprep</em></p>
+
+<p>reads all its input into memory, and processes it as one big
+string. For large projects, this may be a problem under DOS,
+where heap data is restricted to under 64k. When <em>ZZbreakLine</em>
+statements are inserted, processing proceeds section by section.
+This slightly slows processing, but avoids the size limitation.</p>
+
+<p><em>ZZbreakLine </em>statements must be on a separate line,
+and start right from the beginning of the line. They also must
+not split classes or functions. If you want to split the input
+into many small segments, please use one <em>ZZbreakLine</em>
+statement after each class declaration.</p>
+
+<p>Example: <em>test25c.c</em></p>
+
+<h2><a name="8_2"></a><font size="4" face="Arial">8.2 ZZ_EXT_..</font></h2>
+
+<p>For each class which is involved in one or more organizations,
+you have to use one (and only one) <em>ZZ_EXT_</em>.. statement.
+The ending of this statement must exactly match the class name.
+When running with C++, use classes, not structures.</p>
+
+<p>Examples:</p>
+
+<blockquote>
+    <pre><em>class Plum {
+    ZZ_EXT_Plum
+    float weight;
+public:
+    ...
+};
+class Apple {
+    int size;
+    ZZ_EXT_Apple
+    char colour;
+public:
+    ...
+ };</em></pre>
+</blockquote>
+
+<p>The <em>ZZ_EXT</em> statements instruct the class generator on
+where to insert automatic pointers, that are otherwise
+transparent. In C++, this statement also inserts the declaration
+of friends for all related objects. Note that the semicolon must <strong>not</strong>
+be used after the<em> ZZ_EXT_</em> statement. These statements
+can be anywhere within the structure, but if the<em> SELF_ID</em>
+organization is used on the object, <em>ZZ_EXT</em> must be at
+the beginning of the structure. If this condition is not met, the
+program detects it at run-time, and prints an error message.</p>
+
+<p>When hyper-objects are used (<em>ZZ_HYPER_</em>...), <em>ZZ_EXT_</em>
+should be in the private part of the class. </p>
+
+<p><em>ZZ_EXT</em> may change <em>private</em> into<em> public</em>,
+therefore a new <em>private</em> statement must follow after <em>ZZ_EXT</em>,
+if the following variables are to be private.</p>
+
+<h2><a name="8_3"></a><font size="4" face="Arial">8.3 ZZ_ORG</font></h2>
+
+<p>These statements are used to declare organizations in C, or in
+C++ when hyper-objects are not used (Data Manager for C, OrgC, R
+book), and have a similar purpose to that of <em>ZZ_HYPER</em>
+statements (see below). For example, the statements</p>
+
+<blockquote>
+    <p><em>ZZ_ORG_SINGLE_RING(eRing,Employee);<br>
+    ZZ_ORG_TIME_STAMP(Employee); <br>
+    ZZ_ORG_HASH(eTable,Header,Employee); </em></p>
+</blockquote>
+
+<p>are a direct equivalent of</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(eRing,Employee);<br>
+    ZZ_HYPER_TIME_STAMP(Employee); <br>
+    ZZ_HYPER_HASH(eTable,Header,Employee);</em></p>
+</blockquote>
+
+<p>The syntax is exactly the same, but the internal action is
+totally different. <em>ZZ_ORG_</em> is only an instruction for
+the class generator, and is translated as a comment. <em>ZZ_HYPER</em>
+hides a whole class declaration, including one instance of that
+class (id).</p>
+
+<p>This is only for your general information, you should not use<em>
+ZZ_ORG_ </em>with this tool. </p>
+
+<h2><a name="8_4"></a><font size="4" face="Arial">8.4 ZZ_HYPER</font></h2>
+
+<p>ZZ_HYPER statements typically follow object declarations, and
+declare a hyper-class with one instance of the object. They are
+equivalent to a database schema, and describe the relations
+between individual data types. These statements can also be
+interpreted as instance declarations of abstract organizations.</p>
+
+<p>The table-like form of <em>ZZ_HYPER</em> statements and their
+clarity are important features of DOL.</p>
+
+<p>The syntax of the <em>ZZ_HYPER</em> statement is:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_organization(id,type1,type2,..)</em></p>
+</blockquote>
+
+<p>where</p>
+
+<p><em>organization</em> is one of the organizations from the
+DOL library; <em>id</em> is the instance name of this
+organization, and <em>type1, type2</em>, ... specify the types to
+be used.</p>
+
+<p>Each organization has a specific number of types.</p>
+
+<p>Some special hardwired organizations such as <em>SELF_ID</em>,
+<em>PROPERTY</em>, or<em> TIME_STAMP</em> do not require the<em>
+id</em>, because there can be only one instance of such
+organizations in any object type.</p>
+
+<p>Otherwise, there is no limit on the number of organizations
+which are used for any object type. There is also no limit on the
+number of types used in an organization; in the present library,
+however, there are no organizations with more than 3 types.</p>
+
+<h4><font size="2" face="Arial">Example 1:</font></h4>
+
+<p>We have four objects: State, Town, Highway, and AirLink. Towns
+are connected by two networks: Highways and AirLinks. Towns are
+also grouped by the State to which they belong. All States are
+linked into a ring, so that they can be sequentially accessed.</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_GRAPH(hwy,Town,Highway);<br>
+    ZZ_HYPER_SINGLE_GRAPH(air,Town,AirLine);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byState,State,Town); <br>
+    ZZ_HYPER_SINGLE_COLLECT(sRing,Header,State);</em></p>
+</blockquote>
+
+<p>Here <em>hwy</em> represents a graph, which has towns as nodes
+and Highways as edges, and <em>air</em> represents a graph which
+has Towns as nodes and Airlinks as edges. <em>sRing</em> is a
+ring of all States, and <em>byState</em> is one level of
+hierarchy, which groups Towns that belong to one State. We added
+one object, called Header, to encapsulate the entry into the
+rings of states, <em>sRing</em>.</p>
+
+<h4><font size="2" face="Arial">Example 2:</font></h4>
+
+<p>In electrical netlists, such as those used on VLSI chips or
+printed circuit boards. we deal with Blocks that have Pins. Pins
+are connected by signal Nets. Both Blocks and Nets must be
+sequentially accessible, each separately. </p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_COLLECT(bRing,Header,Block);<br>
+    ZZ_HYPER_SINGLE_COLLECT(nRing,Header,Net);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byBlock,Block,Pin); <br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byNet,Net,Pin); </em></p>
+</blockquote>
+
+<p>Here, <em>byBlock</em> allows access to all the pins of a
+given block, and <em>byNet</em> allows access to all the pins on
+a Net. <em>Header</em> is a dummy object to encapsulate entry
+points of the two rings.</p>
+
+<h4><font size="2" face="Arial">Example 3:</font></h4>
+
+<p>When dealing with a list of Employee records, we may want to
+keep a hash table for fast access of the records by name. At the
+same time, we want to record the time when the objects were
+created or modified. A hash table must exist as an attribute of
+some object; object <em>Header</em> keeps both the hash table and
+the entry point for the ring: </p>
+
+<blockquote>
+    <pre><em>class Header {
+    ZZ_EXT_Header
+};
+class Employee {
+    ZZ_EXT_Employee
+        ...
+};
+ZZ_HYPER_SINGLE_COLLECT(eRing,Header,Employee);&lt;%0&gt;
+ZZ_HYPER_TIME_STAMP(Employee); 
+ZZ_HYPER_HASH(eTable,Header,Employee); </em></pre>
+</blockquote>
+
+<p>Here, <em>eRing </em>is the ring of all employees. Each record
+will have a time stamp. Hash table <em>eTable</em> will allow
+fast access to the Employee records.</p>
+
+<h4>IMPORTANT:</h4>
+
+<p>Under UNIX, the organization id must not start with a blank
+character. For example:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_GRAPH( myGraph,Town,Hwy);</em></p>
+</blockquote>
+
+<p>results in a compiler error.</p>
+
+<h2><a name="8_5"></a><font size="4" face="Arial">8.5 ZZ_LOCAL</font></h2>
+
+<p>In the previous two sections, it was explained that in C, you
+declare data organizations with <em>ZZ_ORG_..()</em>, while in
+C++ you declare them with <em>ZZ_HYPER_..()</em>. Both these
+declarations have a global character, and even though the
+interface classes that represent the organization do not contain
+any data, some users expressed a wish to encapsulate these
+organizations under some class, to make them completely invisible
+from the outside.</p>
+
+<p>For this purpose, the class must be designed with some minor
+differences in how it is constructed, which is exactly what<em>
+ZZ_LOCAL_..()</em> is.<em> ZZ_LOCAL_..()</em> has one more
+parameter than the corresponding <em>ZZ_ORG_..</em>or<em>
+ZZ_HYPER_..</em> statements do. The last parameter specifies the
+class under which the declaration will be hidden (see the example
+below). The <em>ZZ_LOCAL_..()</em> statement must be in the
+beginning of the class, before <em>ZZ_EXT_</em>..</p>
+
+<p>The following example shows how a <em>RING </em>can be neatly
+encapsulated inside a class. This is a much cleaner
+implementation than you can achieve with standard class
+libraries. Note that<em> ZZ_HYPER_UTILITIES()</em> is always
+global; functions such as memory management and persistency are
+difficult if not impossible to make local. </p>
+
+<blockquote>
+    <pre><em>// Testing DOL an organization with a local scope
+// Here RING myRing is knows only within the scope of class A
+#include &lt;&lt;stdio.h&gt;&gt;
+#define ZZmain
+#include zzincl.h</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>class A {
+    static A *entry;
+    int a;
+    ZZ_EXT_A
+public:
+    int val(void){return a;};
+    A(){entry=NULL;}
+    A(int i);
+    A* next(void);
+    ZZ_LOCAL_SINGLE_RING(myRing,A,A);
+};
+ZZ_HYPER_UTILITIES(util);</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>A* A::next(void){return myRing.fwd(this);}
+A::A(int i){a=i; entry=myRing.add(entry,this);}</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>int main(void){
+A aa,*a1,*a2;</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>a1=new A(1);
+a2=new A(2);</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>a2=a1-.next();
+printf(&quot;%d %d\n&quot;, a1-.val(),a2-.val());</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>// a1=myRing.fwd(a2); causes compiler error, unknown myRing }</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>#include &quot;zzfunc.c&quot;</em></pre>
+</blockquote>
+
+<p>This program is included in the test suite as <em>test36b.c.</em></p>
+
+<h3><font size="2" face="Arial">WARNING:</font></h3>
+
+<p><font color="#FF0000">!!TODO - Check this with Jiri</font>.
+This style of localizing data organization does not agree well
+with the basic concept of this entire library, and is not
+recommended for use. In spite of our effort, some organizations
+(for example <em>HASH</em>) do not work with <em>ZZ_LOCAL</em>.
+Instead of using <em>ZZ_LOCAL</em>, we recommend the following
+strategy, where the organization remains global, but the object
+that holds its actual implementation is private. All access to
+the hash table is encapsulated under class Dict. This style
+naturally fits the design of the library, and the resulting code
+is clean and simple. (This example was designed in cooperation
+with Jay Weininger from Reuters.)</p>
+
+<p>Here Dict keeps a hash table of variable length tokens, with
+only one copy for each string.</p>
+
+<blockquote>
+    <pre><em>#include &lt;iostream.h&gt;
+#define ZZmain
+#include &quot;zzincl.h&quot;</em></pre>
+    <pre><em>// holder of the hash table|
+class Table {
+    ZZ_EXT_Table
+};
+// represents one name entry
+class Token {
+    ZZ_EXT_Token
+public:
+    Token(){}
+    Token(char *n);
+    ~Token();
+};
+// encapsulates the hash table
+// Note the absence of ZZ_EXT_Dict</em></pre>
+    <pre><em>class Dict { 
+    Table *tab; // hides the hash table
+public:
+    Dict(int sz);
+    ~Dict();
+    void addName(char *n);
+    char *getName(char *n);
+    void delName(char *n);
+};
+ZZ_HYPER_HASH(hash,Table,Token);
+ZZ_HYPER_NAME(name,Token);
+ZZ_HYPER_UTILITIES(util);</em></pre>
+    <pre><em>int hash_class::cmp(Token *b1,Token *b2){
+    return strcmp(name.fwd(b1),name.fwd(b2)); }
+int hash_class::hash(Token *b,int size){
+    int ZZhashStr(char *,int);
+    return ZZhashStr(name.fwd(b),size); 
+}
+Dict::Dict(int sz){tab=new Table; hash.form(tab,sz);} 
+Dict::~Dict(){hash.free(tab);} 
+Token::Token(char *n){
+    char* p=util.strAlloc(n); name.add(this,p);}
+Token::~Token(){
+    char* p=name.del(this); if(p)util.strFree(p);} 
+void Dict::addName(char *n){
+    Token* t=new Token(n);
+    Token* p=hash.get(tab,t);
+    if(!p)hash.add(tab,t); else delete t;
+}
+char* Dict::getName(char *n){
+    static Token t;
+    char *p;
+    name.add(&amp;t,n);
+    Token* tp=hash.get(tab,&amp;t);
+    if(tp)p=name.fwd(tp); else p=NULL;
+    (void)name.del(&amp;t);
+    return p;
+}
+void Dict::delName(char *n){
+    static Token t;
+    name.add(&amp;t,n);
+    Token* tp=hash.get(tab,&amp;t);
+    if(tp)(void)hash.del(tab,tp);
+    (void)name.del(&amp;t);
+}
+void main(void){
+    Dict a(100); char *n;
+    a.addName(&quot;brown&quot;); 
+    a.addName(&quot;black&quot;); 
+    a.addName(&quot;brown&quot;); 
+    a.addName(&quot;brown&quot;); 
+    a.delName(&quot;brown&quot;);
+    n=a.getName(&quot;black&quot;); if(n)cout&lt;&lt;n&lt;&lt;&quot;\n&quot;;
+    n=a.getName(&quot;brown&quot;); if(n)cout&lt;&lt;n&lt;&lt;&quot;\n&quot;;
+};</em></pre>
+    <pre><em>#include &quot;zzfunc.c&quot;
+// The program prints only one line: black</em></pre>
+</blockquote>
+
+<p>This example is part of the test suite, see <em>test36c.c</em>.</p>
+
+<h2><a name="8_6"></a><font size="4" face="Arial">8.6 SYNTAX OF
+OTHER ZZ CALLS</font></h2>
+
+<p>When using DOL, most of the time, you will need only two
+additional macros with the prefix <em>ZZ: ZZ_INITIAL() </em>and <em>ZZ_CHECK().</em>
+These macros must be inserted into the constructor/destructor for
+your objects that have <em>ZZ_EXT</em> statements. <em>ZZ_INITIAL()</em>
+automatically initializes all internal pointers as disconnected;<em>
+ZZ_CHECK() </em>checks that the object is disconnected from all
+organizations before it is deallocated.</p>
+
+<p>All other ZZ calls, whether macros or functions, are
+encapsulated in the hyper-objects and you, as their user, do not
+have to know about them.</p>
+
+<p>Note that in C++ the C macros for traversing sets, <em>ZZ_A_TRAVERSE(){
+... }ZZ_A_END</em> are replaced by iterators, which are
+automatically created by the <em>ZZ_HYPER_</em>.. statements.
+These iterators do not have the ZZ_ prefix, and behave like
+normal C++ iterators. For most of the iterators in DOL, the
+overloaded ++ operator is used to get to the next object in the
+set.</p>
+
+<h2><a name="8_7"></a><font size="4" face="Arial">8.7 VERSION OF
+THIS LIBRARY</font></h2>
+
+<p>A special global string <em>ZZorgcVersion,</em> which appears
+at the top of the <em>zzincl.h</em> file, contains information
+about the current version of the library. This information allows
+you to recover the version number for old executables. Use the
+&quot;strings&quot; program, and search for text
+&quot;Version&quot;.</p>
+
+<h2><a name="8_8"></a><font size="4" face="Arial">8.8 <em>CMP() </em>AND
+OTHER AUXILLIARY FUNCTIONS</font></h2>
+
+<p>Both the documentation and the test programs frequently use
+auxilliary free floating functions, such as the compare function
+needed for sorting (equivalent to the <em>cmp()</em> function
+needed for qsort). Similar functions are needed when you want to
+sort any of the organizations in this library, or when you want
+to use the binary heap or the hash table.</p>
+
+<p>A much better coding style is not to use free floating
+functions, but to make these functions static and assigned to the
+class of objects that are being compared. Both styles are
+supported by this library. For examples of the better style - see
+the example in <a href="ch07exmp.htm">Chap.7</a>, or <em>test0r.c.</em></p>
+
+<p>The advantages of not using virtual <em>cmp() </em>functions
+as it is common in some other class libraries are that:</p>
+
+<ul>
+    <li>If you don't sort your objects, you do not have to
+        provide dummy<em> cmp() </em>functions that only clutter
+        the code.</li>
+    <li>If your classes don't have virtual functions, you avoid
+        the unnecessary overhead (4 bytes for each subclass - a
+        significant amount of memory for composite objects).</li>
+</ul>
+
+<p>Note that the <em>cmp() </em>and <em>hash()</em> functions for
+hash tables are assigned to the organization itself (see <a
+href="ch14prpe.htm#14_5">Chap.14.5</a>), and therefore must be
+coded as:</p>
+
+<blockquote>
+    <p><em>inline int</em> _class::cmp(oType*,oType*);</p>
+    <p><em>inline int </em>_class::hash(oType*,int);</p>
+</blockquote>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch07uml.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        7: UML</font></a></td>
+        <td align="right" width="50%"><a href="ch09SngU.htm"><font
+        face="Arial">Chapter 9: Single User Mode <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

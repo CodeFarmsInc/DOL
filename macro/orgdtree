@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure type used in this tree */
+.)l
+Description:
+ Explicit definition of the organization of the double tree.
+This is exactly like the single tree, except that nodes at the same
+level form a double-linked ring.
+.sp
+Compared to the single tree, this organization requires one more pointer
+per object. Adding objects takes about the same time (slightly slower),
+but deleting objects is much faster, at least for trees with more
+than 2 nodes per branch.
+.pp
+Double tree is a hierarchical organization, where
+at each level, we have parent and a set of children.
+The parent points to one of its children, children are linked
+into a double linked ring, each child points up to the parent.
+The root of the tree has NULL parent.
+.sp
+Order of children in one level of the tree:
+ When repeated ZZ_ADD() is used, the children on the ring have the same order
+as for DOUBLE_RING. ZZ_A_TRAVERSE() returns them in the reverse order they
+were added.
+.(l
+ parent
+ .
+ V
+ .
+ A <-> B <-> C <-> D ... <-> X <->.
+ .                                .
+ ............ <-> .................
+
+ in this diagram, links from all children to the parent
+ are not shown.
+
+Example of the use:
+   typedef struct myStr myStr;
+   struct myStr {
+       ZZ_EXT_myStr
+       int a,b,c,d;
+   };
+   ZZ_ORG_DOUBLE_TREE(myTree,myStr)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_DOUBLE_TREE(id,strType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_DOUBLE_TREE */

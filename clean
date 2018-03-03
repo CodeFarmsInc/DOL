@@ -1,0 +1,12 @@
+rm *.o
+rm *.obj
+rm *.exe
+rm environ.h
+rm list
+rm trfile
+rm zzcomb
+rm zzhelp
+rm zzprep
+rm zzroff
+rm zzsplit
+rm zzcomb.h

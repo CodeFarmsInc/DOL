@@ -1,0 +1,93 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers to 2 nodes to be connected */
+ edgeType *ge;   /* given edge to connect the two nodes */
+.)l
+Description:
+ Add a new edge to the graph between the two given nodes.
+.(l
+Example:
+ Add one highway to the network of towns & highways
+ recorded as a graph.
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {      /* graph edge */
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+
+Town *t[2],*t1,*t2;
+Hwy *h; 
+
+....
+/* add highway No.344 between towns t1 and t2 */
+ZZ_PLAIN_ALLOC(Hwy,1,h)
+h->number=344;
+t[0]=t1;
+t[1]=t2;
+ZZ_ADD_SINGLE_GRAPH(myGraph,t,h)
+....
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_SINGLE_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_SINGLE_GRAPH\
+(id,ZZFT(2,id),ZZFP(ZZe,id),ZZFP(ZZx,id),ZZFP(ZZy,id),ZZFP(ZZr,id),ZZFP(ZZs,id),nd,ge)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_SINGLE_GRAPH(id,eType,edge,node1,node2,next1,next2,nd,ge) \
+{eType *ZZe;\
+	(ge)->node1=(nd)[0];\
+        ZZe=(nd)[0]->edge;\
+        if(ZZe){\
+	    if(ZZe->node1==(nd)[0]){(ge)->next1=ZZe->next1; ZZe->next1=(ge);}\
+	    else                 {(ge)->next1=ZZe->next2; ZZe->next2=(ge);}\
+	}\
+        else {(nd)[0]->edge=(ge); (ge)->next1=(ge);}\
+	if((nd)[0]!=(nd)[1]){ \
+	    (ge)->node2=(nd)[1];\
+            ZZe=(nd)[1]->edge;\
+            if(ZZe){\
+	      if(ZZe->node1==(nd)[1]){(ge)->next2=ZZe->next1; ZZe->next1=(ge);}\
+	      else                 {(ge)->next2=ZZe->next2; ZZe->next2=(ge);}\
+	    }\
+            else {(nd)[1]->edge=(ge); (ge)->next2=(ge);}\
+	}\
+	else {(ge)->node2=NULL; (ge)->next2=NULL;}\
+}
+#else
+#define ZZZ_ADD_SINGLE_GRAPH(id,eType,edge,node1,node2,next1,next2,nd,ge) \
+{eType *ZZe;\
+    if((ge)->node1||(ge)->node2||(ge)->next1||(ge)->next2){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(ge));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+	(ge)->node1=(nd)[0];\
+        ZZe=(nd)[0]->edge;\
+        if(ZZe){\
+	    if(ZZe->node1==(nd)[0]){(ge)->next1=ZZe->next1; ZZe->next1=(ge);}\
+	    else                 {(ge)->next1=ZZe->next2; ZZe->next2=(ge);}\
+	}\
+        else {(nd)[0]->edge=(ge); (ge)->next1=(ge);}\
+	if((nd)[0]!=(nd)[1]){ \
+	    (ge)->node2=(nd)[1];\
+            ZZe=(nd)[1]->edge;\
+            if(ZZe){\
+	      if(ZZe->node1==(nd)[1]){(ge)->next2=ZZe->next1; ZZe->next1=(ge);}\
+	      else                 {(ge)->next2=ZZe->next2; ZZe->next2=(ge);}\
+	    }\
+            else {(nd)[1]->edge=(ge); (ge)->next2=(ge);}\
+	}\
+	else {(ge)->node2=NULL; (ge)->next2=NULL;}\
+    }\
+}
+#endif

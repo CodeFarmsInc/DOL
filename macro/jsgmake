@@ -1,0 +1,5 @@
+cp ../lib/env0g.h ../lib/environ.h
+g++ zzmerge.c ../zzutil.c ../lib/zzglib.a
+mv a.out zzmerge
+g++ zzselect.c ../zzutil.c ../lib/zzglib.a
+mv a.out zzselect

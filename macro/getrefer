@@ -1,0 +1,22 @@
+/* =========================================================
+.(l
+ TEXT id;          /* id for the instance of the organization */
+ strType2 *targ;   /* given target object */
+ int count;        /* returned count for the object */
+.)l
+Description:
+ Returns the internal count for the given object, without changing
+ the count.
+.pp
+Typical use:
+ Detecting objects which are not referenced any more, and can be destroyed.
+.pp
+For an example and other commands, see the description of
+ZZ_ORG_REFERENCE() and ZZ_HYPER_REFERENCE().
+.sp
+  ========================================================== */ 
+#define ZZ_GET_REFERENCE(id,targ,count) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_GET_REFERENCE(ZZFP(ZZc,id),targ,count)
+
+#define ZZZ_GET_REFERENCE(cnt,targ,count) {(count)=(targ)->cnt;}

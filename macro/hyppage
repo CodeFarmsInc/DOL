@@ -1,0 +1,110 @@
+/* =========================================================
+.(l
+ TEXT id;        // id for the instance of the organization
+ TEXT strType;   // type of the object to encapsulate the pager
+.)l
+Returns: location where the text starts in the loaded page, NULL if
+         the pager is not set for this object
+Description:
+ Declaration of a pager.
+.pp
+Pager is a user controlled  paging mechanism, which can be used
+as one of the data organizations in an application program.
+Essentially, the pager works like a very large array, which can
+be indexed with a long index. (Note that under Windows7 64 bits,
+this index must be long long.) The array automatically pages in and out
+of memory depending on the indices most recently called. When closing
+the pager, all its content remains on file, and can be opened later.
+.pp
+Similarly to dynamic array or hash table, a pager must live
+on an object, such as the Head in the example below. 
+.pp
+Several pagers can operate simultaneously. One header can encapsulate
+several pagers. The virtual array kept by the pager is continuous
+across page boundaries. Objects larger than one page still can be handled by the pager.
+The pager can operate with only 1 page in memory (as a buffered IO).
+.sp
+Only four functions are required to control the pager:
+ id.form(hp,fileName,pgSize,numPgs,init);
+     forms a new pager, or invokes an old one from a file.
+ id.io(hp,ind,buff,n,mode);
+     provides read/write functions from the paging area.
+ ptr=id.addr(hp,ind);
+     for a given index ind, makes sure its page is loaded, and
+     returns corresponding memory address, ptr.
+ id.close(hp);
+     closes a pager, stores all pages on its file, clears memory.
+.sp
+where
+ id is the organization identifier;
+ hp is pointer to the object that encapsulates the pager;
+ (char *fileName) is the name of the file used by the pager;
+ (int pgSize) is the size of one page in bytes;
+ (int numPgs) is the max number of pages kept in memory;
+ (int init) specifies initialization (0=none,1='\0', 2=' ');
+ (long ind) is storage index by byte, starts from 0;
+ buff buffer/object to go in/out, any type;
+ (int n) is the size of the buffer/object;
+ (int mode) specifies read/write (0=read, 1=write).
+ (char *ptr) is a memory address.
+.sp
+ For local scope use ZZ_LOCAL_PAGER(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.(l
+Example of the use:
+   class Head {
+       ZZ_EXT_Head
+   public:
+       Head(){ZZ_INIT(Head);};
+   };
+   class myObj {
+      ...   // with ZZ_EXT or not
+   };
+   ZZ_HYPER_PAGER(page,Head); // Head will encapsulate the pager
+
+    main(){
+        long i;
+        Head *hp;
+        char buff[80],*ptr;
+        myObj *mp;
+
+        hp=new Head;
+        page.form(hp,"myFile",512,6,2); // 6 pages, 512 bytes each
+        ...
+        // write object mp starting form index i
+        page.io(hp,i,mp,sizeof(myObj),1); 
+        ...
+        // retrieve 15 characters starting from index 14033 into buff
+        page.io(hp,14033L,buff,15,0); 
+        ...
+        ptr=page.addr(hp,0L);
+        cout << "first char on the file is=" << *p ;
+        ...
+        page.close(hp); // closes the pager and its file
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_PAGER(id,hType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_PAGER(id,hType,ZZ_EXTERN,id) 
+
+#define ZZ_LOCAL_PAGER(id,hType,where) \
+ZZ_BASIC_PAGER(id,hType,static,where :: id) 
+
+#define ZZ_BASIC_PAGER(id,hType,scope,where) \
+class ZZFP(ZZH,id) { \
+    friend class hType;\
+public: \
+    void form(hType *hp,const char *fName,ZZint pgSz,ZZint nPgs,ZZint ini){\
+             ZZ_FORM_PAGER(id,hp,fName,pgSz,nPgs,ini);}\
+    ZZint io(hType *hp,ZZlong ind,char *buff,ZZint n,ZZint mode){\
+             ZZ_IO_PAGER(id,hp,ind,buff,n,mode);}\
+    void close(hType *hp){ZZ_CLOSE_PAGER(id,hp);}\
+    void flush(hType *hp) {\
+       void ZZflushPager(char*); ZZflushPager((char*)(hp->ZZFP(ZZh,id)));}\
+    ZZlong fill(hType *hp) {\
+       ZZlong ZZfillPager(char*); return ZZfillPager((char*)(hp->ZZFP(ZZh,id)));}\
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */
+

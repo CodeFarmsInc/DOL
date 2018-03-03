@@ -1,0 +1,46 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *sour;  /* given source entity */
+ strType *rel; /* forward relation to be returned */
+.)l
+Description:
+ For a given source entity, returns the last relation recorded for
+the given source node of the M_TO_N entity.
+.sp
+Warning: This macro should be used rather as an exception, because normal
+access to the relations is through ZZ_A_TRAVERSE().
+.(l
+Example:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct InCourse InCourse;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct InCourse {
+       ZZ_EXT_InCourse
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(teacherStudent,Teacher,InCourse,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   InCourse *i;
+   ....
+   ZZ_FORWARD(teacherStudent,t,i);
+   ZZ_TARGET(teacherStudent,i,s);
+   printf("last student=%s to register for teacher=%t, course=%d\n",
+       s->name,t->name,i->courseNum);
+.)l
+  ========================================================== */ 
+#define ZZ_FORWARD_M_TO_N(id,sour,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_FORWARD_M_TO_N(ZZFP(ZZf,id),sour,rel)
+
+#define ZZZ_FORWARD_M_TO_N(nxt,sour,rel) {(rel)=(sour)->nxt;}

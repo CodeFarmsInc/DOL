@@ -1,0 +1,69 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers to 2 nodes to be connected */
+ edgeType *ge;   /* given edge to connect the two nodes */
+.)l
+Description:
+ Add a new edge to the graph between the two given nodes.
+.(l
+Example:
+ Add one highway to the network of towns & highways
+ recorded as a graph.
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {      /* graph edge */
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Hwy)
+
+Town *t[2],*t1,*t2;
+Hwy *h; 
+
+....
+/* add highway No.344 between towns t1 and t2 */
+ZZ_PLAIN_ALLOC(Hwy,1,h)
+h->number=344;
+t[0]=t1;
+t[1]=t2;
+ZZ_ADD_DIRECT_GRAPH(myGraph,t,h)
+....
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_DIRECT_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_DIRECT_GRAPH\
+(id,ZZFT(2,id),ZZFP(ZZe,id),ZZFP(ZZy,id),ZZFP(ZZr,id),nd,ge)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_DIRECT_GRAPH(id,eType,edge,node2,next1,nd,ge) \
+{eType *ZZe;\
+        ZZe=(nd)[0]->edge;\
+        if(ZZe){(ge)->next1=ZZe->next1; ZZe->next1=(ge);}\
+        else {(nd)[0]->edge=(ge); (ge)->next1=(ge);}\
+	if((nd)[0]!=(nd)[1])(ge)->node2=(nd)[1];\
+	else (ge)->node2=NULL;\
+}
+#else
+#define ZZZ_ADD_DIRECT_GRAPH(id,eType,edge,node2,next1,nd,ge) \
+{eType *ZZe;\
+    if((ge)->node2||(ge)->next1){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(ge));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        ZZe=(nd)[0]->edge;\
+        if(ZZe){(ge)->next1=ZZe->next1; ZZe->next1=(ge);}\
+        else {(nd)[0]->edge=(ge); (ge)->next1=(ge);}\
+	if((nd)[0]!=(nd)[1])(ge)->node2=(nd)[1];\
+	else (ge)->node2=NULL;\
+    }\
+}
+#endif

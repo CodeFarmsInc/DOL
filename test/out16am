@@ -1,0 +1,36 @@
+original result:
+Adam(22) Eva(19) child=10
+Michael(65) Gizella(62) child=2
+Peter(53) Alena(45) child=0
+
+list of all objects:
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=char size=0
+object type=Person size=6
+  Person Peter age=53
+object type=Header size=4
+object type=Person size=6
+  Person Tom age=52
+object type=Person size=6
+  Person Eva age=19
+object type=Person size=6
+  Person Adam age=22
+object type=Person size=6
+  Person Gizella age=62
+object type=Person size=6
+  Person Grace age=73
+object type=Person size=6
+  Person Michael age=65
+object type=Person size=6
+  Person Alena age=45
+
+restored from disk:
+Adam(22) Eva(19) child=10
+Michael(65) Gizella(62) child=2
+Peter(53) Alena(45) child=0

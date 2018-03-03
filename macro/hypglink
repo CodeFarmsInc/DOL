@@ -1,0 +1,85 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name (OrgC id) */
+ TEXT sTp;   /* source type */
+.)l
+Description:
+ Generates a one-way link (one pointer) from object type sTp to
+a general object cast as (void *). The purpose of this to provide an option
+for working with heterogenous sets, as shown in the example below.
+(The other option is to use inheritence and virtual functions.)
+.sp
+Note that the SAVE and SWEAP functions cannot collect objects
+to which such general link points; these objects must be either
+saved one by one (ZZ_OBJECT_SAVE()) or by using additional key entry/entries
+which will provide access to the heterogenous sets.
+.pp
+Example of the use:
+.(l
+class Fruit {
+    ZZ_EXT_Fruit
+public:
+    Fruit(){ZZ_INITIAL(Fruit,0,1,this);};
+    ~Fruit(){ZZ_CHECK_FREE(Fruit,1,this);};
+};
+class Apple {
+    ZZ_EXT_Apple
+public:
+    char color;
+    Apple(){ZZ_INITIAL(Apple,0,1,this);};
+    ~Apple(){ZZ_CHECK_FREE(Apple,1,this);};
+};
+class Orange {
+    ZZ_EXT_Orange
+public:
+    float weight;
+    Orange(){ZZ_INITIAL(Orange,0,1,this);};
+    ~Orange(){ZZ_CHECK_FREE(Orange,1,this);};
+};
+
+ZZ_HYPER_GENERAL_LINK(link,Fruit);
+ZZ_HYPER_SINGLE_RING(bag,Fruit);
+ZZ_HYPER_SELF_ID(Apple);
+ZZ_HYPER_SELF_ID(Orange);
+ZZ_HYPER_UTILITIES(util);
+
+Fruit *f1,*f2,*fs,*ff;
+Apple *ap;
+Orange *op;
+char *tp;
+void *pp;
+
+fe=NULL; // entry into the ring 
+f1=new Fruit;
+fe=bag.add(fe,f1);
+ap=new Apple;
+link.add(f1,ap);
+
+f2=new Fruit;
+fe=bag.add(fe,f2);
+op=new Orange;
+link.add(f2,op);
+ ...
+pp=link.fwd(ff);
+tp=util.getID(tp);
+if(!strcmp(tp,"Apple"))printf("Apple color=%c\n",(Apple *)pp->color);
+if(!strcmp(tp,"Orange"))printf("Orange weight=%f\n",(Orange *)pp->weight);
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_GENERAL_LINK(id,sTp)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_GENERAL_LINK(id,ZZFP(ZZg,id),sTp,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_GENERAL_LINK(id,sTp,where)  \
+ZZ_BASIC_GENERAL_LINK(id,ZZFP(ZZg,id),sTp,static,where :: id)
+
+#define ZZ_BASIC_GENERAL_LINK(id,nxt,sTp,scope,where)  \
+class ZZFP(ZZH,id) { \
+public: \
+    void * fwd(sTp *s){return((void *)(s->nxt));} \
+    void add(sTp *s,void *t){ZZ_ADD_GENERAL_LINK(id,s,t); }\
+    void * del(sTp *s){void *t=(void *)(s->nxt); s->nxt=NULL; return(t);}\
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */

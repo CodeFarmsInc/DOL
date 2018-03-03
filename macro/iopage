@@ -1,0 +1,59 @@
+/* =========================================================
+.(l
+ TEXT id;     /* id for the instance of the organization */
+ type *hp;    /* header that encapsulates the pager */
+ long ind;    /* index referencing a byte position within pager */
+ char buff[]; /* buffer/object to store the in/out information */
+ int n;       /* size of the buffer/object */
+ int mode;    /* 0=read into buffer, 1=write into memory */
+.)l
+Return:
+number of characters transfered (either way), -1 means some error, 
+for example that there is no pager set up on this object
+Description:
+ IO operation using the pager. Can be use for both read/write.
+.pp
+ Because the pager works across the page boundaries, it physically copies
+the whole object in/out of buff.
+Objects larger than one page still can be handled by the pager.
+.pp
+If you only want an address in memory, call ZZ_ADDRESS_PAGER().
+.sp
+.(l
+Example of the use:
+   typedef struct Head Head;
+   struct Head {
+       ZZ_EXT_Head
+   };
+   ZZ_ORG_PAGER(page,Head); /* Head will encapsulate the pager */
+   typedef struct myObj myObj;
+   struct myObj {
+      ...   /* with ZZ_EXT or not */
+   };
+
+    main(){
+        long i;
+        Head *hp;
+        char buff[80];
+        myObj *mp;
+
+        ZZ_PLAIN_ALLOC(Head,1,hp);
+        ZZ_FORM_PAGER(page,hp,"myFile",512,6,2); /* 6 pages, 512 bytes each */
+        ...
+        /* write object mp starting form index i */
+        ZZ_IO_PAGER(page,hp,i,mp,sizeof(myObj),1); 
+        /* retrieve 15 characters starting from index 14033 into buff */
+        ZZ_IO_PAGER(page,hp,14033L,buff,15,0); 
+        ...
+        ZZ_CLOSE_PAGER(page,hp); /* closes the pager and its file */
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_IO_PAGER(id,obj,ind,buff,n,mode)\
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_IO_PAGER(id,ZZFP(ZZh,id),obj,ind,buff,n,mode)
+
+#define ZZZ_IO_PAGER(id,hPtr,obj,ind,buff,n,mode)\
+{ ZZint ZZFUN_ioPager();\
+    return ZZioPager(mode,(obj)->hPtr,ind,buff,n);\
+}

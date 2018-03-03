@@ -1,0 +1,79 @@
+/* =========================================================
+.(l
+ int count;  /* new count or increment (can be negative) */
+ int what;   /* 0=object count, 1=array count */
+ int style;  /* 0=set, 1=increment */
+.)l
+Description:
+ Sets or increments internal object counts.
+.sp
+.i "Organized C"
+keeps internal counts of currently allocated objects, one count for
+the total of objects, and one for the number of arrays currently in use.
+These counts are used when global
+.i "save"
+or
+.i "free"
+are used. Each name string also counts as one object.
+If these accounts are correct or slightly bigger than the
+actual count, the global operations are fast and economical in
+the use of memory. As long as you allocate all objects through the
+.i "Organized C"
+macros, the counts are automatically maintained. The only situation
+when you should use this command is that you plan to use some of the
+global macros and you use automatically allocated objects (or objects
+allocated with malloc()) at the same time.
+.sp
+.(l
+Example:
+What is shown in this example is not a good practice.
+Preferable, all objects whould be allocated through
+ZZ-macros. The purpose of macro ZZ_OBJECT_COUNT() 
+is to get around possible exceptions like those shown
+below.
+
+typedef struct Insect Insect;
+typedef struct Fruit Fruit;
+struct Insect{
+    ZZ_EXT_Insect
+    short numLegs;
+    char class;
+};
+struct Fruit{
+    ZZ_EXT_Fruit
+    char color;
+};
+ZZ_ORG_NAME(iName,Insect)
+ZZ_ORG_NAME(fName,Fruit)
+
+Fruit a,b;
+Insect *pp,set[20];
+char *cp;
+
+ZZ_OBJECT_COUNT(22,0,0)
+ZZ_OBJECT_COUNT(1,1,0)
+   ....
+pp=(Insect*)malloc(7*sizeof(Insect));
+ZZ_OBJECT_COUNT(7,0,1)
+ZZ_OBJECT_COUNT(1,1,1)
+   ....
+ZZ_STRING_ALLOC("macIntosh",cp)
+ZZ_ADD_NAME(fName,&a,cp)
+   ....
+ZZ_PLAIN_ALLOC(Insect,350,pp);
+/* at this point, internal count is 380 objects and 3 arrays */
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_OBJECT_COUNT(count,what,style) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{\
+    if(what){\
+        if(style)ZZnumArrays+=(count);\
+        else     ZZnumArrays=(count);\
+    }\
+    else {\
+        if(style)ZZnumObjects+=(count);\
+        else     ZZnumObjects=(count);\
+    }\
+}

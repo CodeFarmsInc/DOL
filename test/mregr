@@ -1,0 +1,818 @@
+set Exit 0
+set MyToolLibs "{CLibraries}StdCLib.o {CLibraries}CplusLib.o {Libraries}Stubs.o {Libraries}Runtime.o {Libraries}Interface.o"
+
+delete -i :resE
+delete -i :multi:main:res
+duplicate -y ::lib:env1m.h environ.h
+C -d MAC -model far -s diff diff.c
+link -d -model far -c 'MPS ' -t MPST -o diff diff.c.o {MyToolLibs}
+
+duplicate -y ::lib:env1m.h environ.h
+echo "test0a"
+::zzprep test0a.c zzincl.h
+Cplus -model far -s junk -o junk.o test0a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0a
+diff res0a out0a
+echo "test0b"
+::zzprep test0b.c zzincl.h
+Cplus -model far -s junk -o junk.o test0b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0b
+diff res0b out0bmac
+delete -i sfile
+echo "test0c"
+::zzprep test0c.c zzincl.h
+Cplus -model far -s junk -o junk.o test0c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0c
+diff res0c out0a
+echo "test0d"
+::zzprep test0d.c zzincl.h
+Cplus -model far -s junk -o junk.o test0d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0d
+diff res0d out0a
+delete -i sfile
+delete -i bfile
+echo "test0e"
+::zzprep test0e.c zzincl.h
+Cplus -model far -s junk -o junk.o test0e.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0e
+diff res0e out0e
+echo "test0f"
+::zzprep test0f.c zzincl.h
+Cplus -model far -s junk -o junk.o test0f.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0f
+diff res0f out0a
+echo "test0i"
+::zzprep test0i.c zzincl.h
+Cplus -model far -s junk -o junk.o test0i.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0i
+diff res0i out0i
+delete -i sfile
+echo "test0j"
+::zzprep test0j.c zzincl.h
+Cplus -model far -s junk -o junk.o test0j.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0j
+diff res0j out0i
+delete -i sfile
+duplicate -y ::lib:env2m.h environ.h
+echo "test0g"
+::zzprep test0g.c zzincl.h
+Cplus -model far -s junk -o junk.o test0g.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0g
+diff res0g out0g
+echo "test0h"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test0h.c zzincl.h
+Cplus -model far -s junk -o junk.o test0h.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res0h
+diff res0h out0h
+echo "test0m"
+::zzprep test0m.c zzincl.h
+Cplus -model far -s junk -o junk.o test0m.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp0 >res0m
+diff res0m out0mu
+delete -i afile
+delete -i bfile
+echo "test0n"
+::zzprep test0n.c zzincl.h
+Cplus -model far -s junk -o junk.o test0n.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out  inp0 res0n
+diff res0n out0nu
+delete -i sfile
+echo "test0r"
+::zzprep test0r.c zzincl.h
+Cplus -model far -s junk -o junk.o test0r.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out  inp0 res0r
+diff res0r out0i
+delete -i sfile
+duplicate -y ::lib:env1m.h environ.h
+echo "test0k"
+::zzprep test0k.c zzincl.h
+Cplus -model far -s junk -o junk.o test0k.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp0 >res0k
+diff res0k out0ku
+delete -i afile
+delete -i bfile
+echo "test0p"
+::zzprep test0p.c zzincl.h
+Cplus -model far -s junk -o junk.o test0p.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out  inp0 res0p
+diff res0p out0i
+delete -i sfile
+echo "test1"
+::zzprep test1.c zzincl.h
+Cplus -model far -s junk -o junk.o test1.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp1 res1
+diff res1 out1
+echo "test2"
+::zzprep test2.c zzincl.h
+Cplus -model far -s junk -o junk.o test2.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp2 res2
+diff res2 out2
+echo "test3a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test3a.c zzincl.h
+Cplus -model far -s junk -o junk.o test3a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp3 res3a
+diff res3a out3a
+echo "test3b"
+::zzprep test3b.c zzincl.h
+Cplus -model far -s junk -o junk.o test3b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp3 res3b
+diff res3b out3b
+echo "test4a"
+::zzprep test4a.c zzincl.h
+Cplus -model far -s junk -o junk.o test4a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp4 > res4a
+diff res4a out4a
+echo "test4b"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test4b.c zzincl.h
+Cplus -model far -s junk -o junk.o test4b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res4b
+diff res4b out4b
+delete -i sfile
+duplicate -y ::lib:env3m.h environ.h
+echo "test4d"
+::zzprep test4d.c zzincl.h
+Cplus -model far -s junk -o junk.o test4d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res4d
+diff res4d out4d
+delete -i afile
+delete -i bfile
+duplicate -y ::lib:env3m.h environ.h
+echo "test5"
+::zzprep test5.c zzincl.h
+Cplus -model far -s junk -o junk.o test5.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res5
+duplicate -y ::lib:env1m.h environ.h
+echo "test7a 7b"
+duplicate -y test7.h temp
+catenate test7a.c>>temp
+catenate test7b.c>>temp
+catenate test7x.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7a.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp7 res7a
+Cplus -model far -s junk -o junk.o  test7b.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out res7b
+diff res7a res7b
+echo "test7c 7d"
+duplicate -y test7.h temp
+catenate test7c.c>>temp
+catenate test7d.c>>temp
+catenate test7x.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7c.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+Cplus -model far -s junk2 -o junk2.o test7y.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o junk2.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp7 res7c
+Cplus -model far -s junk -o junk.o  test7d.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+Cplus -model far -s junk2 -o junk2.o test7y.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o junk2.o ::lib:zzclib.lib {MyToolLibs}
+a.out res7d
+diff res7c res7d
+echo "test7e 7f"
+duplicate -y test7.h temp
+catenate test7a.c>>temp
+catenate test7x.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7a.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp7 res7aa
+duplicate -y test7e.h temp
+catenate test7e.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7e.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res7e
+diff res7e out7e
+duplicate -y test7f.h temp
+catenate test7f.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7f.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res7f
+diff res7f res7aa
+echo "test7g"
+duplicate -y test7.h temp
+catenate test7c.c>>temp
+catenate test7d.c>>temp
+catenate test7x.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7c.c
+Cplus -model far -s junk1 -o junk1.o test7x.c
+Cplus -model far -s junk2 -o junk2.o test7y.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o junk2.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp7 res7cc
+duplicate -y test7e.h temp
+catenate test7g.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7g.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out res7g
+diff res7e res7g
+echo "test7h"
+duplicate -y test7f.h temp
+catenate test7h.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7h.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out res7h
+diff res7h res7cc
+echo "test7i"
+duplicate -y test7i.h temp
+catenate test7i.c>>temp
+::zzprep temp zzincl.h
+Cplus -model far -s junk -o junk.o  test7i.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out res7i
+diff res7i out7i
+echo "test8"
+::zzprep test8.c zzincl.h
+Cplus -model far -s junk -o junk.o test8.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp8 res8
+diff res8 out8
+echo "test9"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test9.c zzincl.h
+Cplus -model far -s junk -o junk.o test9.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp9 res9
+diff res9 out9
+echo "test9a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test9a.c
+Cplus -model far -s junk -o junk.o test9a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp9 res9a
+diff res9a out9
+duplicate -y ::lib:env1m.h environ.h
+echo "test9b"
+::zzprep test9b.c zzincl.h
+Cplus -model far -s junk -o junk.o test9b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res9b
+diff res9b out9b
+duplicate -y ::lib:env1m.h ::lib:environ.h
+echo "multi"
+directory :multi:main
+catenate :::testmp.h >> ::::lib:environ.h
+::::zzprep proj.h zzincl.h
+directory ::jdir
+jmcm
+directory ::pdir
+jmcm
+directory ::sdir
+jmcm
+directory ::main
+jmcm
+main inp res
+:::diff res out
+directory :::
+echo "test10a"
+::zzprep test10a.c zzincl.h
+Cplus -model far -s junk -o junk.o test10a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp10 res10a
+diff res10a out10a
+echo "test10b"
+::zzprep test10b.c zzincl.h
+Cplus -model far -s junk -o junk.o test10b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp10 res10b
+diff res10b out10b
+echo "test10c"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test10c.c
+Cplus -model far -s junk -o junk.o test10c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out  inp10  res10c
+diff res10c out10a
+echo "test10d"
+::zzprep test10d.c
+Cplus -model far -s junk -o junk.o test10d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out  inp10  res10d
+diff res10d out10b
+echo "test11a"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test11a.c zzincl.h
+Cplus -model far -s junk -o junk.o test11a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res11a
+diff res11a out11
+delete -i sfile
+echo "test11b"
+::zzprep test11b.c zzincl.h
+Cplus -model far -s junk -o junk.o test11b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res11b
+diff res11b out11
+delete -i sfile
+echo "test12a"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test12a.c zzincl.h
+Cplus -model far -s junk -o junk.o test12a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp12a res12a
+a.out inp12b res12a
+diff res12a out12
+echo "test12b"
+::zzprep test12b.c zzincl.h
+Cplus -model far -s junk -o junk.o test12b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp12a res12b
+a.out inp12b res12b
+diff res12b out12
+echo "test12c"
+::zzprep test12c.c zzincl.h
+Cplus -model far -s junk -o junk.o test12c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp12a res12c
+a.out inp12b res12c
+diff res12c out12
+delete -i backup
+echo "test14a"
+::zzprep test14a.c zzincl.h
+Cplus -model far -s junk -o junk.o test14a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp14a res14a
+diff res14a out14a
+a.out inp14b res14b
+diff res14b out14b
+echo "test14b"
+::zzprep test14b.c zzincl.h
+Cplus -model far -s junk -o junk.o test14b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp14a res14a
+diff res14a out14a
+a.out inp14b res14b
+diff res14b out14b
+delete -i file1
+echo "test15a"
+::zzprep test15a.c zzincl.h
+Cplus -model far -s junk -o junk.o test15a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp15 res15a
+diff res15a out15
+echo "test15b"
+::zzprep test15b.c zzincl.h
+Cplus -model far -s junk -o junk.o test15b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp15 res15b
+diff res15b out15
+echo "test15c"
+::zzprep test15c.c zzincl.h
+Cplus -model far -s junk -o junk.o test15c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp15 res15c
+diff res15c out15
+delete -i sorttest
+echo "test15d"
+::zzprep test15d.c zzincl.h
+Cplus -model far -s junk -o junk.o test15d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp15 res15d
+diff res15d out15
+echo "test15e"
+::zzprep test15e.c zzincl.h
+Cplus -model far -s junk -o junk.o test15e.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp15 res15e
+diff res15e out15
+delete -i sorttest
+echo "test16a"
+::zzprep test16a.c zzincl.h
+Cplus -model far -s junk -o junk.o test16a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp16 res16a
+diff res16a out16a
+delete -i savefile
+echo "test16b"
+::zzprep test16b.c zzincl.h
+Cplus -model far -s junk -o junk.o test16b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp16 res16b
+diff res16b out16b
+echo "test16c"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test16c.c zzincl.h
+Cplus -model far -s junk -o junk.o test16c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp16 res16c
+diff res16c out16b
+delete -i afile
+delete -i bfile
+duplicate -y ::lib:env3m.h environ.h
+echo "test17a"
+::zzprep test17a.c zzincl.h
+Cplus -model far -s junk -o junk.o test17a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp17a res17a
+diff res17a out17
+echo "test17b"
+::zzprep test17b.c zzincl.h
+Cplus -model far -s junk -o junk.o test17b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp17b res
+a.out inp17c res17b
+rename a.out test17b
+diff res17b out17
+delete -i sfile
+echo "test17c"
+::zzprep test17c.c zzincl.h
+Cplus -model far -s junk -o junk.o test17c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp17b res
+a.out inp17c res17c
+rename a.out test17c
+diff res17c out17
+delete -i sfile
+echo "test17d"
+::zzprep test17d.c zzincl.h
+Cplus -model far -s junk -o junk.o test17d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+test17b inp17b res
+a.out inp17c res17d
+diff res17d out17
+delete -i test17b
+delete -i sfile
+echo "test17e"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test17e.c zzincl.h
+Cplus -model far -s junk -o junk.o test17e.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+test17c inp17b res
+a.out inp17c res17e
+diff res17e out17e
+delete -i test17c
+echo "test18a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test18a.c zzincl.h
+Cplus -model far -s junk -o junk.o test18a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp18a res18a
+diff res18a out18a
+echo "test18b"
+::zzprep test18b.c zzincl.h
+Cplus -model far -s junk -o junk.o test18b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp18d res18b
+a.out inp18e res18b
+diff res18b out18a
+echo "test18d"
+::zzprep test18d.c zzincl.h
+Cplus -model far -s junk -o junk.o test18d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp18a res18d
+diff res18d out18a
+echo "test18e"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test18e.h zzincl.h
+::zzsplit < inp18f
+Cplus -model far -s junk -o junk.o test18e.c
+Cplus -model far -s junk1 -o junk1.o test18f.c
+Cplus -model far -s junk2 -o junk2.o test18g.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o junk2.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp18a res18e
+diff res18e out18a
+duplicate -y ::lib:env3m.h environ.h
+echo "test19a"
+::zzprep test19a.c zzincl.h
+Cplus -model far -s junk -o junk.o test19a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out
+echo "test19b"
+::zzprep test19b.c zzincl.h
+Cplus -model far -s junk -o junk.o test19b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res19b
+diff res19b out19b
+delete -i sfile
+echo "test20a"
+::zzprep test20a.c
+Cplus -model far -s junk -o junk.o test20a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res20a
+diff res20a out20a
+delete -i outzz
+echo "test20b"
+::zzprep test20b.c
+Cplus -model far -s junk -o junk.o test20b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res20b
+echo "test20c"
+::zzprep test20c.c
+Cplus -model far -s junk -o junk.o test20c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res20c
+diff res20c out20c
+delete -i outzz
+duplicate -y ::lib:env1m.h environ.h
+echo "test21"
+duplicate -y inp21u inp21
+::zzprep test21.c
+Cplus -model far -s junk -o junk.o test21.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res21
+diff res21 out21
+echo "test22a"
+::zzprep test22a.c
+Cplus -model far -s junk -o junk.o test22a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out<inp22>res22a
+diff res22a out22a
+echo "test22b"
+::zzprep test22b.c
+Cplus -model far -s junk -o junk.o test22b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res22b
+diff res22b out22b
+delete -i ascfile
+delete -i binfile
+echo "test23a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23a.c
+Cplus -model far -s junk -o junk.o test23a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23a
+diff res23a out23a
+echo "test23b"
+::zzprep test23b.c
+Cplus -model far -s junk -o junk.o test23b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23b
+diff res23b out23a
+echo "test23c"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23c.h
+Cplus -model far -s junk -o junk.o test23c.c
+Cplus -model far -s junk -o junk1.o test23x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23 > res23c
+delete -i a.out
+Cplus -model far -s junk -o junk.o test23d.c
+Cplus -model far -s junk -o junk1.o test23x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out >> res23c
+delete -i a.out
+Cplus -model far -s junk -o junk.o test23e.c
+Cplus -model far -s junk -o junk1.o test23x.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o junk1.o ::lib:zzclib.lib {MyToolLibs}
+a.out >> res23c
+diff res23c out23c
+echo "test23f"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23f.c
+Cplus -model far -s junk -o junk.o test23f.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res23f
+diff res23f out23f
+delete -i afile
+delete -i bfile
+delete -i myfile
+echo "test23h"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23h.c
+Cplus -model far -s junk -o junk.o test23h.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23h
+diff res23h out23h
+echo "test23i"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23i.c
+Cplus -model far -s junk -o junk.o test23i.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23i
+diff res23i out23i
+echo "test23j"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23j.c
+Cplus -model far -s junk -o junk.o test23j.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23j
+diff res23j out23i
+echo "test23k"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test23k.c
+Cplus -model far -s junk -o junk.o test23k.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp23>res23k
+diff res23k out23k
+echo "test24"
+duplicate -y ::lib:env1m.h environ.h
+::zzprep test24.c
+Cplus -model far -s junk -o junk.o test24.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp0 res<inp24>res24
+delete -i afile
+delete -i bfile
+echo "test25b"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test25b.c
+Cplus -model far -s junk -o junk.o test25b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp25 > res25b
+diff res25b out25
+echo "test25c"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test25c.c
+Cplus -model far -s junk -o junk.o test25c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp25 > res25c
+diff res25c out25
+echo "test26a"
+::zzprep test26a.c
+Cplus -model far -s junk -o junk.o test26a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res26a
+diff res26a out26
+delete -i afile
+duplicate -y ::lib:env3m.h environ.h
+catenate testmp.h >> environ.h
+echo "test27"
+duplicate -y test27.h tmp
+catenate test27a.h>>tmp
+::zzprep tmp zzincl_a.h zzmaster zzfunc_a.c
+Cplus -model far -s junk -o test27a.o test27a.c
+Cplus -model far -s junk -o test27aa.o test27aa.c
+link -d -model far -c 'MPS ' -t MPST -o a.out test27a.o test27aa.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res27a
+duplicate -y test27.h tmp
+catenate test27b.h>>tmp
+::zzprep tmp zzincl_b.h zzmaster zzfunc_b.c
+Cplus -model far -s junk -o test27b.o test27b.c
+Cplus -model far -s junk -o test27bb.o test27bb.c
+link -d -model far -c 'MPS ' -t MPST -o a.out test27b.o test27bb.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res27b
+duplicate -y test27a.h tmp
+catenate test27b.h>> tmp
+catenate test27.h>> tmp
+::zzprep tmp zzincl.h
+Cplus -model far -s junk -o test27c.o test27.c
+link -d -model far -c 'MPS ' -t MPST -o a.out test27a.o test27b.o test27c.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res27
+diff res27 out27
+delete -i file
+delete -i afile
+delete -i bfile
+duplicate -y ::lib:env3m.h environ.h
+echo "test28"
+::zzprep test28.c
+Cplus -model far -s junk -o junk.o test28.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res28
+diff res28 out28
+delete -i myfile
+echo "test29c"
+delete -i pfile
+delete -i file1
+delete -i file2
+::zzprep test29c.c
+Cplus -model far -s junk -o junk.o test29c.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp29a res29c
+diff res29c out29a
+echo "test29d"
+::zzprep test29d.c
+Cplus -model far -s junk -o junk.o test29d.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp29b res29d
+diff res29d out29b
+delete -i file1
+delete -i file2
+duplicate -y ::lib:env1m.h environ.h
+echo "test30"
+::zzprep test30.c zzincl.h
+Cplus -model far -s junk -o junk.o test30.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out > res30
+diff res30 out30
+delete -i myfile
+duplicate -y ::lib:env3m.h environ.h
+echo "test31"
+::zzprep test31.c
+Cplus -model far -s junk -o junk.o test31.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out w < inp31 > res31
+a.out r > res31
+diff res31 out31
+delete -i ring1.out
+delete -i ring2.out
+duplicate -y ::lib:env1m.h environ.h
+echo "test32a"
+::zzprep test32a.c
+Cplus -model far -s junk -o junk.o test32a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res32a
+diff res32a out32
+duplicate -y ::lib:env3m.h environ.h
+echo "test32b"
+::zzprep test32b.c
+Cplus -model far -s junk -o junk.o test32b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res32b
+diff res32b out32
+delete -i file1
+delete -i file2
+echo "test34a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep incl34.h
+Cplus -model far -s junk -o junk.o test34a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res34a
+diff res34a out34a
+echo "test34b-34e"
+Cplus -model far -s junk -o junk.o test34b.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res34b
+diff res34b out34
+#Cplus -model far -s junk -o junk.o test34c.c
+#link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+#a.out>res34c
+#diff res34c out34
+#Cplus -model far -s junk -o junk.o test34d.c
+#link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+#a.out>res34d
+#diff res34d out34
+#Cplus -model far -s junk -o junk.o test34e.c
+#link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+#a.out>res34e
+#diff res34e out34
+echo "test35"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test35.c
+Cplus -model far -s junk -o junk.o test35.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res35
+diff res35 out35
+#echo "test36"
+#duplicate -y ::lib:env3m.h environ.h
+#::zzprep test36a.c
+#Cplus -model far -s junk -o junk.o test36a.c
+#link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+#a.out>res36
+#diff res36 out36
+echo "test37"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test37.c
+Cplus -model far -s junk -o junk.o test37.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res37
+diff res37 out37
+echo "test39a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test39a.c
+Cplus -model far -s junk -o junk.o test39a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out>res39a
+diff res39a out39a
+echo "test42a"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test42a.c
+Cplus -model far -s junk -o junk.o test42a.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out inp42a res42b
+a.out inp42b res42b
+diff res42b out42
+echo "test43"
+duplicate -y ::lib:env3m.h environ.h
+::zzprep test43.c
+Cplus -model far -s junk -o junk.o test43.c
+link -d -model far -c 'MPS ' -t MPST -o a.out junk.o ::lib:zzclib.lib {MyToolLibs}
+a.out < inp43a > res43
+a.out < inp43b > res43
+diff res43 out43
+
+set Exit 1

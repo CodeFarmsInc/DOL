@@ -1,0 +1,538 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.12 Dynamic Array, Stack, Binary Heap</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.12 DYNAMIC ARRAY, STACK,
+BINARY HEAP, SORTED COLLECTION</font></h2>
+
+<p align="center"><img src="images/dol14_3.jpg" width="525"
+height="244"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>The prime purpose of this class is to provide an array that
+automatically reallocates itself when a larger size is required.
+A BINARY HEAP is only a special case of the ARRAY organization.
+Note that an ARRAY (or a HEAP) can contain either whole objects
+or pointers to objects.</p>
+
+<p>In OrgC, an array always exists as an attribute of a holder
+object. This allows you, for example, to have a ring of objects
+with an array on each object, or an array of arrays. If you need
+just an array as such, declare a dummy &quot;holder&quot; object
+for it. </p>
+
+<h3><font size="3" face="Arial">Memory considerations:</font></h3>
+
+<p>Internally, the holder object contains a pointer to a
+transparent header, which then points to the array itself. This
+represents an overhead of 32 bytes under UNIX or 16 bytes for
+medium/small model under DOS, for each array used. When an array
+is declared but not used, only one pointer is used.</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_ARRAY()</em></td>
+        <td>declares the array and the types of objects involved;
+        it neither specifies the size of the array nor allocates
+        space for it.</td>
+    </tr>
+    <tr>
+        <td><em>form()</em></td>
+        <td>forms the initial array, and sets the current
+        high-water-mark to -1.</td>
+    </tr>
+    <tr>
+        <td><em>formed()</em></td>
+        <td>is useful for checking whether the array has been
+        formed; it returns NULL if it has not been.</td>
+    </tr>
+    <tr>
+        <td><em>reset() </em></td>
+        <td>resets the high-water-mark and the increment, but
+        leaves the size intact; no reallocation is done.</td>
+    </tr>
+    <tr>
+        <td><em>size()</em></td>
+        <td>returns the current size and high-water-mark.
+        High-water-mark is the highest index actually used so
+        far.</td>
+    </tr>
+    <tr>
+        <td><em>free()</em> </td>
+        <td>deallocates the whole array. Before freeing an array,
+        all its elements must be disconnected from other data
+        organizations, just like freeing an individual object.</td>
+    </tr>
+    <tr>
+        <td><em>int binSearch()</em> </td>
+	<td>Performs binary search on the array, searching for the same key
+            as on the given object. If not found, returns the index
+	    of the next object, but with a negative sign.
+    </tr>
+</table>
+
+<p>Note that increment&gt;0 represents an arithmetic increment,
+increment&lt;0 represents a multiplicative increment. For
+example, increment=-3 will triple the size of the array any time
+the array size overflows. Increment= -1 is interpreted as an
+array of fixed size. Index overflow for such an array generates
+an error message.</p>
+
+<h3><font size="3" face="Arial">Warning:</font></h3>
+
+<p>When an array reallocates itself, the old array becomes free
+but may not be very useful. For example, when doubling the array
+size several times, almost 1/2 of the memory may essentially be
+wasted. Intuitively, an array looks like a simple and practical
+data arrangement but, in many practical situations, a ring is
+better; it requires less memory and is faster to operate upon.</p>
+
+<h3><font size="3" face="Arial">Warning:</font></h3>
+
+<p>Array of (<em>void *</em>) pointers is not permitted in the
+current version. Use (<em>char *</em>) pointers instead.</p>
+
+<h3><font size="3" face="Arial">Index access (in-line function):</font></h3>
+
+<p>Other objects must refer to the elements of the array by
+index, never by pointer. However, when indexing an array, a
+pointer may be used temporarily. For example, <em>ind() </em>checks
+the index range, and returns a pointer to the array. If the index
+overflows the size, the array automatically resets its size.</p>
+
+<blockquote>
+    <p><em>p=id.ind(hp,i); *p=k; </em>is equivalent to <em>a[i]=k;</em></p>
+</blockquote>
+
+<p>Inside algorithms, where high speed is required, and the size
+of the array does not change, you must first establish the base
+of the array by calling: <em>a=id.ind(hp,0). </em>Then you can
+access the array as if no special management were in force: <em>a[i]=k;
+a[12]=a[1]+a[3] </em>and so on.</p>
+
+<p>Note that <em>id.head(hp); </em>is equivalent to <em>id.ind(hp.0)</em>;
+but faster.</p>
+
+<h3><font size="3" face="Arial">Sorting:</font></h3>
+
+<p>An array can be sorted. The user must provide a function that
+compares two objects. Internally, the sort is based on <em>qsort().</em></p>
+
+<h3><font size="3" face="Arial">Stack:</font></h3>
+
+<p>An array may be used as a stack. After forming the initial
+array, each <em>push()</em> adds one object to the top of the
+array, and each <em>pop() </em>returns the top object of the
+stack. If the size of the stack overflows the size of the array,
+the array increases its size by the given increment.</p>
+
+<h3><font size="3" face="Arial">Sorted Collection:</font></h3>
+
+<p>In addition to function <em>sort()</em> which sorts the array,
+there is aset of functions which keep the array sorted even after
+adding or removing its elements. Such sorted array can be used as
+an ordered collection. This applies not only to arrays of full
+objects, but also to arrays of pointers.</p>
+
+<p>Operations on sorted arrays are relatively fast: <em>sort()</em>
+uses the system function <em>qsort()</em>, binary search is used
+to find objects in the array, and a fast system function moves
+blocks of memory when a inserting or removing an element of the
+array.</p>
+
+<p>If you want to keep the array sorted, restrict yourself to
+using the following commands: <em>addOrd(), delOrd(), getOrd(),
+ins()</em>, and<em> ind().</em></p>
+
+<p>For an example of using a sorted array, see <em>test53.c.</em></p>
+
+<h3><font size="3" face="Arial">Binary Heap:</font></h3>
+
+<p>A partially sorted binary heap can be efficiently implemented
+as an array. The heap requires a function which compares two
+array entries, just like the function required for <em>qsort(). </em>The
+heap is always ordered so that the minimum array entry is at the
+top of the heap (index=0).</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>inHeap() </em></td>
+        <td>inserts a new object into the heap;</td>
+    </tr>
+    <tr>
+        <td><em>outHeap()</em></td>
+        <td>returns the top of the heap and removes it from the
+        heap; </td>
+    </tr>
+    <tr>
+        <td><em>delHeap()</em></td>
+        <td>deletes an object from the middle of the heap;</td>
+    </tr>
+    <tr>
+        <td><em>updHeap()</em></td>
+        <td>re-sorts the heap when an object in the middle of the
+        heap changes its value.</td>
+    </tr>
+    <tr>
+        <td><em>size()</em></td>
+        <td>can be used to detect an empty heap.</td>
+    </tr>
+    <tr>
+        <td><em>delHeap() </em>and<em> updHeap()</em></td>
+        <td>allow you to use the heap as a full priority queue,
+        where objects already sitting in the queue may change
+        their priority or be deleted from the queue.</td>
+    </tr>
+</table>
+
+<p>All HEAP operations require that a callback function is given.
+Any time an object changes its position within the heap, this
+function is called with the new index location. This permits you,
+for objects outside of the queue, to monitor permanently the
+position of the objects within the queue. This can be best seen
+from the following example.</p>
+
+<h3><font size="3" face="Arial">Example:</font></h3>
+
+<blockquote>
+    <pre><em>class Head { 
+    ZZ_EXT_Head 
+}; 
+class Employee { 
+    ZZ_EXT_Employee 
+public: 
+    int heapIndex; /* everything public just for demonstration */ 
+    int salary; 
+    ... 
+}; 
+class PtrEmpl { 
+    ZZ_EXT_PtrEmpl 
+}; 
+ZZ_HYPER_ARRAY(heap,Head,PtrEmpl); 
+ZZ_HYPER_SINGLE_LINK(link,PtrEmpl,Employee); 
+void bck(void *p,int i){ /* call-back function to record position */ 
+    Employee *e; 
+    e=link.fwd((PtrEmpl *)p); 
+    e-&gt;heapIndex=i; 
+} 
+int sortFun(const void *v1,const void *v2){ 
+    Employee *e1,*e2; 
+    e1=link.fwd((PrtEmpl *)v1);
+    e2=link.fwd((PtrEmpl *)v2); 
+    return(e2-&gt;salary - e1&gt;&gt;salary); 
+} </em></pre>
+    <pre><em>Head *h; 
+PtrEmpl *p; 
+Employee *e; 
+int i; 
+... 
+/* assume Employee e is given and should enter the heap */ 
+p=new PtrEmpl; 
+link.add(p,e); 
+heap.inHeap(sortFun,h,p,bck); /* automatically updates heapIndex */ 
+... 
+/* now we can update any Employee object */ 
+e-&gt;salary=4600; /* new value */ 
+i=e-&gt;heapIndex; 
+if(i&gt;=0)heap.updHeap(sortFun,h,i,bck); </em></pre>
+</blockquote>
+
+<p>The parameters of the callback function are:<em><br>
+void *p; </em>... pointer to the object in the queue, cast as (<em>void*</em>);<em><br>
+int i;</em> ... index in the queue.</p>
+
+<p>If the object in the queue provides a pointer to the outside
+object, this is enough to reach the outside object. When using
+only<em> inHeap()</em> and <em>outHeap()</em>, this function is
+not really needed, and can be replace by a dummy function </p>
+
+<blockquote>
+    <p><em>void bck(void *p,int i){}.</em></p>
+</blockquote>
+
+<p>Using a heap of pointers is usually better than working with a
+heap of whole objects.</p>
+
+<h3><font size="3" face="Arial">Arrays and pointers:</font></h3>
+
+<p>Generally, it is not good practice to access elements of an
+array via pointers. An array is a sequential arrangement of
+objects, and should be accessed by index. If you decide to
+violate this rule (the reason may be the performance of some
+special algorithm), make sure that the array has a fixed size
+(form the array with increment= -1). If the array may reallocate
+itself, pointers leading into the array may suddenly become
+invalid.</p>
+
+<p>There are three typical situations when pointers leading into
+an array may cause trouble:</p>
+
+<ol>
+    <li>Temporary object linked to the array:</li>
+</ol>
+
+<blockquote>
+    <blockquote>
+        <pre><em>struct tempObj {
+    ....
+    Blob *b;
+};
+ZZ_HYPER_ARRAY(ar,Head,Blob);
+Head *hp; tempObj t;
+    ...
+t.b=ar.ind(hp,42);</em></pre>
+    </blockquote>
+</blockquote>
+
+<ol type="1" start="2">
+    <li>Remembering a pointer for too long</li>
+</ol>
+
+<blockquote>
+    <blockquote>
+        <pre><em>typedef struct Blob Blob;
+class Blob {
+ZZ_EXT_Blob
+public:
+    int i;
+};</em></pre>
+        <pre><em>ZZ_HYPER_ARRAY(ar,Head,Blob);
+Head *hp; Blob *b;
+    ...
+b=ar.ind(hp,42);
+b-&gt;i=31; /* perfectly fine */
+    ... /* lot of array manipulation */
+b-&gt;i=32; /* may crash the run */</em></pre>
+    </blockquote>
+</blockquote>
+
+<ol type="1" start="3">
+    <li>Transparent pointers </li>
+</ol>
+
+<blockquote>
+    <blockquote>
+        <pre><em>ZZ_HYPER_ARRAY(ar,Head,Blob);
+ZZ_HYPER_SINGLE_RING(myRing,Blob);</em></pre>
+    </blockquote>
+</blockquote>
+
+<p>The array must be fixed, otherwise reallocation of the array
+may destroy the ring.</p>
+
+<p>Sometimes, a change of organization can improve the robustness
+of the data. In the following organization, the AGGREGATE parent
+pointer leads from Employee to Department:</p>
+
+<blockquote>
+    <pre><em>class Header {...};
+class Department {..};
+class Employee {... };
+ZZ_HYPER_ARRAY(myArray,Header,Department);
+ZZ_HYPER_SINGLE_AGGREGATE(inDept,Department, Employee);
+...
+// potential problem with the parent pointer in 'inDept'
+a=myArray.form(hp,2000,500); 
+...
+// no problem but what do you do if the array is not big enough
+a=myArray.form(hp,2000,-1);</em></pre>
+</blockquote>
+
+<p>Better organization is to store an integer index directly
+inside the Employee class, and update it manually:</p>
+
+<p>When no pointers lead into an array, there is no potential
+danger or restrictions:</p>
+
+<blockquote>
+    <pre><em>class Header {...};
+class Department {..};
+class Employee {int parent; ... };
+ZZ_HYPER_ARRAY(myArray,Header,Department);
+ZZ_HYPER_SINGLE_COLLECT(inDept,,Department,Employee);</em></pre>
+</blockquote>
+
+<p>Saving to disk:</p>
+
+<p><em>save() </em>and<em> open()</em> treat an ARRAY as a part
+of the holding object, and they save/restore the array
+automatically with it. In the <em>SWEEP</em> operation, the
+expansion process passes through the array and its elements as if
+they were normal single objects.</p>
+
+<p>Whether you use a plain C++ array, or the dynamic ARRAY from
+the OrgC++ library, make sure that <em>#define ZZ_INHERIT </em>is
+included in your <em>environ.h </em>file.</p>
+
+<p>If you have an array of (<em>char *</em>) pointers, the
+pointers will be properly updated after <em>save()</em> and<em>
+open()</em>. However, the expansion algorithm will not expand
+through these pointers. The situation is similar to the use of <em>GENERAL_LINK
+</em>(see <a href="ch11f.htm#11_6_2">p.11.6.2</a>).</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>class Holder;<br>
+        class Element;<br>
+        ZZ_HYPER_ARRAY(id,Holder,Element);<br>
+        typedef int (*sortFun)(const void*,const void*); <br>
+        // compares two objects as required for qsort<br>
+        typedef int (*callBack)(void*,int);<br>
+        // provides feedback about the position in the heap<br>
+        Element* id.form(Holder *hp,int size,int incr);</em></td>
+        <td>forms an array on hp, and returns a pointer to it for
+        fast access.</td>
+    </tr>
+    <tr>
+        <td><em>void* id.formed(Holder *hp); </em></td>
+        <td>returns NULL if the array has not been formed.</td>
+    </tr>
+    <tr>
+        <td><em>void id.free(Holder *hp);</em></td>
+        <td>frees the array identified as id on holder hp.</td>
+    </tr>
+    <tr>
+        <td><em>int id.size(hp,&amp;hWater,&amp;incr);</em></td>
+        <td>returns the current size and, through parameters,
+        high-water-mark and increment.</td>
+    </tr>
+    <tr>
+        <td><em>Element* id.ind(Holder* hp,int index); </em></td>
+        <td>checks index range, and returns pointer to the
+        appropriate element of the array.</td>
+    </tr>
+    <tr>
+        <td><em>Element * id.head(Holder* hp); </em></td>
+        <td>same as id.ind(hp,0) but faster.</td>
+    </tr>
+    <tr>
+        <td><em>void id.reset(Holder *hp,int hWater,int incr); </em></td>
+        <td>resets the high_water_mark and increment to new
+        values. </td>
+    </tr>
+    <tr>
+        <td><em>void id.sort(sortFun ff,Holder *hp);</em></td>
+        <td>sorts the array using <em>ff</em> for comparison of
+        objects.</td>
+    </tr>
+    <tr>
+        <td><em>void id.push(Holder *hp,Element *p);</em></td>
+        <td>pushes Element <em>p</em> onto the array which is
+        being used as a stack.</td>
+    </tr>
+    <tr>
+        <td><em>Element* id.pop(Holder *hp); </em></td>
+        <td>pops the next Element from the array which is being
+        used as a stack.</td>
+    </tr>
+    <tr>
+        <td><em>void id.inHeap(sortFun ff,Holder
+        *hp,Element*p,callBack bck);</em></td>
+        <td>pushes Element <em>p</em> onto the heap. Function <em>ff
+        </em>controls the heap. </td>
+    </tr>
+    <tr>
+        <td><em>Element* id.outHeap(sortFun ff,Holder
+        *hp,callBack bck);</em></td>
+        <td>returns the top element, and removes it from the heap
+        </td>
+    </tr>
+    <tr>
+        <td><em>void id.updHeap(sortFun ff,Holder *hp,int
+        index,callBack bck);</em></td>
+        <td>resorts heap starting from the given index. </td>
+    </tr>
+    <tr>
+        <td><em>void id.delHeap(sortFun ff,Holder *hp,int
+        index,callBack bck);</em></td>
+        <td>deletes element at the given index.</td>
+    </tr>
+    <tr>
+        <td><em>void addOrd(sortFun ff, Holder *hp, Element *p);</em></td>
+        <td>adds <em>p</em> to a sorted array, maintaining the
+        sorted order.</td>
+    </tr>
+    <tr>
+        <td><em>void delOrd(sortFun ff, Holder *hp, Element *p);</em></td>
+        <td>finds<em> p</em> in the sorted array, and removes it,
+        maintaining the order.</td>
+    </tr>
+    <tr>
+        <td><em>void delOrd(sortFun ff, Holder *hp, int ind);</em></td>
+        <td>deletes element with index <em>ind</em>, while
+        maintaining the order.</td>
+    </tr>
+    <tr>
+        <td><em>int getOrd(sortFun ff, Holder *hp, Element *p,
+        int*found);</em></td>
+        <td>using binary search, finds the index of the element
+        which has the same key as element <em>p</em>. If a match
+        is found, the function returns the index, and sets <em>found=1.</em>
+        If the match is not found, the function returns the next
+        of the element, before which <em>p</em> would have to be
+        inserted in order to maintain the order, and sets <em>found=0.</em></td>
+    </tr>
+    <tr>
+        <td><em>void ins(Holder *hp, int ind, Element *p);</em></td>
+        <td>copies element <em>p</em> into position <em>hp</em>,
+        shifting the right section of the array to the right.
+        This function should be used only after checking with <em>getOrd()
+        </em>where to insert the new element; without being
+        careful, it may destroy the order of the array.When
+        adding new elements to the array, use <em>addOrd()</em>;
+        it is faster, and safe.</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Explanation:</font></h3>
+
+<p>High_water_mark is the highest index used. It is -1 before the
+array has been used, and equal to <em>size-1</em> when it is
+full. For example, if you formed an array of 10 elements with
+increment=30, and you called the <em>ind()</em> function for
+index=13,22,58,16, and 0, then the <em>size()</em> function will
+return: size=80, increment=30, and high_water_mark=58.</p>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>A comprehensive test of all ARRAY features is in <em>test9a.c.
+        </em>Note that both an array of objects and an array of
+        pointers to these objects are used. Binary heap
+        operations are also tested.</li>
+    <li><em>test16c.c </em>shows how to save an array of objects
+        to disk, and how to work with an array of integers. For
+        the purpose of testing, the data is first saved in ASCII,
+        restored, saved in binary, restored, and only then the
+        third copy is printed.</li>
+    <li><em>test32a.c </em>and <em>test32b.c </em>show some
+        examples of advanced handling of arrays.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11k.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.11 Time Stamp</font></a></td>
+        <td align="right" width="50%"><a href="ch11m.htm"><font
+        face="Arial">Next Section 11.13 Hash Tables <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14.6 Pager</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="14_6"></a>14.6 PAGER</h2>
+
+<h4>Purpose:</h4>
+
+<p>In many applications, the program needs more memory than is
+available in RAM. Virtual memory and extended memory systems help
+to overcome this problem by paging disk space into memory. Only
+the most often addressed pages (or pages addressed most recently)
+are kept in memory, which improves access speed, and creates an
+illusion that the application program works with an essentially
+unlimited size of memory.</p>
+
+<p>Virtual or extended memory operates at the system level, and
+the application program cannot control its parameters, or open
+several independent memories at the same time. The PAGER
+organization described in this section allows you to create and
+control several pagers simultaneously. Each pager operates
+independently, with resources controlled by the application
+program. The disk/page memory is addressed by a <em>long int </em>index,
+and is treated as raw memory (a string of bytes). It can be used
+to store objects (structures), but the size of the objects, and
+any pointers must be managed manually.</p>
+
+<p>There is no need to save pager data to disk. The information
+stored in a pager remains on disk even after the end of the run
+(each pager has its own disk file), and can be accessed later.
+The pager is automatically persistent.</p>
+
+<p>For example, you can maintain two pagers running
+simultaneously, one having page size=10kB and up to 200 pages in
+memory, the other with page size=1MB, and up to 3 pages in
+memory. Each has its name (<em>id</em>), and you code with each
+pager as if it were a huge memory resident array, which you index
+by a <em>long int</em>.</p>
+
+<h4>Implementation</h4>
+
+<p><font color="#FF0000">!!TODO - Insert GIF here.</font></p>
+
+<p>The figure above shows a slightly simplified internal
+organization of one pager. The figure does not show all the
+details of the hash table. It also shows the <em>holderObject </em>with
+only one pager. In reality, there is a linked list of pagers on
+each <em>holderObject</em>.</p>
+
+<p>Inside the pager, each page has its own <em>pageHead</em>.
+Fast access to the pages is provided via hash table (exactly as
+described in <a href="ch14Prpe.htm">Chap.14.5</a>). Pages move
+automatically between disk and memory. The organization shown in
+the figure is completely transparent. When closing a pager, all
+memory resident pages move to disk, and the reserved memory is
+freed. When opening a pager, it automatically opens the old file
+if it exists, or else opens a new file. </p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_PAGER(id,TYPE);</em></td>
+        <td>creates a pager on object type TYPE. <em>id</em> is
+        the pager identifier.</td>
+    </tr>
+    <tr>
+        <td><em>void form(TYPE *h,char *fileName,int pgSize,int
+        numPgs,int init);</em></td>
+        <td>forms a new pager (or re-opens an old one) on the<em>
+        holderObject h. fileName </em>is the name of the disk
+        file, <em>pgSize</em> is the size of one page in bytes, <em>numPgs</em>
+        is the maximum number of pages in memory, and init
+        specifies the initialization for new pages (0=none,1=
+        `\0',2=` ').</td>
+    </tr>
+    <tr>
+        <td><em>void io(TYPE *h,long ind,char *buff,int n,int
+        mode);</em></td>
+        <td>reads/write a block of data from the pager on object <em>h</em>.
+        Here <em>ind</em> is the byte address within the file, <em>buff
+        </em>is a memory buffer (target or source object of the
+        read/write operation), <em>n </em>is the size of the
+        object in bytes, and <em>mode </em>specifies whether
+        reading from disk (=0) or writing to it (=1).</td>
+    </tr>
+    <tr>
+        <td><em>char * addr(TYPE *h,long ind);</em></td>
+        <td>makes sure that the page corresponding to disk
+        address <em>ind</em> is loaded in memory, and returns
+        pointer <em>ptr </em>to the <em>ind </em>location.</td>
+    </tr>
+    <tr>
+        <td><em>void close(hp);</em></td>
+        <td>closes pager with id=<em>id </em>on object <em>h </em>moves
+        all pages to disk, and frees the memory.</td>
+    </tr>
+    <tr>
+        <td><em>long fill(hp);</em></td>
+        <td>returns the highest disk address currently used by
+        the pager.</td>
+    </tr>
+    <tr>
+        <td><em>void flush(hp);</em></td>
+        <td>flushes all dirty pages to disk.</td>
+    </tr>
+</table>
+
+<h4>Limitations:</h4>
+
+<p>Under DOS or other systems with integers only 2 bytes long,
+the total internal memory per pager is limited to 32k (=32767).
+In case that the total of numPages*pageSize exceeds this limit
+when forming the pager, numPages is automatically reduced to fit
+into the limit, and a warning is printed about it. The run
+continues uninterrupted; the only disadvantage is more intensive
+paging.</p>
+
+<p>The reason for this limitation is that all the memory used by
+the pager is, internally, allocated as a single memory buffer.
+This design decision allows the pager to handle objects that are
+bigger than one page, or which overlap page boundaries.</p>
+
+<h4>Example:</h4>
+
+<p><em>test29c.c</em> and<em> test29d.c.</em></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch14Prpe.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 14.5 Hash Tables</a></td>
+        <td align="right" width="50%"><a href="ch14Prpg.htm">Next
+        Section 14.7 Access to Type Tables <img
+        src="images/next.gif" border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

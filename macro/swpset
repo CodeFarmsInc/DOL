@@ -1,0 +1,69 @@
+/* =========================================================
+.(l
+ int n;       /* number of the given key entries */
+ void *pp[];   /* array of given key entries, any type */
+ char *type[]; /* array types for the given entries */
+.)l
+Description:
+ Using the SWEEP algorithm, it collects all the objects in the
+organization connected to the key entries. This is a fast search
+based on the graph of pointers.
+.sp
+The key entries will be the first n objects on the list (in the
+same order).
+.sp
+The list remains available for repeated access by the user, until
+it is either cancelled by ZZ_SWEEP_FREE(), or until a new list
+is set up. A new call to ZZ_SWEEP_SET() automatically overwrites
+the old list.
+.sp
+The list starts with the count of all objects allocated through
+ZZ-macros (this count is always internally maintained). If the organization
+involves automatically allocated objects, the list will find its
+size by doubling. If you know the number of objects (or a reasonable
+estimate), you can set the number of objects and speed up the process.
+.sp
+WARNING:
+ Objects that are part of this organization must fall into one
+of the following categories: have ZZ_EXT, or be a text string, or
+have the size of at least (char*).
+.sp
+Example:
+.(l
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+};
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+};
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+};
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+
+char *v[2],*t[2];
+Block *bStart; /* start of all blocks */
+Net *nStart;   /* start of all nets */
+
+v[0]=(char*)bStart; v[1]=(char*)nStart;
+t[0]="Block";       t[1]="Net";
+ZZ_SET_SWEEP(2,v,t)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SWEEP_SET(n,obj,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_swpSet(); \
+ZZ_GENERAL_EXT(); \
+return ZZswpSet(ZZstrList,ZZnxtType,(char **)(obj),type,n,0);}

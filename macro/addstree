@@ -1,0 +1,81 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *par;   /* given parent */
+ strType *pp;    /* object to add as a child */
+.)l
+Description:
+ Add a new child to the given parent within the given tree.
+If the new object is a root of a subtree, the whole subtree is added to the
+given tree.
+.sp
+Possible errors:
+ 1. If the new object is a child of another tree, it must be disconnected
+first. If such condition is detected, you will get an error message, and
+no action will be taken.
+ 2. ZZ_ADD_SINGLE_TREE(id,NULL,pp) results in serious problems.
+To make an object a root, simply add children to it. Any freshly allocated
+object is a root of a one-object tree (the object itself).
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_SINGLE_TREE(company,Employee)
+
+Employee *a,*b,*c,*d;
+ZZ_PLAIN_ALLOC(Employee,1,a)
+ZZ_PLAIN_ALLOC(Employee,1,b)
+ZZ_PLAIN_ALLOC(Employee,1,c)
+ZZ_PLAIN_ALLOC(Employee,1,d)
+ZZ_ADD_SINGLE_TREE(company,a,b)
+ZZ_ADD_SINGLE_TREE(company,b,c)
+ZZ_ADD_SINGLE_TREE(company,a,d)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_SINGLE_TREE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_ADD_SINGLE_TREE\
+(id,ZZFP(ZZp,id),ZZFP(ZZs,id),ZZFP(ZZc,id),par,pp)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_SINGLE_TREE(id,parent,sibling,child,par,pp) \
+{\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->parent=(par);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+            (pp)->parent=(par);\
+        }\
+}
+#else
+#define ZZZ_ADD_SINGLE_TREE(id,parent,sibling,child,par,pp) \
+{\
+    if((pp)->parent!=NULL || (pp)->sibling!=NULL){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->parent=(par);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+            (pp)->parent=(par);\
+        }\
+    }\
+}
+#endif

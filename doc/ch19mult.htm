@@ -1,0 +1,206 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 19 Multi User Mode</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>19. MULTI USER MODE</h1>
+
+<h4><a href="#19_1">19.1 Central Database</a><br>
+<a href="#19_2">19.2 Several Levels of Data</a><br>
+<a href="#19_3">19.3 Co-existing Independant Projects</a></h4>
+
+<p>OrgC++ may be used simultaneously at several levels for more
+complicated projects. The rules are simple: </p>
+
+<ol type="a" start="1">
+    <li>Each level controls its own objects. <em>ZZ_HYPER_ </em>declarations
+        must be in the same file where their objects are
+        declared. Exceptions:<em> GENERAL_LINK </em>and <em>SINGLE_LINK</em>
+        may point across levels.</li>
+    <li>Subprojects may use the objects and organizations of the
+        projects above them. </li>
+    <li>For each subproject, the class generator must run on a
+        file that combines all <em>ZZ_</em>statements from that
+        level up. </li>
+    <li>SELF_ID can be declared only at the highest level.</li>
+</ol>
+
+<p>There are three basic styles of using OrgC++ on large
+projects.</p>
+
+<p><a href="#19_1">Chap. 19.1</a>describes the situation where
+OrgC++ is used to design and control a central database used by
+many programmers, who use OrgC++ calls to access the database,
+but not for their private data.</p>
+
+<p><a href="#19_2">Chap. 19.2</a><font color="#FF0000"> </font>shows
+a general case, where OrgC++ is used for the central database and
+for private data by individual programmers.</p>
+
+<p><a href="#19_3">Chap. 19.3</a><font color="#FF0000"> </font>deals
+with several independent OrgC++ projects that must co-exist
+without interference under a large project.</p>
+
+<h2><a name="19_1"></a>19.1 Central Database</h2>
+
+<p>Let us assume that we want to use OrgC++ to design and control
+a central database. Peggy, who is the database manager, will keep
+class declarations in a special include file called, for example,
+<em>database.h</em>.</p>
+
+<p>We assume that Peggy will keep all database files in the <em>database</em>
+directory; nobody except Peggy will have write access to that
+directory.</p>
+
+<p>After declaring the data and its organization through<em>
+ZZ_HYPER_</em> statements, Peggy will run the class generator: <em>orgC/zzprep
+database.h</em>. That will create the <em>database/ZZinclude.h </em>file.</p>
+
+<p>All programmers using the database will include in their
+programs:</p>
+
+<blockquote>
+    <p><em>#include &quot;database/ZZinclude.h&quot;<br>
+    #include &quot;database/database.h&quot;</em></p>
+</blockquote>
+
+<p>They will be able to access the central database through
+OrgC++ calls without even calling the class generator.</p>
+
+<p>Peggy will have to run the class generator any time that the
+data definition or organization has changed.</p>
+
+<h2><a name="19_2"></a>19.2 Several Levels of Data</h2>
+
+<p>The <em>orgC/test/multi </em>directory contains an example,
+which demonstrates how to handle a multilevel project in a
+variety of situations. A script to run this test is included as a
+part of the standard regression test, see <em>test/cregr </em>for
+the SUN C++ compiler, or <em>test\b4pregr.bat </em>for Borland
+C++.</p>
+
+<p>The project involves the following people and directories:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>project leader, </td>
+        <td>directory: main,</td>
+        <td>files: main.c proj.h</td>
+    </tr>
+    <tr>
+        <td>John,</td>
+        <td>directory: jDir, </td>
+        <td>files: j1.c j2.c</td>
+    </tr>
+    <tr>
+        <td>Susan,</td>
+        <td>directory: sDir, </td>
+        <td>files: s1.c s2.c s3.c sIncl.h</td>
+    </tr>
+    <tr>
+        <td>Peter, </td>
+        <td>directory: pDir,</td>
+        <td>files: p.c</td>
+    </tr>
+</table>
+
+<p>The definition of objects (structures) common to the whole
+project is in the <em>proj.h </em>file which also contains all <em>ZZ_EXT_</em>...
+and <em>ZZ_HYPER_..</em>. statements common to the whole project.</p>
+
+<p>John is not using any additional organization of data; his
+programs operate only on common data.</p>
+
+<p>In addition to common data, Susan sets up her own temporary
+organization of data. The additional<em> ZZ_EXT_</em>... and <em>ZZ_HYPER_.</em>..
+references are in her <em>sIncl.h </em>file.</p>
+
+<p>Peter also uses some additional data structures, but since all
+his programs are in one file, he does not use a separate header
+file. All his <em>ZZ..</em>. references are in the <em>p.c </em>file.</p>
+
+<p>The compilation and linking sequence is:</p>
+
+<ol>
+    <li>Project leader runs <em>zzprep</em> on<em> proj.h</em>.
+        This creates <em>ZZinclude.h </em>in the<em> main </em>directory.&nbsp;</li>
+    <li>Now all three programmers can develop and debug their
+        programs independently. John just uses <em>main/ZZinclude.h,
+        </em>because he works with global data only. Susan
+        combines <em>proj.h </em>and <em>sIncl.h </em>and runs
+        them through <em>zzprep</em>. That creates her own <em>ZZinclude.h</em>,
+        which covers both global data and her own. Peter does the
+        same thing, except that his case is simpler because he
+        has only one file. </li>
+    <li>When the three programmers have their programs ready,
+        they create library files, one in each directory.</li>
+    <li>The project leader compiles <em>main.c</em>, and links
+        the whole project together. She must also link it to the
+        OrgC library.</li>
+</ol>
+
+<h2><a name="19_3"></a>19.3 Co-existing independent projects</h2>
+
+<p>Sometimes it happens that, inside a large project such as a
+telephone switching system or a CAD system for VLSI chips,
+several programmers want to use the OrgC++ library for their part
+of the project, while individual data sets are completely
+independent.</p>
+
+<p>An example of such a situation is the implementation of the <em>PAGER
+</em>in the OrgC++ library. It is implemented with the OrgC
+library [it has its own private data in file <em>lib/pager.hpp</em>],
+but when you link your application to the library, you don't even
+know about it.</p>
+
+<p>One possibility is to use <em>ZZ_LOCAL_</em>.. instead of <em>ZZ_HYPER_.</em>.
+declarations, and hide the entire implementation inside a special
+class which encapsulates the whole subproject (see <a
+href="ch08Synt.htm#8_5">Chap.8.5</a><font color="#FF0000"> </font>on
+how to use <em>ZZ_LOCAL_..</em>).</p>
+
+<p>The second possibility is to use <em>#define ZZ_LOCAL </em>instead
+of <em>#define ZZmain. </em>The names are similar, but there is a
+vast difference between<em> </em></p>
+
+<blockquote>
+    <p><em>#define ZZ_LOCAL</em></p>
+</blockquote>
+
+<p>and</p>
+
+<blockquote>
+    <p><em>class Employee;<br>
+    ZZ_LOCAL(myRing,Employee,Employee);</em></p>
+</blockquote>
+
+<p><em>#define ZZ_LOCAL</em> makes all OrgC++ internal type
+tables and global control variables static. This is the method
+used internally in our library to implement the pager. The
+current drawback is (and I believe this is only a temporary
+limitation) that such a subproject cannot save/retrieve data from
+disk.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch18Merg.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Chapter 18: Merging and Reducing Libraries</a></td>
+        <td align="right" width="50%"><a href="ch20RvHs.htm">Chapter
+        20: Revision History <img src="images/next.gif"
+        border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

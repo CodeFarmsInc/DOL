@@ -1,0 +1,4 @@
+u1=2 DOUBLE_RING zzHead zz_heads ;
+u1-* HASH zzHead Page zz_pageHash ;
+u1-* DOUBLE_COLLECT zzHead Page zz_pages ;
+u1-0 NAME zzHead zz_fileName ;

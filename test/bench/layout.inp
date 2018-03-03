@@ -1,0 +1,6 @@
+u1-* DOUBLE_COLLECT Library Book books ;
+u1-0 NAME Book bookTitle ;
+u1-0 NAME Book bookAbstract ;
+u1-* DOUBLE_COLLECT Library Author authors ;
+u1-0 NAME Author authorName ;
+R*2* M_TO_N WrittenBy Book Author writtenBy ;

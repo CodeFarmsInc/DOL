@@ -1,0 +1,36 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry;        /* entry to the given queue */
+ strType *pp;           /* object that popped from the queue */
+.)l
+Description:
+ Generic function that pops the next object from the queue (stack).
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+.(l
+Example:
+typedef struct Object Object;
+struct Object {
+    ZZ_EXT_Object
+    int code;
+};
+ZZ_ORG_FIFO(objStack,Object)
+Object *a,*b,*c,*d,*r,*start;
+  ....
+start=NULL; /* don't touch this variable */
+ZZ_PUSH(objStack,start,a)   
+ZZ_PUSH(objStack,start,b)  
+ZZ_PUSH(objStack,start,c) 
+ZZ_POP(objStack,start,r) /* returns r=a */
+ZZ_PUSH(objStack,start,d)    
+ZZ_POP(objStack,start,r) /* returns r=b */
+ZZ_POP(objStack,start,r) /* returns r=c */
+ZZ_POP(objStack,start,r) /* returns r=d */
+ZZ_POP(objStack,start,r) /* returns r=NULL */
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_POP(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_POP,id)(id,entry,pp)

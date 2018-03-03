@@ -1,0 +1,102 @@
+/* =========================================================
+.(l
+ TEXT id;                 /* id of the array */
+ int sortFun();           /* function that controls the heap */ 
+ str1Type *obj;    /* object on which the heap is */
+ str2Type *entry;  /* pointer to the object to be inserted */
+ void (*bck)(void *obj,int ind); /* callback function */
+.)l
+Description:
+ Adds a new element to the heap, and resorts the heap. The heap
+is sorted with the minimum value at the top. The first element
+in the array is always the top of the heap (arr[0]).
+ For the description of the callback function, see files orgarray and
+hyparray.
+.sp
+Since the array is separate structure, inserting an object into
+the heap means creating its full copy.
+.sp
+The size of the heap is internally stored with the array and
+automatically updated (waterMark).
+And since the new element is always added to the tail
+of the heap, and then pushed upward, no index needs to be given.
+.sp
+The heap is only partially sorted, this operation is
+of order O(log n), where n is number of elements in the heap.
+.sp
+If the size of the heap overflows, its size is automatically increased
+(if adjustable array has been formed), or you get an error message
+and ZZ_ERROR is set (for a fixed array - see ZZ_FORM_ARRAY).
+.sp
+IMPORTANT: The array for the heap must be formed by calling ZZ_FORM_ARRAY()
+before the first use of the heap.
+.sp
+Note that the same object is permitted to be in the heap several times.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.sp
+To re-initialize a heap as empty, call ZZ_RESET_ARRAY() with waterMark=-1.
+.(l
+Example: 
+Ring of Branches, Employees sorted into a heap for each Branch.
+
+typedef struct Branch Branch;
+typedef struct Employee Employee;
+struct Branch {
+    ZZ_EXT_Branch
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_ARRAY(eHeap,Branch,Employee)
+ZZ_ORG_SINGLE_RING(company,Branch)
+Branch *b;
+Employee e;
+int salarySort();
+void bck();
+
+ ....
+/* push e into the heap on object b */
+ZZ_IN_HEAP(eHeap,salarySort,b,&e,bck)
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+void bck(v,i) void *v; int i;{}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_IN_HEAP(id,sortFun,obj,entry,bck) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_IN_HEAP(id,ZZFP(ZZa,id),ZZFT(2,id),sortFun,obj,entry,bck)
+
+#define ZZZ_IN_HEAP(id,aPtr,str2Type,sortFun,obj,entry,bck) \
+{ str2Type *ZZs; ZZarray *ZZa; ZZint ZZn;\
+  ZZint ZZFUN_upHeap();\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        ZZn=ZZa->waterM+1;\
+        ZZ_INDEX_HEAP(id,obj,ZZn,ZZs,bck);\
+        if(!ZZ_ERROR){\
+            (*ZZs)=(*(entry));\
+            if(bck)bck((void *)ZZs,ZZn);\
+            ZZupHeap(ZZa,ZZn,sortFun,bck);\
+        }\
+    }\
+    else {\
+        ZZerrFLG=04;\
+        ZZmsgS(25,ZZ_STRINGIT(id));\
+    }\
+}

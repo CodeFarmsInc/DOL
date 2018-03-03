@@ -1,0 +1,24 @@
+/* =========================================================
+.(l
+ TEXT id;          /* id for the instance of the organization */
+ strType2 *targ;   /* given target object */
+ int count;        /* count to be enforced onto the object */
+.)l
+Description:
+ Sets the internal count to the given value.
+.pp
+ Recommendation:
+ This command should not be normally used except for initializing
+ the count to 0 on automatically allocated objects. Enforcing other
+ count will likely lead to the confusion in the count. Commands
+ ZZ_ADD() and ZZ_DELETE() automatically update the count.
+.pp
+For an example and other commands, see the description of
+ZZ_ORG_REFERENCE() and ZZ_HYPER_REFERENCE().
+.sp
+  ========================================================== */ 
+#define ZZ_SET_REFERENCE(id,targ,count) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SET_REFERENCE(ZZFP(ZZc,id),targ,count)
+
+#define ZZZ_SET_REFERENCE(cnt,targ,count) {(targ)->cnt=(count);}

@@ -1,0 +1,40 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* given parent */
+ str2Type *pp;    /* new child to be set */
+.)l
+Description:
+ The 'child' pointer on the parent decides about the order in which
+the bottom elements are returned by ZZ_A_TRAVERSE() or other traversal
+functions. ZZ_SET_DOUBLE_TREE() resets the child pointer to
+a different object.
+.sp
+Warning:
+ This command sets the 'child pointer', not the child. The new first
+child listed by ZZ_A_TRAVERSE() will be the next child to 'pp',
+which can be obtained by ZZ_FORWARD().
+.sp
+Possible errors:
+ The new object must be under the same parent. If it is not,
+an error is detected.
+.(l
+Example:
+
+typedef struct Employee Employee;
+    int salary;
+    char *name;
+};
+ZZ_ORG_DOUBLE_TREE(orgChart,Employee)
+
+Employee *boss, *emp;
+ZZ_SET_DOUBLE_TREE(company,boss,emp)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SET_DOUBLE_TREE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_SET_DOUBLE_TREE(id,ZZFP(ZZp,id),ZZFP(ZZc,id),ZZFP(ZZb,id),par,pp)
+
+#define ZZZ_SET_DOUBLE_TREE(id,parent,child,bwp,par,pp) {\
+    if((pp)->parent) (pp)->parent->child=(pp); }

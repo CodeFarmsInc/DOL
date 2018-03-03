@@ -1,0 +1,82 @@
+/* =========================================================
+.(l
+ TEXT id;       /* organization id */
+ int sortFun(); /* function that controls the sort */ 
+ strType *par;  /* parent of the triangle */
+.)l
+Description:
+ Sorts children using the given function to compare objects.
+.sp
+This is a fast merge sort similar to the one used for sorting a RING.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example:
+
+typedef struct Manager Manager;
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+};
+struct Manager {
+    ZZ_EXT_Manager
+};
+ZZ_ORG_SINGLE_TRIANGLE(hier,Manager,Employee);
+  ...
+Manager *mp;
+int salarySort();
+  ...
+/* under one manager, sort employees by increasing salary */
+ZZ_SORT_SINGLE_TRIANGLE(hier,salarySort,mp);
+  ...
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+.)l
+If you traverse the triangle, you get the objects in the sorted order.
+If you want the beginning of the set (employee with the smallest
+salary, use ZZ_CHILD() and ZZ_FORWARD():
+.(l
+Employee *ep;
+Manager *mp;
+
+ZZ_SORT_SINGLE_RING(hier,salarySort,mp);
+
+/* print all employees sorted by salary */
+ZZ_A_TRAVERSE(hier,mp,ep){
+    printf("%s salary=%d\n",ep->name,ep->salary);
+}ZZ_A_END
+
+/* get the employee with the minimum salary */
+ZZ_CHILD(hier,mp,ep);
+ZZ_FORWARD(hier,ep,ep);
+printf("%s has the smallest salary\n",ep->name);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SORT_SINGLE_TRIANGLE(id,sortFun,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_SORT_SINGLE_TRIANGLE(ZZFP(ZZs,id),ZZFP(ZZc,id),ZZFT(2,id),sortFun,par) 
+
+#define ZZZ_SORT_SINGLE_TRIANGLE(fwp,child,str2Type,sortFun,par) \
+{str2Type *ZZstart;\
+    char *ZZFUN_rSRfun();\
+    if(par){\
+        ZZstart=(par)->child;\
+        if(ZZstart){\
+            (par)->child=(str2Type *)\
+                ZZrSRfun((char*)(&(ZZstart->fwp)),(char*)(ZZstart),sortFun);\
+        }\
+    }\
+}

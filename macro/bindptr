@@ -1,0 +1,72 @@
+/* =========================================================
+.(l
+char *oldPtr; /* old pointer */
+char *newPtr; /* returned new pointer */
+.)l
+Description:
+ Converts a pointer from the old system (as stored on disk)to the
+new location, after loading the data into memory by ZZ_OPEN();
+The conversion is correct even when the object types objects or
+the organization is different.
+.sp
+Prerequisits:
+ In order to run this command, internal conversion table must be
+in memory. Normally, ZZ_OPEN() frees the table after re-loading the
+whole organization. However, if ZZ_KEEP_TABLES() is called prior
+to ZZ_OPEN(), the tables remain in memory, until ZZ_FREE_TABLES()
+is called.
+.sp
+ When running in C, unless ZZ_INHERIT is defined, only pointers
+to the beginning of an object are considered correct pointers.
+ In C++, and when using ZZ_INHERIT, even pointers pointing into
+the middle of an object are correctly converted.
+.sp
+Error conditions:
+ If the pointer cannot be converted, the error flag (see ZZ_ERROR())
+is set to 04.
+ If the internal tables do not exist, the error flat is set to 040.
+Because this call may be used in a fast running loop, no error
+messages are issued.
+.sp
+In the following example, we want to keep a pointer to one particular
+Employee, and reset it to the new location, after ZZ_OPEN() reloads the whole
+data:
+.(l  
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    int salary;
+};
+ZZ_ORG_NAME(eName,Employee);
+ZZ_ORG_DOUBLE_RING(dRing,Employee);
+  ...
+Employee *oldE,*newE;
+char *v[1],*t[1];
+  ...
+oldE=...;                  /* remember an old pointer */
+
+ZZ_SAVE("myFile",1,v,t);          /* save data on disk */
+ZZ_KEEP_TABLES();        /* instruction to keep tables */
+ZZ_OPEN("myFile",1,v,t);     /* reloads data into a new location */
+
+ZZ_BIND_POINTER(oldE,newE); /* gets new pointer to the same object */
+if(ZZ_ERROR&04)printf("conversion tables missing\n");
+if(ZZ_ERROR&040)printf("cannot convert a pointer\n");
+
+ZZ_FREE_TABLES(); /* removes tables from memory */
+  ...
+.)l
+.sp
+See also ZZ_KEEP_TABLES(), ZZ_FREE_TABLES(), ZZ_OPEN().
+.sp
+  ========================================================== */ 
+#define ZZ_BIND_POINTER(oldP,newP) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{char *ZZFUN_bindCnv(),**ZZp; ZZint ZZe;\
+    if(ZZbindTable){\
+        ZZp=(char**)(&(newP));\
+        *ZZp=ZZbindCnv((char *)(oldP),&ZZe);\
+        if(ZZe)ZZerrFLG=ZZerrFLG|040;\
+    }\
+    else ZZerrFLG=ZZerrFLG|04;\
+}

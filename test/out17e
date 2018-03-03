@@ -1,0 +1,27 @@
+GET: S.Short 15
+
+by Name:
+slot=0:
+   S.Grey 18
+slot=1:
+   F.Smiley 701
+   J.White 382
+slot=3:
+   A.Black 284
+slot=4:
+   F.Lowell 702
+   S.Short 15
+   D.Green 56
+
+by Name:
+slot=0:
+   S.Grey 18
+slot=2:
+   F.Smiley 701
+   J.White 382
+slot=5:
+   F.Lowell 702
+   A.Black 284
+slot=6:
+   S.Short 15
+   D.Green 56

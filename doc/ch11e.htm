@@ -1,0 +1,247 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.5 Graph</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font color="#000000" size="4" face="Arial">11.5 GRAPH</font></h2>
+
+<p align="center"><img src="images/dol11_6.jpg" width="600"
+height="594"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>Two graph representations are available: <em>DIRECT_GRAPH</em>
+for directed graphs, and <em>SINGLE_GRAPH</em> for undirected
+graphs. A graph consists of a set of nodes connected by edges.
+All nodes are of one type, all edges of another type.</p>
+
+<p>Both graphs preserve the direction of edges. However, the
+difference between the two organizations is that, for the<em>
+SINGLE_GRAPH</em>, you can traverse the graph in either
+direction, while for the <em>DIRECT_GRAPH</em> you can proceed
+only in the direction of the edges.</p>
+
+<p>For example, for a given edge, <em>SINGLE_GRAPH</em> gives you
+access to both adjacent nodes, while <em>DIRECT_GRAPH</em> gives
+you only the target node. Or when traversing edges adjacent to a
+given node, for<em> SINGLE_GRAPH</em>, the <em>iterator</em>
+returns edges both starting and ending at the given node, while
+the<em> DIRECT_GRAPH iterator</em> returns only the nodes
+starting at the given node.</p>
+
+<p><em>DIRECT_GRAPH</em> is less expensive in memory; nodes have
+the same size, but the edge uses only half as many pointers as
+for <em>SINGLE_GRAPH.</em></p>
+
+<p>In both models the edge rings are singly linked, and therefore
+the<em> DELETE</em> operation is slow in topologies with many
+edges per node. If you have to deal with situations where edges
+are deleted frequently, add a doubly-linked version of the graph
+to the library.</p>
+
+<h3><font size="3" face="Arial">Order of objects:</font></h3>
+
+<p>Edges on a node are currently treated as an unordered
+collection. However, the order of nodes for each edge is
+maintained, and determines the direction of the edge. This
+applies for both directed and undirected graphs. The first of the
+two nodes is always the <em>from</em> node, the second is the <em>to
+</em>node.</p>
+
+<h3><font size="3" face="Arial">Adding edges and nodes:</font></h3>
+
+<p>When you want to add a new edge to the graph, you have to
+provide two nodes and the edge. If your application uses the
+direction of the edge, then <em>np</em>[0] must be the <em>from</em>
+node, and <em>np</em>[1] must be the <em>to </em>node:</p>
+
+<blockquote>
+    <p><em>Node *np[2]; Edge *ep;<br>
+    ...<br>
+    np[0]= ... ; // 'from' node|<br>
+    np[1]= ... ; // 'to' node<br>
+    ep=new Edge;<br>
+    myGraph.add(np,ep); </em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Deleting edges and nodes:</font></h3>
+
+<p><em>del()</em> deletes a given edge from the graph. If you
+want to disconnect a node, you have to traverse all its edges,
+and delete them. This is not easily done for a <em>DIRECT_GRAPH</em>.
+If you want to perform such operations, use a <em>SINGLE_GRAPH</em>,
+and monitor the direction of the edges.</p>
+
+<h3><font size="3" face="Arial">Getting from an edge to adjacent
+nodes:</font></h3>
+
+<p>For a given <em>edge</em> function <em>nodes(twoNodes,edge)</em>
+returns two adjacent nodes. When calling this function, you give
+it an array of two pointers; it sets the pointers to the two
+adjacent nodes. The direction of the edge is preserved (always
+from <em>np</em>[0] to <em>np</em>[1]).</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_GRAPH(myGraph,Node,Edge);<br>
+    Node *np[2]; Edge *ep;<br>
+    ... /* edge is given */<br>
+    myGraph.nodes(np,ep); /* returns np */</em></p>
+</blockquote>
+
+<p>For a directed graph, the use of <em>nodes() </em>is exactly
+the same, except that the function fills in only the target node
+(<em>np</em>[1]). In a directed graph, you cannot reach the
+source node from the edge.</p>
+
+<h3><font size="3" face="Arial">Moving around the GRAPH:</font></h3>
+
+<p>The <em>iterator</em> traverses the edges adjacent to a given
+node and, through the function <em>adj(),</em> provides the
+adjacent node for each edge. The adjacent node could be found
+through the function <em>nodes()</em>, but when operating in a
+loop, <em>adj() </em>is much faster.</p>
+
+<blockquote>
+    <pre><em>id_iterator it(node);
+while(edge= ++it){
+    adjNode=it.adj();
+    ...
+};</em></pre>
+</blockquote>
+
+<p>Edges can be deleted while being traversed. For a directed
+graph, this command traverses all the edges starting at a given
+node.</p>
+
+<p>For non-directed graph (<em>SINGLE_GRAPH</em>), the <em>iterator</em>
+traverses all adjacent edges. If you want to move through the
+graph in one particular direction, use function <em>nodes()</em>
+which tells you, for each edge, what is the direction of the
+edge.</p>
+
+<p>There is no arrangement for easy access to all the edges or
+all the nodes of the graph. Use a separate <em>RING</em> if you
+have to visit all the nodes or edges.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_SINGLE_GRAPH(id,Node,Edge);</em></td>
+        <td>Declares the organization, Node and Edge are type
+        names.</td>
+    </tr>
+    <tr>
+        <td><em>void add(Node *np[2],Edge *e);</em></td>
+        <td>Adds edge <em>e </em>between the two given nodes.</td>
+    </tr>
+    <tr>
+        <td><em>void insert(Node *np[2],Edge *e);</em></td>
+        <td>Just like <em>add()</em>, but does not reverse the
+        order of the edges.</td>
+    </tr>
+    <tr>
+        <td><em>void set(Node *np,Edge *e);</em></td>
+        <td>Sets <em>e</em> as the new tail of the edge list.</td>
+    </tr>
+    <tr>
+        <td><em>void del(Node *np[2],NULL);</em></td>
+        <td>Deletes the edge between the two given nodes.</td>
+    </tr>
+    <tr>
+        <td><em>void del(Node *np[2],Edge *e);</em></td>
+        <td>Deletes the edge regardless of what nodes are given.</td>
+    </tr>
+    <tr>
+        <td>void nodes(Node *np[2], Edge *e);</td>
+        <td>For the given edge, it fills in pointers to the
+        adjacent nodes.</td>
+    </tr>
+</table>
+
+<blockquote>
+    <pre><em>Node *n0, *n1; Edge *e;
+id_iterator it(n0); // start from n0
+while(e= ++it){ // traverse adjacent edges
+    n1=it.adj(); // adjacent node
+    ...
+ }</em></pre>
+</blockquote>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_DIRECT_GRAPH(id,Node,Edge);</em></td>
+        <td>Declares the organization, Node and Edge are type
+        names.</td>
+    </tr>
+    <tr>
+        <td><em>void add(Node *np[2],Edge *e);</em></td>
+        <td>Adds edge <em>e </em>between the two given nodes.</td>
+    </tr>
+    <tr>
+        <td><em>void insert(Node *np[2],Edge *e);</em></td>
+        <td>Just like <em>add()</em>, but does not reverse the
+        order of the edges.</td>
+    </tr>
+    <tr>
+        <td><em>void del(Node *np[2],NULL);</em></td>
+        <td>Deletes the edge between the two given nodes.</td>
+    </tr>
+    <tr>
+        <td><em>void del(Node *np[2],Edge *e);</em></td>
+        <td>Deletes the given edge regardless of <em>np</em>[1],
+        but the starting point <em>np</em>[0] must always be
+        given.</td>
+    </tr>
+    <tr>
+        <td>void nodes(Node *np[2], Edge *e);</td>
+        <td>For the given edge, it fills in pointers to the
+        adjacent nodes.</td>
+    </tr>
+</table>
+
+<blockquote>
+    <pre><em>Node *n0, *n1; Edge *e;
+id_iterator it(n0); // start from n0
+while(e= ++it){ // traverse adjacent edges
+    n1=it.adj(); // adjacent node
+    ...
+ }</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>Two superimposed graphs of highways and airline routes
+        connecting a set of towns (<em>test14a.c</em>).</li>
+    <li>Simple test which creates a small tree, using<em>
+        DIRECT_GRAPH</em>, and then it deletes a subtree is in <em>test49a.c.</em></li>
+    <li>The same problem as in <em>test49a.c </em>but coded with<em>
+        SINGLE_GRAPH</em> is shown in <em>test49b.c</em>. Note
+        the changes required to the code, because the interators
+        traverse both edges that come to a vertex or leave it.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11d.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.4 TREE</font></a></td>
+        <td align="right" width="50%"><a href="ch11f.htm"><font
+        face="Arial">Next Section 11.6 LINK and NAME <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

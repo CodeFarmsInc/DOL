@@ -1,0 +1,81 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the instance of the organization */
+ TEXT strType;   /* type of the object to encapsulate the pager */
+.)l
+Description:
+ Declaration of a pager.
+.pp
+Pager is a user controlled  paging mechanism, which can be used
+as one of the data organizations in an application program.
+Essentially, the pager works like a very large array, which can
+be indexed with a long index. The array automatically pages in and out
+of memory depending on the indices most recently called. When closing
+the pager, all its content remains on file, and can be opened later.
+.pp
+Similarly to a dynamic array or a hash table, a pager must live
+on an object, such as the Head in the example below. 
+.pp
+Several pagers can operate simultaneously. One header can encapsulate
+several pagers. The virtual array kept by the pager is continuous
+across page boundaries. Objects larger than one page still can be handled by the pager.
+The pager can operate with only 1 page in memory (as a buffered IO).
+.sp
+Only four functions are required to control the pager:
+ ZZ_FORM_PAGER(id,hp,fileName,pgSize,numPgs,init);
+     forms a new pager, or invokes an old one from a file.
+ ZZ_IO_PAGER(id,hp,ind,buff,n,mode);
+     provides read/write functions from the paging area.
+ ZZ_ADDRESS_PAGER(id,hp,ind,ptr);
+     for a given index ind, makes sure its page is loaded, and
+     returns corresponding memory address, ptr.
+ ZZ_CLOSE_PAGER(id,hp);
+     closes a pager, stores all pages on its file, clear memory.
+.sp
+where
+ id is the organization identifier;
+ hp is pointer to the object that encapsulates the pager;
+ (char *fileName) is the name of the file used by the pager;
+ (int pgSize) is the size of one page in bytes;
+ (int numPgs) is the max number of pages kept in memory;
+ (int init) specifies initialization (0=none,1='\0', 2=' ');
+ (long ind) is storage index by byte, starts from 0;
+ buff buffer/object to go in/out, any type;
+ (int n) is the size of the buffer/object;
+ (int mode) specifies read/write (0=read, 1=write).
+ (char *ptr) is a memory address.
+.(l
+Example of the use:
+   typedef struct Head Head;
+   struct Head {
+       ZZ_EXT_Head
+   };
+   ZZ_ORG_PAGER(page,Head); /* Head will encapsulate the pager */
+   typedef struct myObj myObj;
+   struct myObj {
+      ...   /* with ZZ_EXT or not */
+   };
+
+    main(){
+        long i;
+        Head *hp;
+        char buff[80],*ptr;
+        myObj *mp;
+
+        ZZ_PLAIN_ALLOC(Head,1,hp);
+        ZZ_FORM_PAGER(page,hp,"myFile",512,6,2); /* 6 pages, 512 bytes each */
+        ...
+        /* write object mp starting form index i */
+        ZZ_IO_PAGER(page,hp,i,mp,sizeof(myObj),1); 
+        /* retrieve 15 characters starting from index 14033 into buff */
+        ZZ_IO_PAGER(page,hp,14033L,buff,15,0); 
+        ...
+        ZZ_ADDRESS_PAGER(page,hp,0L,ptr);
+        printf("first char on the file is=%c\n",*p);
+        ...
+        ZZ_CLOSE_PAGER(page,hp); /* closes the pager and its file */
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_PAGER(id,strType) /* ZZ_ORG_PAGER */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

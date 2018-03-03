@@ -1,0 +1,16 @@
+cp lib/env3g.h environ.h
+cd lib
+cp env3g.h environ.h
+g++ -c util.c msgs.c time.c
+cd ..
+g++ -c zzutil.c
+g++ zzprep.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+g++ zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+g++ zzsplit.c
+mv a.out zzsplit
+zzcomb
+cd lib
+jsgmake
+cd ..

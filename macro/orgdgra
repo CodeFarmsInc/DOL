@@ -1,0 +1,33 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT nodeType;         /* structure type of the node */
+ TEXT edgeType;         /* structure type of the edge */
+.)l
+Description:
+ Explicit definition a directed graph, based on a singly-linked list
+of edges for each node.
+.pp
+This is the same implementation as SINGLE_GRAPH, except that, internally, only
+edges starting at the given node are present on the list associated
+with that node.
+.(l
+Example:
+ Organize a graph of Towns connected by Flights
+
+typedef struct Town Town;
+typedef struct Flight Flight;
+struct Town {
+    ZZ_EXT_Town
+    char *name;
+};
+struct Flight {
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Flight)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_DIRECT_GRAPH(id,nodeType,edgeType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_DIRECT_GRAPH */

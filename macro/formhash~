@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT id;              /* hash table id */
+ str1Type *obj; /* object where to store the hash table */
+ int hSize;             /* given size of the table */
+.)l
+Description:
+ Form a new hash table on the given object, and initialize it as empty.
+.sp
+The hash table is a based on a fixed size array. If you want to increase
+its size, use ZZ_RESIZE_HASH().
+.(l
+Example: Hash table for a fast access of Employees by name.
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+
+ ZZ_FORM_HASH(byName,&h,2327) /* hash table with 2327 slots */
+.)l
+Note that, like an array, a hash table must live on an object,
+so we used a special header for this purpose.
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORM_HASH(id,obj,hSize) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_FORM_HASH(id,ZZFP(ZZa,id),ZZFT(W2,id),obj,hSize)
+
+#define ZZZ_FORM_HASH(id,aPtr,objType,obj,hSize) \
+{ ZZarray *ZZFUN_foArr(); char **ZZp; ZZint ZZi; static ZZFT(2,id)* sample=NULL;\
+    if(!sample)sample=new ZZFT(2,id);\
+    if((obj)->aPtr){\
+        ZZmsgS(26,ZZ_STRINGIT(id));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else (obj)->aPtr=ZZfoArr(hSize,0,(int)sizeof(char *),-5,\
+                              objType,ZZstrList,(char*)sample);\
+    if((obj)->aPtr){\
+        (obj)->aPtr->waterM=(obj)->aPtr->num;\
+        for(ZZi=0,ZZp=(char**)((obj)->aPtr->array);ZZi<(hSize);ZZi++,ZZp++)\
+                   *ZZp=NULL;\
+    }\
+}
+/* array cast as (char *) is important for SAVE/OPEN operations */

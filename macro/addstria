@@ -1,0 +1,99 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ str1Type *par;   /* parent of this triangle */
+ str2Type *pp;    /* element to add to the triangle */
+.)l
+Description:
+ Triangle is like one level of hierarchy, one parent and number
+of children linked into a ring. The reason for having this structure
+in addition to the more general tree is a memory saving in pointers,
+and also the fact that in the tree all elements are supposed to be the
+same structures; in the triangle, the parent may be a totally
+different structure than the children.
+ The saving in pointers, which are invisible to users, is 1/3 of memory
+a tree requires for pointers. In the triangle, the parent
+needs no parent pointer, and the children need no children pointers.
+ This macro adds a new child to the triangle under the given parent
+.i "par."
+If the triangle does not exist yet, the macro sets the new element
+as the first and only child.
+ Note that if you allocate a structure
+with any of the ZZ-commands, all internal pointers are automatically NULL,
+which has the same effect as if, for example, the parent has no children.
+If the parent has been allocated in some other way, its content can be
+set to NULL by calling ZZ_INITIAL().
+.(l
+Example:
+Organize a triangular subbgroup of all employees with salary under 15000
+
+typedef struct Employee Employee;
+typedef struct SalaryGroup SalaryGroup;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+struct SalaryGroup{
+    ZZ_EXT_SalaryGroup
+    int low,high;   
+};
+ZZ_ORG_SINGLE_TRIANGLE(under,SalaryGroup,Employee)
+
+Employee *list,*pp,arr[20];
+SalaryGroup group[5];
+int i;
+
+ZZ_INITIAL(SalaryGroup,1,group);
+group[0].low=0;
+group[0].high=15000;
+
+for(i=0,pp=arr;i<20;i++,pp++){
+    if(Employee[i].salary<15000){
+	ZZ_ADD_SINGLE_TRIANGLE(under,&(group[0]),pp);
+    }
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_SINGLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_ADD_SINGLE_TRIANGLE\
+(id,ZZFP(ZZp,id),ZZFP(ZZs,id),ZZFP(ZZc,id),par,pp)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_SINGLE_TRIANGLE(id,parent,sibling,child,par,pp) \
+{\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->parent=(par);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+            (pp)->parent=(par);\
+        }\
+}
+#else
+#define ZZZ_ADD_SINGLE_TRIANGLE(id,parent,sibling,child,par,pp) \
+{\
+    if((pp)->parent!=NULL || (pp)->sibling!=NULL){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->parent=(par);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+            (pp)->parent=(par);\
+        }\
+    }\
+}
+#endif

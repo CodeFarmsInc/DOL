@@ -1,0 +1,47 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* returns 2 nodes associated with this edge */
+ edgeType *ge;   /* given edge */
+.)l
+Description:
+ For a given graph edge, returns the two adjacent nodes.
+.pp
+Note that the TRAVERSE function for this organization automatically
+provides both the edge and the two nodes. The use of ZZ_NODES_SINGLE_GRAPH()
+can be avoided in many cases.
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {      /* graph edge */
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+
+Town *t[2];
+Hwy *h; 
+
+h=...;
+ZZ_NODES_SINGLE_GRAPH(myGraph,t,h)
+printf("hwy no.%d connects town=%s and %s\n",
+	       h->number,t[0]->name,t[1]->name);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_NODES_SINGLE_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_NODES_SINGLE_GRAPH(ZZFP(ZZx,id),ZZFP(ZZy,id),nd,ge)
+
+#define ZZZ_NODES_SINGLE_GRAPH(node1,node2,nd,ge) \
+{(nd)[0]=ge->node1; (nd)[1]=ge->node2;\
+if((nd)[0]==NULL && (nd)[1]!=NULL)(nd)[0]=(nd)[1];\
+if((nd)[1]==NULL && (nd)[0]!=NULL)(nd)[1]=(nd)[0];}
+
+/* edge from-to the same node has internally one node NULL */

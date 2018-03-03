@@ -1,0 +1,19 @@
+set Exit 0
+duplicate -y env0m.h environ.h
+::zzprep pager.h pager.k zzmaster pager.g
+delete -i zzlib.lib
+
+C -sym off -s pager pager.c
+C -sym off -s msgs msgs.c
+C -sym off -s util util.c
+C -sym off -s bind bind.c
+C -sym off -s sweap sweap.c
+C -sym off -s property property.c
+C -sym off -s sortring sortring.c
+C -sym off -s time time.c
+C -sym off -s array array.c
+C -sym off -s blast blast.c
+
+Lib -sym off -o zzlib.lib pager.c.o sweap.c.o property.c.o sortring.c.o bind.c.o time.c.o array.c.o util.c.o blast.c.o msgs.c.o
+ 
+echo "jmmake done... zzlib.lib in current folder"

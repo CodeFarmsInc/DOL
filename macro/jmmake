@@ -1,0 +1,19 @@
+set MyToolLibs "{CLibraries}StdCLib.o {Libraries}Stubs.o {Libraries}Runtime.o
+{Libraries}Interface.o"
+
+directory ::
+C -sym off -s zzutil zzutil.c
+directory lib
+duplicate -y env0m.h environ.h
+
+directory ::macro
+duplicate -y ::environ.h :
+C -sym off -s zzmerge zzmerge.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzmerge zzmerge.c.o ::zzutil.c.o
+::lib:zzlib.lib {MyToolLibs}
+
+C -sym off -s zzselect zzselect.c
+Link -d -sym off -c 'MPS ' -t MPST -o zzselect zzselect.c.o ::zzutil.c.o
+::lib:zzlib.lib {MyToolLibs}
+
+echo "jmmake done."

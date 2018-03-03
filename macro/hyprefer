@@ -1,0 +1,98 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name (OrgC id) */
+ TEXT sTp;   /* source type */
+ TEXT tTp;   /* target type */
+.)l
+Description:
+ One way link between two given types, with reference counting on
+ the target type object. This is just like SINGLE_LINK with reference
+ counting added to the organization.
+.pp
+ For local scope use ZZ_LOCAL_REFERENCE(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Internal implementation:
+ One pointer on the source object, integer counter on the target object.
+.pp
+A typical application for this organization is an efficient storage
+of text (list of variable-length words). The text of each word is recorded
+just once, with a reference count of how many times the string is used:
+.(l
+class Root {  // root of all the data
+    ZZ_EXT_Root
+};
+class Text {
+    ZZ_EXT_Text
+};
+class Word {
+    ZZ_EXT_Word
+};
+ZZ_HYPER_SINGLE_COLLECT(words,Word);
+ZZ_HYPER_REFERENCE(ref,Word,Text);
+ZZ_HYPER_NAME(text,Text);
+ZZ_HYPER_UTILITIES(util);
+    
+Root *r;
+Word *w;
+Text *t1,*t2,*t;
+char *p;
+int count;
+
+util.strAlloc("the",p); t1=new Text; text.add(t1,p);
+util.strAlloc("dog",p); t2=new Text; text.add(t2,p);
+
+r=new Root;
+w=new Word; words.add(r,w); ref.add(w,t1);
+w=new Word; words.add(r,w); ref.add(w,t2);
+w=new Word; words.add(r,w); ref.add(w,t1);
+ ....
+
+t=ref.del(w);
+if(t){
+    if(ref.get(t) <= 0){
+        p=test.fwd(t);
+        util.strFree(p);
+        delete t;
+    }
+}
+.)l
+.pp
+See also:
+id.set() .. sets the count to a new value
+id.get() .. returns the current count
+id.add() .. increases the count by 1
+id.del() .. decreases the count by 1
+.(l
+WARNING:
+When allocating new objects with new(), the count on new objects is always
+initialized to 0. When using automatically allocated objects (from the stack),
+you have to initialize the count by calling id.set(...,0). The same effect
+can be obtained by placing ref.set() into the constructor of class Text:
+
+int foo(void) {
+    Text t;
+    ref.set(&t,0);
+    ...
+};
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_REFERENCE(id,sTp,tTp)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_REFERENCE(id,sTp,tTp,ZZ_EXTERN,id) 
+
+#define ZZ_LOCAL_REFERENCE(id,sTp,tTp,where)  \
+ZZ_BASIC_REFERENCE(id,sTp,tTp,static,where :: id) 
+
+#define ZZ_BASIC_REFERENCE(id,sTp,tTp,scope,where)  \
+class ZZFP(ZZH,id) { \
+public: \
+    tTp * fwd(sTp *s){tTp *t; ZZ_FORWARD_REFERENCE(id,s,t); return(t);} \
+    void add(sTp *s,tTp *t){ZZ_ADD_REFERENCE(id,s,t); }\
+    tTp * del(sTp *s){tTp *t;ZZ_DELETE_REFERENCE(id,s,t); return(t);}\
+    void set(tTp *t,ZZint cnt){ZZ_SET_REFERENCE(id,t,cnt);}\
+    ZZint get(tTp *t){ZZint cnt; ZZ_GET_REFERENCE(id,t,cnt); return(cnt);}\
+};\
+scope ZZFP(ZZH,id) id
+/* _______________________________________________________________________ */

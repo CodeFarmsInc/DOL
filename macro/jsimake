@@ -1,0 +1,5 @@
+cp /u/orgc/lib/env0s.h /u/orgc/lib/environ.h
+cc zzmerge.c /u/orgc/zzutil.c /u/orgc/lib/zzlib.a
+mv a.out zzmerge
+cc zzselect.c /u/orgc/zzutil.c /u/orgc/lib/zzlib.a
+mv a.out zzselect

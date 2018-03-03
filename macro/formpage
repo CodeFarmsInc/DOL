@@ -1,0 +1,61 @@
+/* =========================================================
+.(l
+ TEXT id;    /* id for the instance of the organization */
+ type *hp;   /* header object that encapsulates the pager */
+ char *fileName; /* name of the paging file */
+ int pgSize; /* size of one page in bytes */
+ int numPgs; /* max number of pages in memory */
+ int init;   /* 0=no initialization, 1= '\0', 2=' ' */
+.)l
+Description:
+ Forms a pager on a given header object. If file `filename` does not
+exist yet, the pager starts as empty (unused). If the file exists
+already, it is automatically used. The same file can be written/read
+with different pgSize and numPgs parameters.
+.pp
+If you want to retain the contant of the paged area (persistent
+storage), close the pager by calling ZZ_CLOSE_PAGER() before
+leaving the program.
+.pp
+The virtual array kept by the pager is contiguous
+across page boundaries. Objects larger than one page still can be handled by the pager.
+The pager can operate with only 1 page in memory (as a buffered IO).
+.sp
+For more description, see ZZ_ORG_PAGER().
+.(l
+Example of the use:
+   typedef struct Head Head;
+   struct Head {
+       ZZ_EXT_Head
+   };
+   ZZ_ORG_PAGER(page,Head); /* Head will encapsulate the pager */
+   typedef struct myObj myObj;
+   struct myObj {
+      ...   /* with ZZ_EXT or not */
+   };
+
+    main(){
+        long i;
+        Head *hp;
+        char buff[80];
+        myObj *mp;
+
+        ZZ_PLAIN_ALLOC(Head,1,hp);
+        ZZ_FORM_PAGER(page,hp,"myFile",512,6,2); /* 6 pages, 512 bytes each */
+        ...
+        ZZ_CLOSE_PAGER(page,hp); /* close the pager and its file */
+        /* open the same data with different parameters */
+        ZZ_FORM_PAGER(page,hp,"myFile",64,4,2); 
+        ...
+        ZZ_CLOSE_PAGER(page,hp); /* close the pager and its file */
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_FORM_PAGER(id,obj,fName,pgSz,nPgs,ini)\
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FORM_PAGER(id,ZZFP(ZZh,id),obj,fName,pgSz,nPgs,ini)
+
+#define ZZZ_FORM_PAGER(id,hPtr,obj,fName,pgSz,nPgs,ini)\
+{ char *ZZFUN_formPager();\
+    (obj)->hPtr=ZZformPager(fName,pgSz,nPgs,ini);\
+}

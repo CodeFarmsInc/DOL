@@ -1,0 +1,127 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT pType;            /* parent class type */
+ TEXT cType;            /* child class type */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for DOUBLE_COLLECT(=double collection)
+which links together parent objects type 'pType' with child objects of
+type 'cType'.
+.pp
+ For local scope use ZZ_LOCAL_DOUBLE_COLLECT(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.pp
+Example of the use:
+.(l
+class Employee {
+    char *name;
+    long int salary;
+public:
+    ZZ_EXT_Employee
+    void setName(char *n){n=new char[strlen(n)+1]; strcpy(name,n);}
+    char *getName(){return(name);}
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+class Manager : public Employee {
+    int deptNo;
+public:
+    ZZ_EXT_MANAGER
+};
+
+ZZ_HYPER_DOUBLE_COLLECT(hier,Manager,Employee);
+
+Manager *mp;
+Employee *ep;
+ ...
+mp=new Employee;
+ep=new Employee;
+hier.add(mp,ep);
+ep=new Employee;
+hier.add(mp,ep);
+ ...
+// mp=hier.par(ep); parent operation not available
+ep=hier.child(mp);  // child is the first employee of mp 
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_DOUBLE_COLLECT(id,pType,cType)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_DOUBLE_COLLECT(id,pType,cType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_DOUBLE_COLLECT(id,pType,cType,where)  \
+ZZ_BASIC_DOUBLE_COLLECT(id,pType,cType,static,where :: id)
+
+#define ZZ_BASIC_DOUBLE_COLLECT(id,pType,cType,scope,where)  \
+class ZZFN(id,iterator);\
+class ZZFP(ZZH,id) { \
+  friend class pType;\
+  friend class cType;\
+  friend class ZZFN(id,iterator);\
+  ZZFN(id,iterator) *iterators;\
+public: \
+  ZZFP(ZZH,id)(){iterators=NULL;}\
+  cType *child(pType *s){cType *p;ZZ_CHILD_DOUBLE_COLLECT(id,s,p);return(p);}\
+  cType *chld(pType *s){return(s->ZZFP(ZZc,id));}\
+  cType * fwd(cType *s){cType *p;ZZ_FORWARD_DOUBLE_COLLECT(id,s,p);return(p);}\
+  cType * bwd(cType *s){cType *p;ZZ_BACKWARD_DOUBLE_COLLECT(id,s,p);return(p);}\
+  void set(pType *p,cType *t){ZZ_SET_DOUBLE_COLLECT(id,p,t);}\
+  void add(pType *s,cType *p);\
+  void addHead(pType *s,cType *p){add(s,p);}\
+  void addTail(pType *s,cType *p){add(s,p); s->ZZFP(ZZc,id)=p;}\
+  void ins(cType *s,cType *p);\
+  void del(pType *p,cType *c);\
+  void merge(cType *s,cType *t,pType *p);\
+  void sort(ZZTsortFun cmpF,pType *p);\
+  void switchParents(pType *p1,pType *p2){ \
+        if(p1 && p2){ cType* c=p2->ZZFP(ZZc,id); \
+          p2->ZZFP(ZZc,id)=p1->ZZFP(ZZc,id); p1->ZZFP(ZZc,id)=c;}} \
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   friend class ZZFP(ZZH,id);\
+   pType *boss;\
+   cType *nxt;\
+   ZZFN(id,iterator) *fList,*bList;\
+public:\
+   ZZFN(id,iterator)(pType *p){start(p);\
+           bList=NULL; fList=where.iterators; where.iterators=this;}\
+   ZZFN(id,iterator)(){boss=NULL; nxt=NULL;\
+           bList=NULL; fList=where.iterators; where.iterators=this;}\
+   ~ ZZFN(id,iterator)(){ \
+           if(bList)bList->fList=fList; else where.iterators=fList;\
+           if(fList)fList->bList=bList;}\
+   void start(pType *p){boss=p; nxt=NULL;} \
+   cType* operator++(){cType *p,*beg; beg=NULL;\
+      if(boss)beg=where.chld(boss);\
+      if(nxt)p=nxt; else if(beg)p=where.fwd(beg); else p=NULL;\
+      if(p==beg){nxt=NULL; boss=NULL;} else nxt=where.fwd(p); return(p);}\
+   cType* operator--(){cType *p,*beg; beg=NULL;\
+      if(boss)beg=where.chld(boss);\
+      if(nxt)p=nxt; else p=beg; if(p)nxt=where.bwd(p); \
+      if(nxt==beg){nxt=NULL; boss=NULL;} return p;}\
+}
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ2$ *t){$_iterator *i;
+    ZZ_ADD_DOUBLE_COLLECT($,s,t);
+    // check all iterators for this item
+    for(i=$.iterators; i; i=i->fList){if(i->nxt==t->ZZf$)i->nxt=t;}
+}
+void ZZV$ ZZH$ :: ins(ZZ2$ *s,ZZ2$ *t){$_iterator *i;
+    ZZ_INSERT_DOUBLE_COLLECT($,s,t);
+    // check all iterators for this item
+    for(i=$.iterators; i; i=i->fList){if(i->nxt==t->ZZf$)i->nxt=t;}
+}
+void ZZV$ ZZH$ :: del(ZZ1$ *p,ZZ2$ *c){$_iterator *i;
+    // check all iterators for this item
+    if(!p || !c)return;
+    for(i=$.iterators; i; i=i->fList){
+        if(i->nxt==c){
+            if(p->ZZc$==c){i->nxt=NULL; i->boss=NULL;}
+            else i->nxt=c->ZZf$;
+        }
+    }
+    ZZ_DELETE_DOUBLE_COLLECT($,p,c); }
+void ZZV$ ZZH$ :: merge(ZZ2$ *s,ZZ2$ *t,ZZ1$ *p){ZZ_MERGE_DOUBLE_COLLECT($,s,t,p); }
+void ZZV$ ZZH$ :: sort(ZZTsortFun cmpF,ZZ1$ *p){ZZ_SORT_DOUBLE_COLLECT($,cmpF,p);}

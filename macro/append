@@ -1,0 +1,33 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry;        /* entry to the given organization */
+ strType *pp;           /* object to append */
+.)l
+Description:
+ Generic function that appends a new object into the organization.
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+ If Node A has children B,C,D,E,F, then appending G after D results
+in the following order: B,C,D,G,E,F. Using TRAVERSE will return:
+C,D,G,E,F,B; using RETRACE will return: B,F,E,G,D,C.
+.(l
+Example:
+
+typedef struct Block Block;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+}*b1,*b2;
+ZZ_ORG_DOUBLE_TREE(dTree,Block)
+ZZ_ORG_SINGLE_TREE(sTree,Block)
+   .....
+ZZ_APPEND(sTree,b1,b2) 
+ZZ_APPEND(dTree,b1,b2) 
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_APPEND(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_APPEND,id)(id,entry,pp)

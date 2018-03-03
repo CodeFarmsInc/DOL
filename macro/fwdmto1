@@ -1,0 +1,44 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *sour;  /* given source entity */
+ strType *rel; /* forward relation to be returned */
+.)l
+Description:
+ For a given source entity, returns the relation of the M_TO_1 entity.
+.sp
+Advice: Use generic ZZ_FORWARD(), it makes the code simpler.
+.(l
+Example:
+   typedef struct River River;
+   typedef struct Ocean Ocean;
+   typedef struct FlowsInto FlowsInto;
+   struct River {
+       ZZ_EXT_River
+       int length;
+       char *name;
+   };
+   struct Ocean {
+       ZZ_EXT_Ocean
+       char *name;
+   };
+   struct FlowsInto {
+       ZZ_EXT_FlowsInto
+       char *mouth;
+   };
+   ZZ_ORG_M_TO_1(intoOcean,River,FlowsInto,Ocean)
+   ....
+   River *r;
+   Ocean *o;
+   FlowsInto *f;
+   ....
+   ZZ_FORWARD(intoOcean,r,f);
+   ZZ_TARGET(intoOcean,f,o);
+   printf("river=%s flows into ocean=%s\n",r->name,o->name);
+.)l
+  ========================================================== */ 
+#define ZZ_FORWARD_M_TO_1(id,sour,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_FORWARD_M_TO_1(ZZFP(ZZf,id),sour,rel)
+
+#define ZZZ_FORWARD_M_TO_1(nxt,sour,rel) {(rel)=(sour)->nxt;}

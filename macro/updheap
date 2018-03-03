@@ -1,0 +1,84 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id of the array */
+ int sortFun();        /* function that controls the heap */ 
+ str1Type *obj; /* object on which the heap is */
+ int ind;              /* index of the element that changed */
+ void (*bck)(void *obj,int ind); /* callback function */
+.)l
+Description:
+ Update the heap assuming that element
+.i "ind"
+has changed.
+ For the description of the callback function, see files orgarray and
+hyparray.
+.sp
+No index checking is done, to detect an empty heap,
+use ZZ_SIZE_ARRAY(); waterM<0 means empty.
+.sp
+The size of the heap does not change.
+.sp
+Since the heap is only partially sorted, this operation is
+of order O(log n), where n is number of elements in the heap.
+.sp
+IMPORTANT: The array for the heap must be formed by calling ZZ_FORM_ARRAY()
+before any use of the heap.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example: 
+Ring of Branches, Employees sorted into a heap for each Branch.
+
+typedef struct Branch Branch;
+typedef struct Employee Employee;
+struct Branch {
+    ZZ_EXT_Branch
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_ARRAY(eHeap,Branch,Employee)
+ZZ_ORG_SINGLE_RING(company,Branch)
+Branch *b;
+Employee e;
+int num,waterM,salarySort();
+ ....
+/* resort the heap on object b after a change of element i */
+ZZ_UPDATE_HEAP(eHeap,salarySort,b,i,bck)
+/* this just happens, no feedback is given */
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+void bck(v,i) void *v; int i;{}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_UPDATE_HEAP(id,sortFun,obj,ind,bck) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_UPDATE_HEAP(id,ZZFP(ZZa,id),sortFun,obj,ind,bck)
+
+#define ZZZ_UPDATE_HEAP(id,aPtr,sortFun,obj,ind,bck) \
+{ ZZarray *ZZa;\
+  ZZint ZZi,ZZn,ZZFUN_upHeap();\
+  ZZint ZZFUN_downHeap();\
+    ZZn=ind;\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        ZZi=ZZdownHeap(ZZa,ZZn,sortFun,bck);\
+        if(ZZi==ZZn)(void)ZZupHeap(ZZa,ZZn,sortFun,bck);\
+    }\
+    else ZZerrFLG=04;\
+}

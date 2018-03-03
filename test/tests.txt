@@ -1,0 +1,63 @@
+Most of the tests use Ring, Collection, Aggragate and Name.
+These are not recorded in the following table. Otherwise:
+ASC = saving in ASCI format
+BIN = saving in BINARY format
+MEM = saving with MEMORY BLASTING
+OBJ = saving individual objects or subtrees
+SWP = SWEEP FUNCTION is used
+INH = inheritance and virtual functions are used
+TRE = TREE is used
+ARR = ARRAY is used
+HSH = HASH table is used
+M2M = Many-To-Many association
+GRU = undirected GRAPH is used
+GRD = directed GRAPH is used
+PRO = PROPERTY is used
+SID = SELF_ID is used
+C   = coded in plain C, otherwise coded in C++
+COM = special comment
+[Unless otherwise statet in COM, the test is in C++]
+
+test0m.c  ASC->ASC->BIN->BIN SWP
+test0n.c  BIN->BIN           SWP
+test0r.c  ASC->ASC                     COM: merging and splitting rings
+test1.c                              C COM: sorting of rings
+test2.c                              C COM: VLSI type problem
+test3a.c                     SID     C 
+test10c.c                    TRE
+test10d.c                    TRE       COM: controlling order of objects
+test16c.c ASC->ASC->BIN->BIN SWP ARR
+test23a.c ASC->ASC->BIN->BIN INH       COM: rectangle/square example
+test23b.c ASC->ASC->BIN->BIN INH       COM: rectangle/square example, free lists
+test23c.c ASC                INH       COM: like test23a, but separate runs
+test23c.c ASC                INH       COM: like test23a, but separate runs
+test23d.c ASC->BIN           INH       COM: like test23a, but separate runs
+test23e.c BIN                INH       COM: like test23a, but separate runs
+test23f.c MEM->MEM           INH       COM: like test23a, but memory blasting 
+test23h.c ASC->ASC->BIN->BIN INH       COM: like test23a, but more OO style
+test23j.c ASC->ASC->BIN->BIN INH       COM: like test23a, more elegant keys
+test24.c  ASC->ASC->BIN->BIN         C COM: testing built-in debugging function
+test25b.c                    HSH GRD   COM: large German example
+test25c.c                    HSH GRU   COM: large German example, split zzprep
+test26a.c BIN(OBJ)                     
+test27*.c BIN(OBJ)                     
+test28.c  ASC(OBJ)                     COM: multiple inheritance, block of bytes
+test31.c  ASC, ASC(OBJ)                     
+test32b.c BIN, BIN(OBJ)      ARR       COM: pointers leading into the array    
+test35.c                               COM: testing local scope
+test36b.c                              COM: testing local scope
+test38.c  ASC                INH
+test39*.c                    INH       COM: access of internal type tables
+test50.c                     M2M       COM: RETRACE (operator --)
+test51.c                     HSH       COM: HASH as a fast, index driven collection
+test54.c                               COM: function app() for SINGEL_COLLECT
+test56.c                     TRE       COM: binary tree with free lists
+test57.c                     M2M       COM: autom.alloc objects without ZZ_INIT
+test58*                                COM: *.h and *.cpp for each class
+test60a.c BIN->BIN           INH       COM: member describes type
+test60b.c BIN->BIN           INH       COM: like test60a, but safer coding
+test60c.c BIN->BIN           INH       COM: like test60b, virt.fun. to get type
+test60d.c MEM->MEM           INH       COM: like test60a
+test61c.c ASC->ASC           INH  
+test63.c  MEM->MEM           ARR       COM: ??? error even for BIN 
+

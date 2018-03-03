@@ -1,0 +1,34 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *chi; /* given child, already in the collection */
+ strType *new;   /* new item to be inserted before the child */
+.)l
+Description:
+ Insert the new element to the triangle before the child
+.i "chi."
+
+Error conditions:
+ Inserting an element into an empty triangle (chi==NULL) will cause
+an error message and the error flag to be raised.
+
+This function works just like ZZ_INSERT_DOUBLE_COLLECT().
+.sp 1
+  ========================================================== */ 
+#define ZZ_INSERT_DOUBLE_TRIANGLE(id,chi,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_INSERT_DOUBLE_TRIANGLE(id,ZZFP(ZZp,id),ZZFP(ZZf,id),ZZFP(ZZb,id),chi,pp)
+
+#define ZZZ_INSERT_DOUBLE_TRIANGLE(id,parent,fwp,bwp,chi,pp) \
+{\
+    if((pp)->fwp){\
+        ZZmsgSS(24,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(!chi){\
+        ZZmsgS(44,ZZ_STRINGIT(id));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {(chi)->bwp->fwp=(pp);  (pp)->fwp=(chi);\
+       (pp)->bwp=(chi)->bwp; (chi)->bwp=(pp); (pp)->parent=(chi)->parent;}\
+}

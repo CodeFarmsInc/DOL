@@ -1,0 +1,212 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.6 Link, Name and Reference</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.6 LINK, NAME, and REFERENCE</font></h2>
+
+<p align="center"><img src="images/dol11_7.jpg" width="575"
+height="453"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p><em>LINK</em> provides a simple relational link between two
+objects. <em>NAME</em> provides a simple link between an object
+and a character string, typically a name. An object can have any
+number of links and names. Each link is equivalent to one
+pointer. <em>REFERENCE</em> provides a simple pointer plus a
+reference counter on the target object. This can be used for
+automatic garbage collection, Smalltalk style.</p>
+
+<p>The advantage of using these organizations instead of simple
+pointers is that when saving/retrieving whole organizations from
+disk even these simple pointer relations are automatically
+converted to new values. Any name declared through the <em>NAME</em>
+organization is treated as a separate object. The global<em>
+util.save() </em>automatically saves all names with other
+objects. However, when saving individual objects with the macro<em>
+ZZ_OBJECT_SAVE()</em>, each name has to be saved individually
+(see <a href="ch13MemM.htm">Chap.13</a>).</p>
+
+<h3><a name="11_6_2"></a><font size="3" face="Arial">Five types
+of LINK:</font></h3>
+
+<p><em>SINGLE_LINK</em> provides a simple one-way link from
+structure type A to object type T.</p>
+
+<p>A <em>DOUBLE_LINK</em> provides a two-way link between objects
+of type A and T. Object A is always considered primary and T
+secondary; <em>forward </em>means from A to T, <em>backward </em>means
+from T to A.</p>
+
+<p>A <em>GENERAL_LINK</em> is a single link to an object of
+unknown type. Internally, the pointer is cast as (<em>char *</em>).
+Automatic <em>SAVE/OPEN</em> resets this pointer; however, the <em>SWEEP</em>
+operation does not pass through this pointer when collecting
+objects.</p>
+
+<p>A <em>NAME</em> links the object to a character string.</p>
+
+<p>A <em>REFERENCE</em> provides a fully typed pointer link from
+type A to an object of type T. The T object keeps an integer
+counter, which counts number of reference pointers pointing to
+it.</p>
+
+<h3><font size="3" face="Arial">Adding a link:</font></h3>
+
+<p><em>add()</em> adds a new link between two objects. The object
+types must agree with the definition of the link. For a <em>REFERENCE</em>,
+this operation adds 1 to the count.</p>
+
+<h3><font size="3" face="Arial">Deleting a link:</font></h3>
+
+<p><em>del()</em> deletes the link. For <em>NAME</em> types, just
+like in other links, no de-allocation is done. The string must be
+freed by calling<em> sfree(). </em>For a <em>REFERENCE</em>, this
+operation substracts 1 from the count.</p>
+
+<h3><font size="3" face="Arial">Jumping across the link:</font></h3>
+
+<p><em>fwd() </em>moves you from A to T; for <em>NAME</em>, it
+returns the name of the object.</p>
+
+<p><em>bwd()</em> moves you from T to A (available only for<em>
+DOUBLE_LINK</em>).</p>
+
+<h3><font size="3" face="Arial">Accessing the counter:</font></h3>
+
+<p>When working with a<em> REFERENCE</em>, the following commands
+permit to access the counter:</p>
+
+<p><em>id.get(T*) </em>returns the current content of the
+counter,</p>
+
+<p><em>id.set(T*,int)</em> sets the counter to a given value.
+Normally, the user should not set the counter. The counter is
+initialized to 0 for a new object, and the counter is updated
+automatically by all<em> add()</em> and <em>del()</em> calls.</p>
+
+<h3><font size="3" face="Arial">SAVE/OPEN:</font></h3>
+
+<p>It may appear strange to use special organizations for such
+simple pointer relations. The reason is that when you are saving
+data to disk (structure blasting), only the pointers registered
+under OrgC++ are properly restored. Unregistered pointers become
+invalid (meaningless) when restoring data from disk.</p>
+
+<p>The method of allocating the name string may be important, if
+you plan to save data to disk later. There are two ways of adding
+a name to an object:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_NAME(name,Employee);<br>
+    Employee *e;<br>
+    name.add(e,&quot;Brown J&quot;);</em></p>
+    <p><em>ZZ_HYPER_NAME(name,Employee);<br>
+    Employee *e; char *n;<br>
+    n=util.strAlloc(&quot;Brown J&quot;);<br>
+    name.add(e,n);</em></p>
+</blockquote>
+
+<p>In the first case, we simply use a string provided by the
+compiler. In the second case, we allocate a special copy with <em>malloc</em>.</p>
+
+<p>When saving to disk, the saving algorithm has to temporarily
+change some bytes on all objects, including the name strings.
+However, SUN and some other compilers consider compiler-supplied
+strings sacred, and if any function attempts to change them, the
+program core dumps. For this reason, the second approach (using <em>util.strAlloc()</em>)
+should be used if you will be saving data to disk.</p>
+
+<p>The text string stored by the <em>NAME</em> organization may
+contain any characters except for `\0' (end of string character),
+including the blank (white space) character.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_SINGLE_LINK(id,FROM,TO);</em><br>
+        <em>ZZ_HYPER_DOUBLE_LINK(id,FROM,TO);<br>
+        ZZ_HYPER_GENERAL_LINK(id,FROM);<br>
+        ZZ_HYPER_NAME(id,FROM);</em></td>
+        <td>Declare the three types of links and the <em>NAME </em>organization.
+        <em>FROM </em>and <em>TO</em> are the object types. For
+        the <em>NAME</em>, the <em>TO</em>-type is <em>char*</em>
+        by default, for the <em>GENERAL_LINK </em>(<em>void *</em>)
+        is the default.</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(FROM *a, TO *b);</em></td>
+        <td>Adds a link from <em>a</em> to <em>b</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.addNew(FROM *a, TO *b);</em></td>
+	<td>SPECIAL - only for NAME: Allocates the string, then adds it</td>
+    </tr>
+    <tr>
+        <td><em>TO* id.del(FROM *a);</em></td>
+        <td>Deletes the link starting at <em>a</em>, and returns
+        a pointer to the deleted object.</td>
+    </tr>
+    <tr>
+        <td><em>TO* id.fwd(FROM *a);</em></td>
+        <td>For a given object <em>a,</em> it returs the object
+        connected by the link (<em>fwd=FORWARD</em>).</td>
+    </tr>
+    <tr>
+        <td><em>FROM* id.bwd(TO *b); // for DOUBLE_LINK only</em></td>
+        <td>Returns the source of the link that points to this
+        object (<em>bwd=BACKWARD</em>).</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>While working with the Rectangle record,<em> test8.c</em>
+        assumes that, temporarily, more data such as perimeter
+        and area are required. <em>LINK</em> is used to link the
+        Rectangle record with the temporary record, tempRect.</li>
+    <li>When working with two record types, Couple and Person, it
+        may be useful to have a link from a Couple to the two
+        people that form it. In <em>test16a.c </em>this is
+        implemented as two <em>LINK</em> organizations between
+        Couple and Person.</li>
+    <li>The program shown in <em>test15a.c </em>handles Employee
+        records that contain, besides other information, the
+        employee name. The name is linked by a regular pointer,
+        without using the organization of <em>NAME</em>. However,
+        when we want to save the same data on disk<em> (test15b.c</em>),
+        <em>NAME</em> is used instead of the pointer.</li>
+    <li>In <em>test14a.c</em>, both States and Towns have names
+        declared through the <em>NAME</em> organization.</li>
+    <li><em>test19a </em>and<em> test19b</em> illustrate the use
+        of <em>SAVE</em> on an organization that involves a <em>GENERAL_LINK</em>.
+        For more information on<em> REFERENCE</em> see files <em>orgC/macro/hyprefer</em>
+        and <em>test42b.c.</em></li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11e.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.5 GRAPH</font></a></td>
+        <td align="right" width="50%"><a href="ch11g.htm"><font
+        face="Arial">Next Section 11.7 STACK <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

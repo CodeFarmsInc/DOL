@@ -1,0 +1,21 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* parent of this triangle */
+ str2Type *pp;    /* returned child while traversing */
+.)l
+Description:
+ Traverse the triangle under the given parent.
+ Use in the same way as ZZ_A_TRAVERSE_SINGLE_TRIANGLE
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_DOUBLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_TRAVERSE_DOUBLE_TRIANGLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZc,id),par,pp)
+
+#define ZZZ_A_TRAVERSE_DOUBLE_TRIANGLE(strBot,sibling,child,par,pp) \
+{strBot *ZZt,*ZZc;\
+if(par)ZZc=(par)->child; else ZZc=NULL;\
+if(ZZc)(pp)=ZZc->sibling; else (pp)=NULL;\
+for(;pp;(pp)=ZZt){\
+    if((pp)==ZZc)ZZt=NULL; else ZZt=(pp)->sibling;

@@ -1,0 +1,239 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 9, Single User Mode</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">9. SINGLE USER MODE</font></h1>
+
+<h4><a href="#9_1"><font size="2" face="Arial">9.1 All Code In
+One File</font></a><font size="2" face="Arial"><br>
+</font><a href="#9_2"><font size="2" face="Arial">9.2 Larger
+Programs</font></a><font size="2" face="Arial"><br>
+</font><a href="#9_3"><font size="2" face="Arial">9.3 Splitting
+Large Files</font></a></h4>
+
+<p>This chapter describes how to run OrgC++ in the single user
+mode. For a more complicated case where several programmers use
+OrgC++ simultaneously, see <a href="ch18Mult.htm">Chap.18<font
+color="#FF0000">.</font></a></p>
+
+<p>The general syntax for invoking the class generator is:</p>
+
+<blockquote>
+    <p><em>orgCpath/zzprep prog.cpp &lt;incl.h&gt; &lt;master&gt;
+    &lt;func.c&gt; &lt;comb.h&gt;</em></p>
+</blockquote>
+
+<p>where:</p>
+
+<p><em>orgCpath</em> is the path to the orgC directory,<em><br>
+prog.cpp</em> is either the total source, or the file containing
+object declarations with all <em>ZZ_EXT</em> and <em>ZZ_HYPER</em>
+statements,<em><br>
+incl.h</em> is the result of preprocessing (default=<em>zzincl.h</em>),<em><br>
+master</em> is the master table of the chosen library (default=<em>zzmaster</em>).<em><br>
+func.c</em> is the second file produced by the class generator
+(default=<em>zzfunc.c</em>).<em><br>
+comb.h</em> is the reduced macro file (default=<em>zzcomb.h</em>).</p>
+
+<p><strong>WARNING:</strong> The full path to the orgC directory
+must be given in the invocation of <em>zzprep</em>. It is not
+sufficient to set a path to the orgC directory, and then simply
+call <em>zzprep</em>. The <em>zzprep</em> program needs the full
+path to derive the locations of some additional files it needs
+for operation, in particular the file<em> orgC/macro/zzmaster.</em>
+If you get an error message about the program not being able to
+read this file, most likely the problem is in how you call <em>zzprep</em>.</p>
+
+<h2><a name="9_1"></a><font size="4" face="Arial">9.1 ALL CODE IN
+ONE FILE</font></h2>
+
+<p>Under UNIX, we assume both <em>mySource.c </em>and <em>mySource.cc</em>
+will be interpreted as C++ source files, depending on the content
+of the file. Under DOS, it is automatically assumed that <em>mySource.cpp</em>
+is a C++ file, and that <em>mySource.c</em> is a C source file.</p>
+
+<p>Start your program like this:</p>
+
+<p align="center"><img src="images/dol9_1.jpg" width="350"
+height="251"></p>
+
+<pre>Run the whole source through the class generator:<em>
+    orgC/zzprep mySource.c ... under UNIX
+    orgC\zzprep mySource.cpp ... under DOS</em>
+Compile (under UNIX):<em>
+    CC mySource.c orgC/lib/zzlib.a</em></pre>
+
+<pre>Compile (DOS, TurboC++):
+    <em>tcc -mm -Lc:\tc\lib -Ic:\tc\include mySource.cpp orgC\lib\zzlib.lib</em> </pre>
+
+<pre>Compile (DOS, BorlandC++):
+    <em>bcc -mm -Vt -Lc:\tc\lib -Ic:\tc\include mySource.cpp orgC\lib\zzlib.lib</em> </pre>
+
+<pre>Compile (DOS, ZortechC++):
+    <em>ztc -mM mySource.cpp /link orgC\lib\zmlib.lib</em></pre>
+
+<p><strong>EXAMPLE: </strong>See <em>test0a.c</em> in your <em>orgC/test</em>
+directory.</p>
+
+<p>The preprocessor (<em>zzprep</em>) skips over sections of code
+commented out by either /*...*/ or by //... However, the
+preprocessor does not react to <em>#ifdef</em> statements. For
+example, in the following situation</p>
+
+<blockquote>
+    <p><em>#ifdef SKIP</em></p>
+</blockquote>
+
+<p>....some code</p>
+
+<blockquote>
+    <p><em>#endif</em></p>
+</blockquote>
+
+<p>the preprocessor will run through all the code, regardless
+whether SKIP is defined or not.</p>
+
+<h2><a name="9_2"></a><font size="4" face="Arial">9.2 LARGER
+PROGRAMS</font></h2>
+
+<p>The class generator does not have to read all your source, it
+needs only those sections of your code, and those include files
+that use ZZ-prefix commands. These commands are <em>ZZ_EXT_</em>..,
+<em>ZZ_HYPER_</em>.., and possibly <em>ZZ_CHECK()</em>. In
+OrgC++, such statements are used in class declarations only, and
+should therefore be concentrated in a few header files.</p>
+
+<p>Regardless of how many source files you use, you proceed in
+this manner, adding <em>cat</em> (or <em>type</em> under DOS)
+statements as required:</p>
+
+<p align="center"><img src="images/dol9_2.jpg" width="600"
+height="305"></p>
+
+<p>Combine all your include files into one large file, and run
+this file through the class generator. </p>
+
+<p>The source files must start like this<font color="#FF0000">:!!TODO
+- Ask Jiri if something is missing.</font></p>
+
+<p>Then you compile and link your program as usual. Note that
+instead of including <em>zzfunc.c</em> at the end of the <em>main</em>
+program, you can compile it separately.</p>
+
+<p><strong>EXAMPLE</strong>:<em> test7a.c</em>, <em>test7x.c</em>,
+and <em>test7.h</em> in your <em>orgC/test</em> directory.</p>
+
+<p>This method has two advantages: (a) the class generator runs
+faster, because the combined include file is always short
+compared to the overall source; (b) you don't have to re-run the
+class generator during debugging, unless you also touch one of
+your include files. This is a condition which may also be used by
+the <em>Makefile</em> facility.</p>
+
+<h2><a name="9_3"></a><font size="4" face="Arial">9.3 SPLITTING
+LARGE FILES</font></h2>
+
+<p>Some compilers, especially under DOS, run out of space when
+applied to a large file which contains many functions. The
+solution to this problem is to split the file into several files,
+each containing fewer functions and fewer lines of code.</p>
+
+<p>You can encounter this problem in two situations:</p>
+
+<ol>
+    <li>The input file for A<em> zzprep</em> is too large, and <em>zzprep</em>
+        runs out of memory. In this case, use <em>ZZbreakLine</em>
+        statements to divide the input file into segments that
+        are processed individually. For more details, see <a
+        href="ch08synt.htm#8_1_15">Chap.8.1.15</a><font
+        color="#FF0000">.</font></li>
+    <li><em>zzprep</em> generates the file <em>zzfunc.c</em>
+        which is too large, and the compiler runs out of memory.</li>
+</ol>
+
+<p>File <em>zzfunc.c</em> is normally out of your control, and
+even if you edit it manually and split it into several sections,
+you would have to do the same work again any time <em>zzprep</em>
+is invoked.</p>
+
+<p>The self-standing program <em>zzsplit </em>allows you to split
+<em>zzfunc.c </em>into several sections of approximately the same
+size. All the sections are placed into the same file (default
+name <em>zzfun.c</em>) with individual sections separated by <em>#ifdef</em>
+statements:</p>
+
+<blockquote>
+    <pre><em>#ifdef SECTION1
+...
+#endif
+#ifdef SECTION2
+...
+#endif
+#ifdef SECTION3</em></pre>
+</blockquote>
+
+<p>... and so on</p>
+
+<p>If you want to compile the first section, create a simple file
+which contains the following two lines, and compile is
+separately:</p>
+
+<blockquote>
+    <pre><em>#define SECTION1
+#include &quot;zzfun.c&quot;</em></pre>
+</blockquote>
+
+<pre>The general syntax for the <em>zzsplit program</em> is:
+    <em>zzsplit zzfunc.c zzfun.c inp</em><font
+face="Times New Roman">
+</font>where<font face="Times New Roman">
+</font>    <em>zzfunc.c</em> is the original (normal) <em>zzfunc.c</em> file;<font
+face="Times New Roman">
+</font>        <em>default: zzfunc.c</em><font
+face="Times New Roman">
+</font>    <em>zzfun.c </em>is the new file with special <em>ifdefs</em>;<font
+face="Times New Roman">
+</font>        <em>default: zzfun.c</em><font
+face="Times New Roman">
+</font>    <em>inp</em> is the input file containing one integer, number of required sections;<font
+face="Times New Roman">
+</font>        <em>default: stdin</em></pre>
+
+<h4><font size="2" face="Arial">EXAMPLE:</font></h4>
+
+<p>If you want to split <em>zzfunc.c </em>into 4 sections, and
+use the defaults for <em>zzfunc.c </em>and<em> zzfun.c,</em>
+create a simple file inp which contains just one number, 4. Then
+call</p>
+
+<blockquote>
+    <p><em>zzsplit inp</em></p>
+</blockquote>
+
+<p>This technique is used in test18f, see <em>orgc/test/cregr</em>
+or one of the other regression files.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch08Synt.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Chapter 8: Syntax</font></a></td>
+        <td align="right" width="50%"><a href="ch10Libr.htm"><font
+        face="Arial">Chapter 10: OrgC++ Library <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

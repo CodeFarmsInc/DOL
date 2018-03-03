@@ -1,0 +1,55 @@
+/* =========================================================
+Description:
+ Close the output file and the whole environment for outputting
+the binding information of your organization.
+.pp
+ In case of the outside control of opening/closing the file,
+fileName may be the file pointer or file handle casted as (char *).
+.sp
+Example:
+.(l
+#include <stdio.h>
+#include "zzincl.h"
+
+typedef struct Instance Instance;
+typedef struct ActTerm ActTerm;
+
+struct Instance{
+    ZZ_EXTInstance
+    char *name;
+};
+
+struct ActTerm{
+    ZZ_EXTActTerm
+    char *fTerm;
+};
+
+main()
+{
+    ActTerm *at;
+    Instance *ip,*start;
+
+    /* here we setup two organizations:
+     *  - all instances in a ring starting from 'start';
+     *  - aTerms in triangles under the instances
+     */
+	    ...........
+
+
+    /* traverse the whole organization and write all objects */
+    /* note the first ZZ_WRITE_BIND() must be the main entry */
+    ZZ_A_TRAVERSE_SINGLE_RING(0,Instance,start,ip)
+	ZZ_WRITE_BIND("myFile",Instance,ip)
+        ZZ_A_TRAVERSE_SINGLE_TRIANGLE(0,Instance,ActTerm,ip,at)
+	    ZZ_WRITE_BIND("myFile",ActTerm,at)
+	ZZ_A_END
+    ZZ_A_END
+    ZZ_CLOSE_BIND("myFile"); /* closes the file and the 'save' operation */
+}
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_CLOSE_BIND(fileName) {\
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+void ZZFUN_closeBind(); ZZcloseBind(fileName);}

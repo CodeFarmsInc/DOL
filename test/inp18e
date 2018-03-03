@@ -1,0 +1,25 @@
+O sfile
+D FACULTY F.Brown
+D STUDENT S.Third
+D COURSE 101M
+D DEPARTMENT Mathematics
+A DEPARTMENT Mathematics 107 888
+A WORKS_FOR F.White Mathematics 
+A WORKS_FOR F.Black Mathematics
+A HAS_MAJOR S.First Mathematics
+A COURSE 104M 7.0
+A OFFERS Mathematics 104M
+A OFFERS Mathematics 102M
+A OFFERS Mathematics 103M
+D HAS_TAKEN S.Fourth 102M
+A IS_TAKING S.Fourth 102M 892
+D IS_TAKING S.Fourth 201E 891
+D IS_TEACHING F.Black 103M
+A IS_TEACHING F.White 103M
+D WORKS_FOR F.Black Mathematics
+A WORKS_FOR F.Black English
+D HAS_MAJOR S.Fourth English
+A HAS_MAJOR S.Fourth Mathematics
+D OFFERS Mathematics 103M
+A OFFERS Mathematics 103M
+P

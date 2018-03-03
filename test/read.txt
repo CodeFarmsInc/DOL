@@ -1,0 +1,30 @@
+------------------------------------------------------------------------------
+Example of how to save and retrieve data from disk.
+---------------------------------------------------
+All examples are set for MS Windows and VC++ compiler. For other platforms
+and compilers, please, modify file names and the tt*.bat scripts.
+
+BASIC SIMPLE METHOD (binary mode):
+    Files: testa1.cpp, testa2.cpp, testa3.cpp, testa.h
+    Compile and run the first program which creates data and saves it to disk: 
+        tta1.bat
+    Compile and run the second program which reads the data from the disk and
+    prints it:
+        tta2.bat
+
+USING PORTABLE DATA (ASCII method):
+    Files: testb1.cpp, testb2.cpp, testb3.cpp, testb.h
+    Compile and run the first program which creates data and saves it to disk: 
+        ttb1.bat
+    Compile and run the second program which reads the data from the disk and
+    prints it:
+        ttb2.bat
+
+FAST METHOD COMBINING PERSISTENCE WITH ALLOCATION (memory blasting):
+    Files: testc1.cpp, testc2.cpp, testc3.cpp, testc.h
+    Compile and run the first program which creates data and saves it to disk: 
+        ttc1.bat
+    Compile and run the second program which reads the data from the disk and
+    prints it:
+        ttc2.bat
+------------------------------------------------------------------------------

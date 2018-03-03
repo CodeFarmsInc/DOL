@@ -1,0 +1,45 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *start; /* any member of the ring, NULL will do nothing */
+ strType *pp;    /* object returned as traversing the ring */
+.)l
+Description:
+ Starts a loop that traverses all objects on this ring. The loop
+must end by ZZ_A_END (or ZZAend) macro.
+ You can delete an element while traversing the ring. 
+ After the end of loop, pp is always set to NULL.
+.sp
+Exceptions: when start=NULL is given, it does nothing.
+.(l
+Example:
+
+typedef struct Country Country;
+struct Country{
+    ZZ_EXT_County
+    int population;
+    float size;
+    char *name;
+};
+ZZ_ORG_SINGLE_RING(countries,Country)
+
+Country *entry,*pp;
+
+/* print names of all countries on the current list, with entry 'entry' */
+ZZ_A_TRAVERSE_SINGLE_RING(countries,entry,pp)
+    printf("%s\\n",pp->name);
+ZZ_A_END
+.)l
+Objects will be returned in the reverse order than added to the ring.
+You can delete objects within this loop - see ZZ_DELETE_SINGLE_RING().
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_SINGLE_RING(id,start,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_TRAVERSE_SINGLE_RING(id,ZZFP(ZZf,id),ZZFT(1,id),start,pp)
+
+#define ZZZ_A_TRAVERSE_SINGLE_RING(id,fwp,strType,start,pp) \
+{strType *ZZt;\
+    if(start)(pp)=(start)->fwp; else (pp)=NULL;\
+    for(;(pp);(pp)=ZZt){ \
+	ZZt=(pp)->fwp; if((pp)==(start))ZZt=NULL;

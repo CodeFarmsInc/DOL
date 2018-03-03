@@ -1,0 +1,70 @@
+/* =========================================================
+.(l
+ TEXT id;     /* id for the instance of the organization */
+ type *hp;    /* header that encapsulates the pager */
+ long ind;    /* index referencing a byte position within pager */
+ char *ptr;   /* return pointer to a memory address */
+.)l
+Description:
+ Makes sure that the page corresponding to the given index (ind)
+is loaded into memory, and returns the address corresponding
+to the ind-th byte in the file. This allows you to operate directly
+in memory instead of copying objects via buffer, as when using  ZZ_IO_PAGER().
+.pp
+WARNING:
+ In contrast to ZZ_IO_PAGER() which is fully protected and works
+across page boundaries, ZZ_ADDRESS_PAGER() leaves you responsible
+for not running out of the current page boundary. If you do, you may
+damage a random page, or even run out of paging memory and cause
+core dump.
+.pp
+If your page size requested at the last ZZ_FORM_PAGER() call is ps,
+and the given index is ind, then the current page contains bytes
+from n1 to n2, where n1=(ind/ps)*ps, n2=n1+ps-1. The first byte in
+the file has index ind=0L. Note that index is always a long integer;
+the purpose of the pager is to handle very large data sets.
+.sp
+.(l
+Example of the use:
+   typedef struct Head Head;
+   struct Head {
+       ZZ_EXT_Head
+   };
+   ZZ_ORG_PAGER(page,Head); /* Head will encapsulate the pager */
+   typedef struct myObj myObj;
+   struct myObj {       /* with ZZ_EXT or not */
+       int x,y;
+   };
+
+    main(){
+        long i;
+        int pageSize;
+        Head *hp;
+        myObj *mp;
+        char *ptr;
+
+        ZZ_PLAIN_ALLOC(Head,1,hp);
+        pageSize=25*sizeof(struct myObj); /* page size to fit myObj */
+        ZZ_FORM_PAGER(page,hp,"myFile",pageSize,6,1);
+        ...
+        /* print myObject stored at position 1156660 */
+        ZZ_ADDRESS_PAGER(page,hp,1156660L,ptr); /* returns ptr */
+        mp=(myObj *)ptr;
+        printf("%d %d\n",mp->x,mp->y);
+        ...
+        /* set x for myObject stored at position i */
+        ZZ_ADDRESS_PAGER(page,hp,i,ptr); /* returns ptr */
+        mp=(myObj *)ptr;
+        mp->x=104;
+         
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_ADDRESS_PAGER(id,obj,ind,ptr)\
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADDRESS_PAGER(id,ZZFP(ZZh,id),obj,ind,ptr)
+
+#define ZZZ_ADDRESS_PAGER(id,hPtr,obj,ind,ptr)\
+{ char *ZZFUN_ioPager();\
+    (ptr)=ZZioPager(0,(obj)->hPtr,ind,NULL,1);\
+}

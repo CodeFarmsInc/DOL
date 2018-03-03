@@ -1,0 +1,15 @@
+/* =========================================================
+.(l
+ TEXT id;            /* organization id */
+ strType1 *source;   /* source entity */
+ strType2 *rel;      /* relation to be added */
+ strType3 *target;   /* target entity */
+.)l
+Description:
+ Generic function that adds a new relation between a pair of entities.
+This is equivalent to ZZ_ADD_RELATION() but to be used for compiled functions.
+.sp 1
+  ========================================================== */ 
+#define ZZF_ADD_RELATION(id,source,relation,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZF_ADD_RELATION,id)(id,source,relation,target)

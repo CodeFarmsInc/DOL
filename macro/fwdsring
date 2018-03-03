@@ -1,0 +1,41 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id for the instance of the organization */
+ strType *pp;   /* given object */
+ strType *next; /* next object on the ring */
+.)l
+Description:
+ For a given object, return next object on the ring.
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+typedef struct Town Town;
+struct Town{
+    ZZ_EXT_Town
+    char river; /* yes or no */
+    char color; /* color people hate most */
+    char *contryName;
+    char *townName;
+};
+ZZ_ORG_SINGLE_RING(allTowns,Town)
+
+Town *t1,*t2;
+
+    ZZ_FORWARD_SINGLE_RING(allTowns,t1,t2)
+.)l
+Calls like ZZ_FORWARD_SINGLE_RING(allTowns,start,start) are
+permitted.
+.sp
+This macro can be used to detect whether an object is
+part of this organization. If the following call
+     ZZ_FORWARD_SINGLE_RING(allTowns,t1,t2)
+ returns t2=NULL, it means t1 is not part of allTowns.
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORWARD_SINGLE_RING(id,pp,next) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_FORWARD_SINGLE_RING(ZZFP(ZZf,id),pp,next)
+
+#define ZZZ_FORWARD_SINGLE_RING(fwd,pp,next) \
+{(next)=(pp)->fwd;}

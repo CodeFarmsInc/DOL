@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 12, Documentation</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">12. DOCUMENTATION</font></h1>
+
+<h4><a href="#12_1"><font size="2" face="Arial">12.1 On-Line Help</font></a><font
+size="2" face="Arial"><br>
+</font><a href="#12_2"><font size="2" face="Arial">12.2 Reference
+Guide</font></a></h4>
+
+<h2><a name="12_1"></a><font size="4" face="Arial">12.1 On Line
+Help</font></h2>
+
+<p>OrgC++ has an intelligent help function, which allows you to
+query about the organizations and functions that are in the
+library. This function automatically includes
+organizations/features added by the user.</p>
+
+<p>On-line help uses a free format, and has no fixed syntax or
+menu. You simply enter, from the main OrgC directory: </p>
+
+<blockquote>
+    <p><em>zzhelp &lt;string&gt;</em></p>
+</blockquote>
+
+<p>The program lists the OrgC++ features that best match the
+given string, and allows you to select commands for which you
+would like to see more documentation. The program retrieves the
+selected documentation, and places it into the file <em>zzinfo</em>,
+which you can browse using a standard editor or the UNIX <em>more</em>
+utility.</p>
+
+<p>The query must be presented as a single string, even if it
+combines several words. For example: ADDRING, add_RING, and
+ringADD, will all produce the same result.</p>
+
+<p>Each line on the screen shows: long name, short name, and the
+file in which the information is stored.</p>
+
+<p>Under UNIX, the file <em>zzinfo</em> is automatically <em>nroff-ed</em>.
+Under DOS, the file has the raw <em>nroff</em> format, with
+typesetting instructions in it (<em>format-me</em>).</p>
+
+<p>Using on-line documentation for the C++ version of the library
+requires a slightly different approach. You always start with the
+file that contains the <em>ZZ_HYPER_</em> declaration. Let us
+assume, for example, that you are looking for details on how to
+delete an object from the <em>DOUBLE_TREE</em>. You proceed in
+these steps:</p>
+
+<p><strong>Example:</strong><em> zzhelp ADD_RING</em></p>
+
+<p>Best match found:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>[0] macro:</td>
+        <td><em>ZZ_ADD_SINGLE_RING</em></td>
+        <td>ZZadd1R</td>
+        <td>file: addsring </td>
+    </tr>
+    <tr>
+        <td>[1] macro:</td>
+        <td><em>ZZ_ADD_DOUBLE_RING</em></td>
+        <td>ZZadd2R</td>
+        <td>file: adddring</td>
+    </tr>
+</table>
+
+<p>select numbers:</p>
+
+<p><strong>Example</strong><em> zzhelp ringADDS</em></p>
+
+<p>Best match found:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>[0] macro:</td>
+        <td><em>ZZ_ADD_SINGLE_RING</em></td>
+        <td>ZZadd1R</td>
+        <td>file: addsring</td>
+    </tr>
+    <tr>
+        <td>[1] macro:</td>
+        <td><em>ZZ_ADD_DOUBLE_RING</em></td>
+        <td>ZZadd2R</td>
+        <td>file: adddring </td>
+    </tr>
+</table>
+
+<p>select numbers:</p>
+
+<p><strong>Example</strong><em>: zzhelp 1_TO_N</em></p>
+
+<p>Best match found:<br>
+organization=1_TO_N</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>[0] macro:</td>
+        <td><em>ZZ_ORG_1_TO_N</em></td>
+        <td>ZZorg1toN</td>
+        <td>file: org1ton</td>
+    </tr>
+    <tr>
+        <td>[1] macro:</td>
+        <td><em>ZZ_TARGET_1_TO_N</em></td>
+        <td>ZZtarg1toN</td>
+        <td>file: targ1ton</td>
+    </tr>
+    <tr>
+        <td>[2] macro:</td>
+        <td><em>ZZ_SOURCE_1_TO_N</em></td>
+        <td>ZZsour1toN</td>
+        <td>file: sour1ton</td>
+    </tr>
+    <tr>
+        <td>[3] macro:</td>
+        <td><em>ZZ_FORWARD_1_TO_N</em></td>
+        <td>ZZfwd1toN</td>
+        <td>file: fwd1ton</td>
+    </tr>
+    <tr>
+        <td>[4] macro:</td>
+        <td><em>ZZ_BACKWARD_1_TO_N</em></td>
+        <td>ZZbwd1toN</td>
+        <td>file: bwd1ton</td>
+    </tr>
+    <tr>
+        <td>[5] macro:</td>
+        <td><em>ZZ_A_TRAVERSE_1_TO_N</em></td>
+        <td>ZZAtrav1toN</td>
+        <td>file: trav1ton</td>
+    </tr>
+    <tr>
+        <td>[6] macro:</td>
+        <td><em>ZZ_A_RETRACE_1_TO_N</em></td>
+        <td>ZZAretr1toN</td>
+        <td>file: retr1ton</td>
+    </tr>
+    <tr>
+        <td>[7] macro:</td>
+        <td><em>ZZ_ADD_RELATION_1_TO_N</em></td>
+        <td>ZZadd1toN</td>
+        <td>file: add1ton</td>
+    </tr>
+    <tr>
+        <td>[8] macro:</td>
+        <td><em>ZZ_DELETE_RELATION_1_TO_N</em></td>
+        <td>ZZdel1toN</td>
+        <td>file: del1ton</td>
+    </tr>
+    <tr>
+        <td>[9] function</td>
+        <td><em>ZZF_ADD_RELATION_1_TO_N</em></td>
+        <td>ZZFadd1toN</td>
+        <td>file: fadd1ton</td>
+    </tr>
+    <tr>
+        <td>[10] function:</td>
+        <td><em>ZZF_DELETE_RELATION_1_TO_N</em></td>
+        <td>ZZFdel1toN</td>
+        <td>file: fdel1ton</td>
+    </tr>
+</table>
+
+<p>select numbers: 0 7 9<br>
+view file zzinfo ...</p>
+
+<p><strong>Example:</strong> <em>zhelp NewYorkCity<br>
+</em>nothing meaningful found</p>
+
+<p>Find out which file contains <em>ZZ_HYPER_DOUBLE_TREE</em>.
+That can be done in two ways:</p>
+
+<h4><font size="2" face="Arial">Method A:</font></h4>
+
+<blockquote>
+    <p><em>cd orgC<br>
+    zzhelp DOUBLE_TREE</em></p>
+</blockquote>
+
+<blockquote>
+    <p>This will give you a list of all the commands for this
+    organization, including the file name in the most right hand
+    column. In this case, the name will be <em>hypdtree.</em></p>
+</blockquote>
+
+<h4><font size="2" face="Arial">Method B: </font></h4>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>UNIX</td>
+        <td>DOS</td>
+    </tr>
+    <tr>
+        <td><em>cd orgC/macro</em></td>
+        <td><em>cd orgC\macro</em></td>
+    </tr>
+    <tr>
+        <td>is hyp*</td>
+        <td>dir hyp*</td>
+    </tr>
+</table>
+
+<blockquote>
+    <p>You will get a list of about 30 files with names that are
+    a bit cryptic but still meaningful. You will see that
+    hypdtree clearly resembles the organization you are looking
+    for.</p>
+</blockquote>
+
+<p>The next step is to view (using your favourite editor) the
+file <em>orgC/macro/hypdtree</em>. The file contains the
+declaration of the interface class, iterator, and all the
+methods. You will see that the function <em>del() </em>is indeed
+there, and how it must be called. The big advantage of C++ is
+that all things related to one object are neatly kept together.</p>
+
+<p>When you are looking into this file, you will also see that
+the actual code that deletes the object from the tree is hidden
+under a macro, in this case <em>ZZ_DELETE_DOUBLE_TREE()</em>.
+This has two reasons: (a) it makes the C and C++ code perform
+identically, (b) it saves a lot of coding.</p>
+
+<p>If you followed Method A above, you already know the name of
+the file, where this macro is located (<em>deldtree</em>). You
+could easily have guessed it (the naming of all files follows the
+same convention; the only restriction is that they must be not
+more than 8 characters in order to make the whole system
+compatible with DOS). Another possibility is to call the
+interactive help again:</p>
+
+<blockquote>
+    <p><em>zzhelp DELETE_DOUBLE_TREE</em></p>
+</blockquote>
+
+<p>The last step is to view (using your editor again) the file <em>deldtree</em>.
+This file contains all the technical information available about
+the algorithm, its behaviour, possible errors, etc. Each file
+also contains a short example which is, at the present time,
+mostly in C. We are gradually adding C++ related documentation to
+all of the files, but this is a long term process.</p>
+
+<p>Note that there is a direct mapping of calling parameters
+between C macros and C++ methods. You can either look in the
+tables shown in <a href="AppendxA.htm">Appendix A</a>, or
+remember these rules:</p>
+
+<ul>
+    <li>If the call does not return any values, parameters are
+        the same, except for the organization <em>id </em>which,
+        in C++, is used differently:<em> ZZ_DELETE(id,par,obj)</em>;
+        translates into <em>void id.del(par,obj)</em>; <em>ZZ_SAVE(file,n,v,t)</em>;
+        translates into <em>util.save(file,n,v,t); </em>because
+        there is no UTILITY class in C (save and allocation
+        utilities are simply global).</li>
+    <li>If the call returns a parameter (and it never returns
+        more than one, usually the last one), the parameter moves
+        ahead of the function:<em> ZZ_CHILD(id,par,ch)</em>;
+        translates into <em>ch=id.child(par);
+        ZZ_FORWARD(id,obj,next)</em>; translates into <em>next=id.fwd(obj);</em></li>
+</ul>
+
+<p>If you find this system a little bit too complex for the
+beginning, remember that you don't have to use it until you start
+to add or modify the library. The printed Users' Guide contains
+all the information you need to use the libraries.</p>
+
+<h2><a name="12_2"></a><font size="4" face="Arial">12.2 Reference
+Guide</font></h2>
+
+<p>OrgC++ documentation consists of three documents:</p>
+
+<ul>
+    <li>User's Guide;</li>
+    <li>Reference Guide (this chapter describes details);</li>
+    <li>On-line help (explained in <a href="#12_1">Chap.12.1</a>).</li>
+</ul>
+
+<p>The User's Guide is shipped with the software, and is
+available in printed form only. </p>
+
+<p>You can generate the Reference Guide automatically from within
+the <em>orgC/docum </em>directory, by typing: <em>zzdocum
+&lt;mFile&gt;</em></p>
+
+<p>If you don't specify any mFile, the program creates a complete
+Reference Guide, if you give an <em>mFile</em>, it generates only
+an update for commands/macros specified in the file. For C++,
+provide <em>ZZ_HYPER_</em>declaration names, plus corresponding
+C-command names (see <a href="AppendxA.htm">Appendix A</a>). In
+either case, the generated document includes an index by
+organization/function name, and one UNIX-like page for each
+function or macro. Documentation for every feature includes an
+example, and is identical to the information you obtain when
+calling <em>zzhelp</em>.</p>
+
+<p>The text of the Reference Guide will be stored in the file <em>orgC/docum/ZZrefer
+</em>and will be in <em>nroff -me </em>format. If you run under
+DOS or do not have <em>nroff -me </em>available on your UNIX
+system, you can call <em>orgC/zzroff</em>, which will format the
+text for the printer. Assuming that you are in the <em>orgC/docum
+</em>directory, you have to type:</p>
+
+<blockquote>
+    <p><em>..\zzroff ZZrefer temp<br>
+    print temp</em></p>
+</blockquote>
+
+<p>Note that OrgC is using an advanced concept of creating
+documentation directly from the source code. OrgC macros and
+functions are stored in the <em>orgC/macro </em>directory, with
+the source code and the documentation together in each file. The
+documentation program retrieves the Reference Guide directly from
+these files, while the <em>zzcomb </em>program (see <a
+href="ch16Addf.htm">Chap.16</a>), retrieves the source code
+stripped of comments and generates <em>orgC/zzcomb.h.</em></p>
+
+<p>If you require only the Reference Guide update, list only
+those macros/functions for which you want documentation.</p>
+
+<p>Example of <em>mFile:</em></p>
+
+<blockquote>
+    <p><em>ZZ_ADD<br>
+    ZZ_DELETE_SINGLE_TREE<br>
+    ZZpar1T</em></p>
+</blockquote>
+
+<p><strong>WARNING</strong>:<em> A zzdocum </em>run always
+overwrites the old file <em>ZZrefer. </em>If you want to generate
+update pages only, rename <em>ZZrefer </em>before calling <em>zzdocum.</em></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11AOrg.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        11: Available Organizations</font></a></td>
+        <td align="right" width="50%"><a href="ch13MemM.htm"><font
+        face="Arial">Chapter 13: Memory Management <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

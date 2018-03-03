@@ -1,0 +1,110 @@
+/* =========================================================
+.(l
+ char *fileName; /* file name where to save  */
+ int n;       /* number of the given key entries */
+ void *pp[];   /* array of given key entries, any type */
+ char *type[]; /* array types for the given entries */
+.)l
+Description:
+ Single line SAVE command.
+Using the SWEAP algorithm, it collects all objects in the
+organization connected to the key entries, and saves them on the disk
+in a binary format. This is a fast search based on the graph of pointers.
+When the saving is finished, the internal list of objects is freed.
+.sp
+The opposite command to ZZ_SAVE() is ZZ_OPEN(). It restores the whole
+organization from the file back into memory.
+.sp
+ Use "#define ZZascii", if you want an ASCII file. Otherwise, for the sake
+of memory efficiency and speed, the file will be binary.
+.sp
+SPECIAL CASE:
+ If you want, for some reason, to open/close the disk file yourself,
+use ZZ_MODE_SAVE() with cntrl=1. In this special case, instead of calling
+ZZ_SAVE() and ZZ_OPEN() with the file name, you call it with the file
+pointer or file handle casted as (char *). For example:
+.(l
+   FILE *fp;
+   char *v[2],*t[2];
+
+   ZZ_MODE_SAVE(0,1,0,1);
+   fp=fopen("myFile","w");
+    ...
+   ZZ_SAVE((char *)fp,2,v,t);
+.)l   
+.sp
+SPECIAL CASE:
+If you invoke memory blasting (whole blocks of memory directly to disk)
+by calling ZZ_BLOCK_ALLOC(n) where n<0, then you need to specify
+only v[], not t[]. All the data is being blasted to disk, regardless
+whether connected by pointers or not.
+
+.sp
+WARNINGS:
+ (1) Organizations GENERAL_LINK and SINGLE_LINK are a potential problem when
+using ZZ_SAVE().
+GENERAL_LINK must not be used at all, and
+for any SINGLE_LINK, the target structure must have ZZ_EXT.
+.i "Organized C"
+has no way to check on these conditions, and if you use the LINK organization
+improperly, the target object will be misinterpreted as a text string.
+ (2) Also, the organization must not contain pointers into any ARRAY. 
+ARRAYs are stored automatically as a part of an object. Reference
+to array members should be by index.
+ (3) DOUBLE_LINK can be used freely, it causes no problems.
+.sp
+Example:
+.(l
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+};
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+};
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+};
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+
+char *fileName,*v[2],*t[2];
+Block *bStart; /* start of all blocks */
+Net *nStart;   /* start of all nets */
+
+v[0]=(char*)bStart; v[1]=(char*)nStart;
+t[0]="Block";       t[1]="Net";
+ZZ_SAVE(fileName,2,v,t)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SAVE(fileName,n,obj,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_swpSet();\
+ ZZint ZZFUN_saveKeys(); \
+ ZZint ZZFUN_saveAll();\
+ ZZint ZZFUN_swpFree();\
+ void ZZFUN_closeBind();\
+ void ZZFUN_blastSave(); \
+    ZZ_GENERAL_EXT(); \
+    if(ZZerrFLG){ZZmsgD(31,ZZerrFLG); ZZerrFLG=0;}\
+    if(ZZioSwitch==1 && ZZmemSwitch==2)ZZblastSave(fileName,n,(char **)(obj));\
+    else {\
+        ZZswpSet(ZZstrList,ZZnxtType,(char **)(obj),type,n,0);\
+        if(!ZZerrFLG){\
+            ZZsaveKeys(fileName,ZZstrList,(char **)(obj),type,n);\
+            ZZsaveAll(fileName);\
+            ZZswpFree();\
+            if(ZZbindCntrl!=2)ZZcloseBind(fileName);\
+        }\
+    }\
+}

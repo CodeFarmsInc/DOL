@@ -1,0 +1,39 @@
+/* =========================================================
+.(l
+ TEXT id;            /* organization id */
+ strType1 *source;   /* source entity */
+ strType2 *rel;      /* relation to be added */
+ strType3 *target;   /* target entity */
+.)l
+Description:
+ Generic function that adds a new relation between a pair of entities.
+.(l
+Example of the use:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct Course Course;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Course {
+       ZZ_EXT_Course
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(classes,Teacher,Class,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   Course *c;
+   ...
+   ZZ_ADD_RELATION(classes,t,c,s);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_RELATION(id,source,relation,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_ADD_RELATION,id)(id,source,relation,target)

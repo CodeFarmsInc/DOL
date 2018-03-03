@@ -1,0 +1,51 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* parent of this collection */
+ str2Type *pp;    /* returned child while traversing */
+.)l
+Description:
+ Retrace (=traverse in the reverse order) the collection under the given parent.
+This operation works only for the DOUBLE_COLLECT organization.
+ Children that are being traversed may be deleted from the collection
+while traversing, if the proper function function is used (ZZ_DELETE()).
+   After the last loop, pp is always set to NULL.
+   When (par) has no children, the loop is by-passed.
+.sp
+.(l
+Example:
+Print name and salary of all employees in the given group.
+
+typedef struct Employee Employee;
+typedef struct SalaryGroup SalaryGroup;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+struct SalaryGroup{
+    ZZ_EXT_SalaryGroup
+    int low,high;   
+};
+ZZ_ORG_DOUBLE_COLLECT(grp,SalaryGroup,Employee);
+
+Employee *pp;
+SalaryGroup *group;
+
+ZZ_A_RETRACE(grp,group,pp){
+    printf("%s %d\n",pp->name,pp->salary);
+}ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_RETRACE_DOUBLE_COLLECT(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_RETRACE_DOUBLE_COLLECT(ZZFT(2,id),ZZFP(ZZb,id),ZZFP(ZZc,id),par,pp)
+
+#define ZZZ_A_RETRACE_DOUBLE_COLLECT(strBot,bwp,child,par,pp) \
+{strBot *ZZt,*ZZc;\
+if(par)ZZc=(par)->child; else ZZc=NULL;\
+if(ZZc)(pp)=ZZc; else (pp)=NULL;\
+for(;pp;(pp)=ZZt){\
+    ZZt=(pp)->bwp; if(ZZt==ZZc)ZZt=NULL;

@@ -1,0 +1,359 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14 Debugging With DOL and Error Reporting</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">14. DEBUGGING WITH DOL AND REPORTING ERRORS
+</font></h1>
+
+<h4><a href="#14_1"><font size="2" face="Arial">14.1 Using a
+Regular Debugger</font></a><font size="2" face="Arial"><br>
+</font><a href="#14_2"><font size="2" face="Arial">14.2
+Interactive Browser</font></a><br>
+</font><a href="#14_3"><font size="2" face="Arial">14.3
+Error Reporting</font></a></h4>
+
+<h2><a name="14_1"></a><font size="4" face="Arial">14.1 Using a
+Regular Debugger</font></h2>
+
+<p>All OrgC++ calls, whether they are macros or compiled
+functions, are encapsulated in hyper-classes. You can use your
+regular debugger to debug the program. You should not debug
+OrgC++ functions just as you do not debug a C++ runtime library.
+If you step through the program, skip over calls with the prefix
+ZZ. </p>
+
+<p>If you insist on looking inside ZZ macros, read <a
+href="ch16Addf.htm">Chap.16;</a> it explains the whole setup.</p>
+
+<p>Automatically generated pointers that hide under <em>ZZ_EXT_</em>
+statements cannot be accessed from the outside - they are in the
+private part of your classes. Even though you can find the names
+of these pointers in <em>zzincl.h</em>, do not try to access them
+directly. For example, if you want, as part of your debugging, to
+find the next object on a ring, use the function <em>fwd()</em>
+and not a direct pointer jump. Always use only OrgC++ calls to
+access the data, even when you are debugging. </p>
+
+<p>For an experienced C or C++ programmer who is used to working
+with pointers all the time this may be shocking news. Not use
+pointers, even when debugging? Simply consider the pointers that
+form the data organization to be off-limits. The library has been
+debugged and well tested. As you will see with time, if you get
+any errors, they will be most likely in your code or in how you
+call OrgC++ functions, not inside them. If you find anything
+wrong or strange, call Code Farms.</p>
+
+<p>It is a good strategy to design your program with testing in
+mind. As you code the program, prepare utility functions that
+print subsets of your data, and insert calls to these functions
+as needed during debugging. With all the iterators that OrgC++
+provides, coding such functions is trivial.</p>
+
+<p>This strategy is usually more effective than stepping through
+the code and checking individual pointers. Remember that, when
+using OrgC++, you work with data of a much higher level. You
+should not be concerned about individual pointers.</p>
+
+<p>All this advice assumes, of course, that you are debugging a
+program which uses the existing OrgC++ library. If you are
+testing a new organization or functions that you developed
+yourself and added to the library, the situation is different. <a
+href="ch16addf.htm#16_5">Chap.16.5</a> describes how to proceed
+in such a situation.</p>
+
+<h2><a name="14_2"></a><font size="4" face="Arial">14.2
+Interactive Browser</font></h2>
+
+<p>Organized C allows you to display internal data and traverse
+it object by object. This can be done either in standalone mode,
+for example when examining disk files, or from inside your
+program as part of debugging.</p>
+
+<p>As we explained above, there should never be a situation which
+would require you to debug individual relations between the data.
+However, for the debugging of your application, it may sometimes
+be useful to browse through the data.</p>
+
+<p>Using this feature is very simple. You need</p>
+
+<blockquote>
+    <p><em>#define ZZascii</em></p>
+</blockquote>
+
+<p>and a <em>ZZ_FORMAT() </em>statement for each class that has<em>
+ZZ_EXT.</em></p>
+
+<p>If your program saves in binary format, use <em>util.mode(0,..)
+</em>before any calls to <em>save()</em> or <em>open().</em></p>
+
+<p>At the place where you want to invoke interactive debugging,
+call <em>void util.debug(void *ptr,char *type)</em>. For example,
+the sample printout below comes from a program which deals with
+classes <em>Block, Net </em>and <em>Pin.</em></p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_UTILITIES(util)&nbsp;<br>
+    Block *bp;<br>
+    ...<br>
+    util.debug(bp,&quot;Block&quot;);</em></p>
+</blockquote>
+
+<p>This call puts you into an interactive mode where, starting
+from a given object, you can traverse the adjacent objects by
+typing the code number of the pointer. Code -1 returns you to the
+previous object (reverse move), and can be repeated any number of
+times. Code 0 exits the interactive part and transfers control
+back to your program.</p>
+
+<p>As you can see from the example below, the program displays
+both the pointers and the attributes of the objects.</p>
+
+<p>The first letter of each pointer name indicates its purpose -
+it matches the character used in the tables from the '<em>zzmaster</em>'
+file. For example, c=child, p=parent, f=forward, b=backward,
+n=name, and so on. The second part of each name is the name of
+the organization, as declared in the <em>ZZ_HYPER_..</em>
+statement. The arrow indicates to what object type the pointer is
+leading.</p>
+
+<p>The following example corresponds to the problem from <em>test0d.c</em>,
+where objects <em>Block, Net </em>and <em>Pin</em> are connected
+in a netlist:</p>
+
+<blockquote>
+    <p>object=151755162 type=Block:<br>
+    1: 1517551652 cbyBlock-&gt;Pin<br>
+    2: 1517552080 fbChain-&gt;Block<br>
+    3: 1517551648 nbName name=B1<br>
+    x1=10 y1=0 x2=15 y2=5<br>
+    select pointer(-1 retrace, 0 exit):1</p>
+</blockquote>
+
+<blockquote>
+    <p>object=1517551652 type=Pin:<br>
+    1: 1517551760 sbyNet-&gt;Pin<br>
+    2: 1517551692 sbyBlock-&gt;Pin<br>
+    3: 1517551676 pbyNet-&gt;Net<br>
+    4: 1517551624 pbyBlock-&gt;Block<br>
+    x1=5 y1=2 x2=5 y2=2<br>
+    select pointer(-1 retrace, 0 exit):3</p>
+</blockquote>
+
+<blockquote>
+    <p>object=1517551676 type=Net:<br>
+    1: 1517551652 cbyNet-&gt;Pin<br>
+    2: 1517551940 fnChain-&gt;Net<br>
+    3: 1517551688 nnName name=N1<br>
+    select pointer(-1 retrace, 0 exit):-1 </p>
+</blockquote>
+
+<blockquote>
+    <p>object=1517551652 type=Pin:<br>
+    1: 1517551760 sbyNet-&gt;Pin<br>
+    2: 1517551692 sbyBlock-&gt;Pin<br>
+    3: 1517551676 pbyNet-&gt;Net<br>
+    4: 1517551624 pbyBlock-&gt;Block<br>
+    |x1=5 y1=2 x2=5 y2=2<br>
+    select pointer(-1 retrace, 0 exit):4</p>
+</blockquote>
+
+<blockquote>
+    <p>object=1517551624 type=Block:<br>
+    1: 1517551652 cbyBlock-&gt;Pin<br>
+    2: 1517552080 fbChain-&gt;Block<br>
+    3: 1517551648 nbName name=B1<br>
+    x1=10 y1=0 x2=15 y2=5<br>
+    select pointer(-1 retrace, 0 exit):0</p>
+</blockquote>
+
+<h4><font size="2" face="Arial">Example:</font></h4>
+
+<p>The use of the browser is the same in C and C++. For an
+example in C, look at <em>test24.c.</em></p>
+
+
+
+<h2><a name="14_3"></a><font size="4" face="Arial">14.3
+Error Reporting</font></h2>
+
+<p>When you program with OrgC++, errors are reported at three
+levels:</p>
+
+<p>Level 1: The class generator (<em>zzprep</em>) reports some
+errors, referring to the line numbers of the code that you ran
+through it. In most cases, this is only your header file with the
+definitions of organizations (<em>ZZ_HYPER_ statements</em>). The
+rule of thumb is that all OrgC++ calls which start with the
+prefix <em>ZZ_</em> should run through the class generator. If
+you have several header files, concatenate them into a single
+file, and run the class generator on that file.</p>
+
+<p>Level 2: The compiler reports additional errors. The class
+generator is designed to force the compiler into more checking.
+With OrgC++, it takes a bit longer to get the code through the
+compiler, but the resulting program is safer to run.</p>
+
+<p>Level 3: At run-time, OrgC++ provides more checking, mainly to
+prevent dangling pointers.</p>
+
+<p>Normally, messages at all levels come out on standard output (<em>stdout</em>)
+- see below. When you receive your copy of OrgC++, the output
+language is set to English. You can convert level 1 and 3
+messages to any other language, if you translate all the messages
+in the file <em>orgC/lib/msgs.c</em> and then recompile the
+entire library, including the class generator (see <a
+href="ch02Inst.htm">Chap.2 </a>on how to recompile the library).</p>
+
+<p>In addition to run-time error messages, programs coded with
+OrgC++ may set a special error flag that may be checked by your
+program. The flag is binary coded, and can be accessed through
+the following function: <em>int util.error(void)</em>;</p>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_UTILITIES(util);
+util.strAlloc(...);
+if(util.error()){
+    printf(&quot;error=%o\n&quot;,util.error());
+    return;
+}</em></pre>
+</blockquote>
+
+<p>The error condition is bit encoded (shown as octal here):</p>
+
+<blockquote>
+    <p>01=allocation error<br>
+    02=index out of range<br>
+    04=using an organization that has not been formed<br>
+    010=object not disconnected, or not compatible<br>
+    020=internal algorithm failure<br>
+    040=wrong structure<br>
+    0100=wrong file or unable to open a file</p>
+</blockquote>
+
+<p>The error condition can be set to the no-error state by
+calling <em>void util.ok(void).</em></p>
+
+<p>If you don't want your messages on the standard output (<em>stdout</em>),
+provide your own error handling function somewhere in your code.
+The default version of<em> zzReportError()</em> is in file<em>
+orgC/lib/heading.h</em> and consequently also in file<em>
+orgC/zzcomb.h</em>. If you include <em>#define ZZcallBack</em> in
+your environment file, the default version will be disabled and
+prevent multiple declaration of this function. The default
+version contains a single call to<em> printf()</em> which you can
+replace by a <em>fprintf()</em>, or turn it into a call-back
+function that handles the errors.</p>
+
+<p>In particular, when using Microsoft Visual C++, the <em>printf(...)</em>
+statement inside <em>zzReportError()</em> can be replaced by <em>TRACE(...)</em>.
+Sending messages to <em>stdout</em> is usually not practical in
+the visual environment. Note however, that <em>TRACE(...)</em>
+displays the messages only in the debugging mode, not in the
+release mode. That is not sufficient since OrgC++ may display
+run-time error messages which are vital for detecting serious
+errors. If you don't want error codes which include both alpha
+and numeric characters, use function <em>errorCodeConvert()</em>
+which converts the error code string into a unique long integer
+(file <em>msgs.c</em>).</p>
+
+<h3><font size="3" face="Arial">Installation Error 2104</font></h3>
+
+<p>For instructions see <a href="ch02Inst.htm#2_6">Chap. 2.6</a>.</p>
+
+<h3><font size="3" face="Arial">Pointer References in Error Messages</font></h3>
+
+<p>Some run-time error messages give you an indication which data structure
+(and which internal pointer) has been corrupted or is causing the problem.
+The best way to explain this is on an example.</p>
+
+<p><b>Example 1:</b></p>
+
+<p>A program using objects of class Node, issues the following message:</p>
+<blockquote>
+cannot add to dsNodes, object 7950688 not disconnected
+</blockquote>
+<p>You look at the ZZ_HYPER_.. statements and search for <i>dsNodes</i></p>
+<blockquote><pre><emp>
+    ZZ_HYPER_SINGLE_AGGREGATE(dsInElem, NetwElem, Node);
+    ZZ_HYPER_DOUBLE_AGGREGATE(dsNodes, Layer, Node);     
+    ZZ_HYPER_SINGLE_AGGREGATE(dsSegments, Layer, Segment);
+    ....
+</emp></pre></blockquote>
+<p>Now it is clear, that the program tried to add a Node with address 7950688
+to aggregate dsNodes, but the Node is already in this aggregate. This operation
+would likely destroy the integrity of your data, and was not performed.
+The address of the object is usually irrelevant. You have to check
+your code in the place where it adds objects to dsNodes. Search
+for all occurences of <i>dsNodes.add(...)</i>.
+</p>
+
+<p><b>Example 2:</b></p>
+
+<p>The same program issues the following message:</p>
+
+<blockquote>
+errLevel=8 errCode=SD3: cannot free object=Node, pointer No.0 not disconnected
+</blockquote>
+
+<p>This message may occur, if you requested testing of objects
+before destructing them, and you placed ZZ_CHECK() into the destructor:</p>
+<blockquote>
+    ~Node(){ZZ_CHECK(Node);}
+</blockquote>
+<p>The error message tells you that when your program tried to destroy
+a Node, the Node was not disconnected from all data structures.
+This will cause a serious corruption of your data, and the program will likely
+crash later on. Unfortunately, once the destruction process started, the library
+cannot stop it, but at least you know what happened, and the tedious debugging
+which would normally follow is prevented.</p>
+
+<p>The message tells you that the internal pointer index=0 on object Node 
+is not disconnected. In order to interpret this, you look at file
+<i>zzincl.h</i>, search for <i>ZZ_EXT_Node</i>, and here is what you may see:
+</p>
+
+<blockquote><pre><emp>
+#define ZZ_EXT_NodeLink     \
+    Layer *ZZpdsNodes;      \
+    Node *ZZfdsNodes;       \
+    Node *ZZbdsNodes;       \
+    Node *ZZfdsNodeLink;    \
+    NodeLink *ZZsdsSameCost;\
+    ...
+</emp></pre></blockquote>
+
+<p>The names of the pointers combine the name of the data structure with 
+a one letter code expressing the purpose of the pointer. For example 
+p=parent, c=child,
+f=forward link, b=backward link, n=name. The first pointer relates
+to dsNodes, so you see that the Node is still not disconnected from this
+aggregate. The code 'p' indicates that it is the parent pointer
+(and possibly some other pointers) which is not NULL at the time of 
+the destruction.</p>
+
+
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch13MemM.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Chapter 13: Memory Management and Saving on Disk</font></a></td>
+        <td align="right" width="50%"><a href="ch15schema.pdf"><font
+        face="Arial">Chapter 15: Schema Migration <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

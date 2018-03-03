@@ -1,0 +1,82 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT link;             /* class of the link */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for DOUBLE_RING, which
+links together objects type 'link'.
+.pp
+Example of the use:
+.(l
+class Employee {
+    ZZ_EXT_Employee
+    char *name;
+    long int salary;
+public:
+    void setName(char *n){n=new char[strlen(n)+1]; strcpy(name,n);}
+    char *getName(){return(name);}
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+
+ZZ_HYPER_DOUBLE_RING(ring1,Employee);
+ZZ_HYPER_DOUBLE_RING(ring2,Employee);
+
+Employee *ep,*e1,*e2;
+
+e1=e2=NULL; // entries into the two rings
+ep=new Employee;
+e1=ring1.add(e1,ep);
+e2=ring2.add(e2,ep);
+.)l
+.sp
+ For local scope use ZZ_LOCAL_DOUBLE_RING(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+  ========================================================== */ 
+#define ZZ_HYPER_DOUBLE_RING(id,link)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_DOUBLE_RING(id,link,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_DOUBLE_RING(id,link,where)  \
+ZZ_BASIC_DOUBLE_RING(id,link,static,where :: id) 
+
+#define ZZ_BASIC_DOUBLE_RING(id,link,scope,where)  \
+class ZZFP(ZZH,id) { \
+    friend class link;\
+    link *start,*nxt;\
+public: \
+    link * fwd(link *s){link *p; ZZ_FORWARD_DOUBLE_RING(id,s,p); return(p);} \
+    link * bwd(link *s){link *p; ZZ_BACKWARD_DOUBLE_RING(id,s,p); return(p);}\
+    link * sort(ZZTsortFun cmpF,link *p);\
+    link * add(link *s,link *p);\
+    link * ins(link *s,link *p);\
+    link * del(link *s,link *p);\
+    link * merge(link *s,link *p);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   link *beg;\
+   link *nxt;\
+public:\
+   ZZFN(id,iterator)(link *p){start(p);}\
+   ZZFN(id,iterator)(){beg=nxt=NULL;}\
+   void start(link *p){beg=p; nxt=NULL;}\
+   link* operator++(){link *p;\
+      if(nxt)p=nxt; else if(beg)p=where.fwd(beg); else p=NULL;\
+      if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p); return(p);}\
+   link* operator--(){link *p;\
+      if(nxt==beg){p=nxt; nxt=beg=NULL;}\
+      else {if(nxt)p=nxt; else {p=beg; beg=where.fwd(beg);} nxt=where.bwd(p);};\
+      return(p);}\
+}
+/* _______________________________________________________________________ */
+ZZ1$* ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ1$ *t){ZZ_ADD_DOUBLE_RING($,s,t); return(s);}
+ZZ1$* ZZV$ ZZH$ :: ins(ZZ1$ *s,ZZ1$ *t){
+                                      ZZ_INSERT_DOUBLE_RING($,s,t); return(s);}
+ZZ1$* ZZV$ ZZH$ :: del(ZZ1$ *s,ZZ1$ *t){
+                                      ZZ_DELETE_DOUBLE_RING($,s,t); return(s);}
+ZZ1$* ZZV$ ZZH$ :: merge(ZZ1$ *s,ZZ1$ *t){
+                               ZZ_MERGE_DOUBLE_RING($,s,t,NULL); return(s);}
+ZZ1$* ZZV$ ZZH$ :: sort(ZZTsortFun cmpF,ZZ1$ *p){
+                                  ZZ_SORT_DOUBLE_RING($,cmpF,p); return(p);}

@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 13.4 Collecting Objects (SWEEP)</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="13_4"></a><font size="4" face="Arial">13.4
+COLLECTING OBJECTS (SWEEP)</font></h2>
+
+<p>In OrgC++, organizations of data form a network of transparent
+pointers. By traversing these pointers, OrgC++ can quickly
+collect (<em>SWEEP</em>) all objects within the given
+organization, and place them onto an internal list. Any
+user-coded function can then be executed on objects in that list.
+This is a very useful feature which allows, for example, the
+printing or displaying of all the objects in the entire database.</p>
+
+<p>The algorithm for collecting objects (finding a graph closure)
+is a breadth-first search, similar to the routing algorithm for
+electronic circuits. It expands from a given set of key objects
+to their neighbours in a wave-like fashion, until all objects
+have been detected.</p>
+
+<p>Pointers inside hash tables and <em>GENERAL_LINK </em>pointers
+are included in this process.</p>
+
+<p>This concept allows some powerful implementations with a
+minimum of programming effort. For example, internally, the <em>save()</em>
+function uses the <em>SWEEP </em>operation: the program collects
+a list of all objects, and saves individual objects by calling a
+function which is essentially <em>ZZ_OBJECT_SAVE(). </em>It then
+removes the internal list of objects.</p>
+
+<p>The selection of entry points is a critical task, and must be
+done very carefully. In a <em>RING, TREE </em>or <em>SINGLE_GRAPH</em>,
+any object can be reached from any other object, but <em>SINGLE_LINK,
+GENERAL_LINK, DIRECT_GRAPH, </em>and the <em>HASH TABLE</em> are
+all unidirectional. </p>
+
+<p>It may happen that the whole organization cannot be accessed
+from a single object, either due to the directional nature of the
+network, or when the data form several subsets that are mutually
+disconnected. In such a case, the programmer must provide key
+entries, from which there is at least one path to every object.
+If some objects can be reached from several key entries, OrgC++
+automatically eliminates duplications.</p>
+
+<p>There are situations when it is useful to keep several key
+entries, even if all the objects can be reached from a single
+object, for example, when you want to remember certain objects as
+&quot;leading&quot; or &quot;critical&quot;.</p>
+
+<p>For example, in <em>test0n.c, </em>all the objects in the
+netlist can be reached from the block <em>bStart</em> but, for
+technical reasons, it is useful to also preserve the main entry
+to all nets, <em>nStart</em>. For this reason, <em>save() </em>-
+which is based on <em>SWEEP</em>, uses two key entries.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>void util.swpSet(int num,char *keyEntries[],char
+        *keyTypes[])</em></td>
+        <td>sets the internal list of objects that can be reahed
+        from the given key entries. A total of <em>num </em>key
+        entries is given.</td>
+    </tr>
+    <tr>
+        <td><em>void util.swpFun(void
+        (*fun)(char*,int,int,char),const char *priv)</em></td>
+        <td>executes the given function on all objects of the
+        internal list; <em>priv</em> is a pointer to any
+        additional information that such a function may need.</td>
+    </tr>
+    <tr>
+        <td><em>void util.swpFree(void)</em></td>
+        <td>removes the internal list (it has no parameters).</td>
+    </tr>
+</table>
+
+<p>The function, which is called by <em>swpFun()</em>, must have
+4 parameters:</p>
+
+<blockquote>
+    <p><em>void fun(char *ptr,int typeInd,int size,const char *priv)<br>
+    // ptr - pointer to the object, cast as (char *)<br>
+    // typeInd - internal type index <br>
+    // size - size of the object in bytes<br>
+    // priv - pointer to private information such as a file
+    pointer</em></p>
+</blockquote>
+
+<p>The internal type index can be converted into type name using
+the function <em>util.type().</em></p>
+
+<blockquote>
+    <p><em>int typeInd; // given type index<br>
+    char *typeName; // resulting name<br>
+    ZZ_HYPER_UTILITIES(util);<br>
+    typeName=util.type(typeInd);</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<p>Programs <em>test0n.c</em> and <em>test16c.c</em> collect all
+objects using <em>swpSet() </em>and then print information about
+the object size and type, using <em>swpFun().</em></p>
+
+<p>In both examples, the <em>private </em>parameter is used to
+pass the output file pointer.</p>
+
+<p>In <em>test16c.c </em>there is an example of which converts
+type index into type name (function <em>util.type()</em>). </p>
+
+<h3><font size="3" face="Arial">Comments:</font></h3>
+
+<ol>
+    <li>Note that although in all the examples shown in the <em>orgC/test
+        </em>directory, the <em>priv </em>parameter is used to
+        pass a single value (a file pointer), it can point to a
+        structure or an array and pass multiple values.</li>
+    <li>The pointer to the object inside function <em>fun() </em>is
+        cast as <em>(char*). </em>This is one of the few places
+        where OrgC++ is not strongly typed. The reason is that,
+        in this case, the internal list of objects is inherently
+        a heterogenous set (<em>void*</em> would be a better type
+        here).</li>
+    <li>The user can provide additional checking or decisions
+        based on type; type information is stored for every
+        object in the internal list.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch13MmMc.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 13.3 Saving on Disk</font></a></td>
+        <td align="right" width="50%"><a href="ch14Debg.htm"><font
+        face="Arial">Chapter 14: Debugging <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

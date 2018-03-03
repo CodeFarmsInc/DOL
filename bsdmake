@@ -1,0 +1,17 @@
+cp lib/env0bsd.h environ.h
+cd lib
+cp env0bsd.h environ.h
+gcc -c util.c msgs.c time.c
+cd ..
+gcc -c zzutil.c
+gcc zzprep.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+gcc zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+gcc zzhelp.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzhelp
+gcc zzsplit.c
+mv a.out zzsplit
+gcc zzroff.c
+mv a.out zzroff
+zzcomb

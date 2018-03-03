@@ -1,0 +1,22 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry;        /* entry to the given organization */
+ strType *pp;           /* object to add to it */
+.)l
+Description:
+ Generic GET function with 3 parameters.
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+
+Warning:
+ Can be used only for 3 parameter GET() functions, such as
+ZZ_GET_REFERENCE(). It cannot be used for ZZ_GET_SELF_ID(r1,r2),
+for ZZ_GET_PROPERTY(r1,r2,r3,r4,r5), or ZZ_GET_HASH(r1,r2,r3,r4).
+.pp
+For an example, see the description of ZZ_ORG_REFERENCE().
+.sp 1
+  ========================================================== */ 
+#define ZZ_GET(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_GET,id)(id,entry,pp)

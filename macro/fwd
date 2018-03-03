@@ -1,0 +1,54 @@
+/* =========================================================
+.(l
+ TEXT id;        /* organization id */
+ strType *given; /* given object */
+ strType *pp;    /* next object in the forward direction */
+.)l
+Description:
+ Generic function that returns the next object in the forward
+direction.
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+Typical use is for rings  and links (double or single linked), within
+one level of the tree, etc.
+.(l
+Example:
+
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+}*b1,*b2;
+
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+}*n1,*n2;
+
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+}*p1,*p2;
+
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+   .....
+ZZ_FORWARD(bChain,b1,b2) /* long form macro */
+ZZfwd (nChain,n1,n2) /* short form macro */
+ZZ_FORWARD(byBlock,p1,p1) /* long form macro */
+ZZfwd (byNet,p1,p2) /* short form macro */
+.)l
+The FORWARD macro can be, in general, used to detect whether
+the particular object is a member of the given organization
+or not. If the result is NULL, it is not a member.
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORWARD(id,given,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_FORWARD,id)(id,given,pp)

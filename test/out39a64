@@ -1,0 +1,20 @@
+Shape type=2
+new correct pointer, Image type=0
+Image= inherit(4):Tool 
+Tool= inherit(4):Shape c(4):Coord 
+Shape= 
+Coord= 
+
+Image:
+pointer no.=0 to type=0
+pointer no.=1 to type=0
+pointer no.=2 to type=0
+
+Tool:
+pointer no.=0 to type=1
+pointer no.=1 to type=2
+
+mask: F000000000000000000000000000000000000000F0000000000000000000000000000000000000000000000000000000
+object size=96 bytes
+virt.fun.ptr offset=0
+virt.fun.ptr offset=40

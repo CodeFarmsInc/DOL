@@ -1,0 +1,20 @@
+#!/bin/sh
+chmod ug+x lib/lgmake
+chmod ug+x test/lgregr
+cp lib/env3gl.h environ.h
+cd lib
+cp env3gl.h environ.h
+g++ -c util.c msgs.c time.c
+cd ..
+g++ -c zzutil.c
+g++ zzprep.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+chmod ug+x zzprep
+g++ zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+g++ zzsplit.c
+mv a.out zzsplit
+./zzcomb
+cd lib
+./lgmake
+cd ..

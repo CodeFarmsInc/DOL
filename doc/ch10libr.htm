@@ -1,0 +1,121 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Template"
+content="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 10, ORG C++ Library</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">10. ORG C++ LIBRARY</font></h1>
+
+<p>OrgC++ includes a library of organizations. The library is
+open: you can add new organizations and functions. </p>
+
+<p>The library has two parts: </p>
+
+<ol type="a" start="1">
+    <li>The <em>orgC/macro</em> directory contains the source
+        code for all macros and parametric functions. (Examples: <em>add1ton
+        </em>and <em>fadd1ton.</em>) </li>
+    <li>The <em>orgC/lib</em> directory contains the source and
+        libraries (<em>*.a </em>files under UNIX, <em>*.lib</em>
+        file under DOS) for more complicated features, such as
+        hash tables or saving to disk. </li>
+</ol>
+
+<p>Note that each file in the <em>macro</em> directory contains
+both complete documentation (including an example) and the
+executable code. The file <em>macro/zzmaster</em> contains the
+master table for the whole library. It contains the following
+sections: </p>
+
+<ul type="disc">
+    <li>list of currently available organizations;</li>
+    <li>list of pointers used by individual organizations;</li>
+    <li>list of functions/macros in the library;</li>
+    <li>list of support include files.</li>
+</ul>
+
+<p>For more details about this file, see <a href="ch16Addf.htm">Chap.16</a><font
+color="#FF0000">.</font></p>
+
+<p>Even the hyper-object definitions (<em>ZZ_HYPER_.. calls</em>)
+must be registered in the file<em> zzmaster</em>. The class
+generator needs this information on the internal setup of each
+hyper-object.</p>
+
+<p>When you link a program written with OrgC++, you have to link
+it to the appropriate library:</p>
+
+<h3><font size="3" face="Arial">UNIX: </font></h3>
+
+<blockquote>
+    <p><em>orgC/lib/zzclib.a</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">DOS, TurboC++:</font></h3>
+
+<blockquote>
+    <p><em>orgC\lib\cmlib.lib</em> for the medium memory model<br>
+    <em>orgC\lib\cllib.lib</em> for the large memory model</p>
+</blockquote>
+
+<h3><font size="3" face="Arial">DOS, ZortechC++:</font></h3>
+
+<blockquote>
+    <p><em>orgC\lib\zmlib.lib</em> for the medium memory model<em><br>
+    orgC\lib\zllib.lib</em> for the large memory model</p>
+</blockquote>
+
+<p>For information on how to recompile the library see <a
+href="ch02Inst.htm">Chap.2</a> (Installation).</p>
+
+<p>If you have been using OrgC with regular C, and you are now
+transferring to OrgC++, look at <a href="AppendxA.htm">Appendix A</a><font
+color="#FF0000">. </font>It contains a table of all functions and
+their uses in C and C++.</p>
+
+<p>See <a href="ch12Docn.htm">Chap.12</a> (on-line help) on how
+to query the library documentation.</p>
+
+<p>When calling the class generator you may, for the third
+parameter, specify the <em>master</em> file you want to use: </p>
+
+<blockquote>
+    <p><em>orgCpath/zzprep source.c ZZinclude.h zzmaster ZZfunc.c</em></p>
+</blockquote>
+
+<p>This permits you:</p>
+
+<ol type="a" start="1">
+    <li>to select only a subset of organizations and simplify the
+        preprocessing; </li>
+    <li>to merge the standard OrgC++ library with one or more
+        user libraries.</li>
+</ol>
+
+<p>For more details on how to select/merge libraries, see <a
+href="ch17Merg.htm">Chap.17</a><font color="#FF0000">.</font></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch09SngU.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        9: Single User Mode</font></a></td>
+        <td align="right" width="50%"><a href="ch11AOrg.htm"><font
+        face="Arial">Chapter 11: Available Organizations <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,21 @@
+Shape type=2
+Image= inherit(6):Tool inherit(6):Shape refer(7):Object 
+Tool= virtual(7):Object c(4):Coord 
+Shape= virtual(7):Object 
+Object= 
+Coord= 
+
+Image:
+pointer no.=0 to type=0
+pointer no.=1 to type=0
+pointer no.=2 to type=0
+
+Tool:
+pointer no.=0 to type=1
+pointer no.=1 to type=2
+
+mask: C000000000000000000000000000F0000000000000000000000000000000F000
+object size=64 bytes
+v.class  ptr offset=0
+virt.fun.ptr offset=28
+virt.fun.ptr offset=60

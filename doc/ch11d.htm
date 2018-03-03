@@ -1,0 +1,205 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.4, Tree</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.4 TREE</font></h2>
+
+<p align="center"><img src="images/dol11_5.jpg" width="600"
+height="286"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>General tree representation is useful in representing multiple
+level hierarchies, and is also important for many algorithms
+based on the divide-and-conquer approach. All the objects in the
+tree must be of the same type.</p>
+
+<h3><font size="3" face="Arial">SINGLE_ and DOUBLE_TREE:</font></h3>
+
+<p>Both <em>TREES</em> behave identically, except that the <em>DELETE</em>
+operation is faster for the <em>DOUBLE_TREE</em>. In applications
+where<em> DELETE</em> is not frequently used, <em>SINGLE_TREE</em>
+is the better choice (it is faster, and needs less memory).</p>
+
+<h3><font size="3" face="Arial">Order of objects:</font></h3>
+
+<p>All the children of any node form a <em>RING</em>. The <em>child</em>
+pointer from the <em>parent</em> represents the <em>start </em>pointer
+of the <em>RING</em>. Repeated use of <em>add()</em> loads the
+nodes in reverse order. <em>set() </em>can be used after each <em>add()
+</em>- refer to <a href="ch11c.htm#11_3"><em>TRIANGLE</em> </a>-
+if the order is not to be reversed.</p>
+
+<h3><font size="3" face="Arial">Adding new nodes:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>add()</em></td>
+        <td>adds a new child;</td>
+    </tr>
+    <tr>
+        <td><em>set()</em> </td>
+        <td>resets the beginning of the given subtree;</td>
+    </tr>
+    <tr>
+        <td><em>app()</em></td>
+        <td>appends a new sibling to the right of a given node.</td>
+    </tr>
+    <tr>
+        <td><em>ins()</em></td>
+        <td>(for DOUBLE_TREE only) inserts a new sibling to the
+        left of a given node.</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Deleting nodes:</font></h3>
+
+<p><em>del()</em> disconnects the given node from its <em>parent</em>,
+but if there are any subtrees on it, it leaves them on the node.
+If you call <em>del()</em> on the root of a tree, nothing
+happens. <em>del()</em> can be used while traversing the set with
+the <em>iterator. </em>To disconnect a whole tree, move
+recursively bottom up like this:</p>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_SINGLE_TREE(myTree,Node);
+void deleteTree(Node *root){
+    Node *ep;
+    Node* child=myTree.child(root);
+    if(!child)myTree.del(root);
+    else {
+        myTree_iterator it(root);
+        while(ep= ++it)deleteTree(ep);
+    }
+}</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Moving around the TREE:</font></h3>
+
+<p>The iterator traverses the subnodes of a given node.</p>
+
+<blockquote>
+    <p><em>id_iterator it(parent);<br>
+    while(obj= ++it){ <br>
+    ...<br>
+    };</em></p>
+</blockquote>
+
+<p>This can be used recursively to traverse the whole tree
+(breadth first, depth first, whatever you prefer). See, for
+example, function <em>prt3()</em> in<em> test12a.c.</em></p>
+
+<p><em>par(), child(), fwd() </em>and<em> bwd()</em> (for <em>DOUBLE_TREES</em>
+only) allow you to move around the tree. <em>fwd() </em>moves to
+the right, <em>bwd()</em> moves to the left. Remember that
+because each set of siblings is a <em>RING</em>, repeated calls
+to <em>bwd() </em>will lead to an infinite loop, unless proper
+termination is arranged. The <em>iterator</em> provides automatic
+termination when reaching the starting point. </p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_SINGLE_TREE(id,TYPE);<br>
+        ZZ_HYPER_DOUBLE_TREE(id,TYPE);</em></td>
+        <td>These statements declare a tree, with children of
+        each node linked into a singly/doubly linked ring.</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(TYPE *parent,TYPE *newChild);</em></td>
+        <td>Adds a new <em>child</em> under the given <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.app(TYPE *obj,TYPE *newObj);</em></td>
+        <td>Appends a new object after the given object (under
+        the same <em>parent</em> node).</td>
+    </tr>
+    <tr>
+        <td><em>void id.del(TYPE *objToRemove);</em></td>
+        <td>Disconnects the given object from its <em>parent</em>
+        and siblings, but it leaves its children and possibly a
+        whole subtree.</td>
+    </tr>
+    <tr>
+        <td><em>TYPE* id.fwd(type *obj);</em></td>
+        <td>Returns the next sibling under the same parent (<em>fwd=FORWARD</em>).</td>
+    </tr>
+    <tr>
+        <td><em>TYPE* id.par(TYPE *obj);</em></td>
+        <td>Returns the<em> parent</em> of the given object.</td>
+    </tr>
+    <tr>
+        <td><em>TYPE* id.child(TYPE *obj);</em></td>
+        <td>Returns the <em>child</em> of the given object.</td>
+    </tr>
+    <tr>
+        <td><em>void id.set(newFirstChild);</em></td>
+        <td>Sets the object as the first <em>child </em>under the
+        same <em>parent.</em></td>
+    </tr>
+    <tr>
+        <td><em>TYPE *parent,*obj;<br>
+        id_iterator it(parent); while(obj= ++it){ ... };</em></td>
+        <td>Traverses all children of the given <em>parent</em>.
+        Value of <em>obj</em> should not be modified from within
+        the loop. Object can be deleted from the tree while
+        traversing.</td>
+    </tr>
+</table>
+
+<p>Commands available only for the <em>DOUBLE_TREE</em>:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>void id.ins(TYPE *obj,TYPE *newSibling);</em></td>
+        <td>Inserts a new sibling prior to the given object
+        (under the same <em>parent</em>).</td>
+    </tr>
+    <tr>
+        <td><em>TYPE* id.bwd(TYPE *obj);</em></td>
+        <td>Returns the previous (<em>bwd=BACKWARD</em>) <em>child</em>
+        under the same <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>TYPE *parent,*obj;<br>
+        id_iterator it(parent); while(obj=it--){ ... };</em></td>
+        <td>Works just like the other loop above, except that it
+        traverses the set in reverse order.</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>Calculation of current and wire width in complicated
+        tree-like power networks on a VLSI chip (<em>test10a.c</em>).</li>
+    <li>NIAL-like language that manipulates objects and arrays of
+        objects hierarchically arranged in a tree (<em>test12a.c</em>).</li>
+    <li>Resetting the order of the subtrees with <em>set() </em>(<em>test10b.c</em>).</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11c.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Previous Section 11.3 AGGREGATION</font></a></td>
+        <td align="right" width="50%"><a href="ch11e.htm"><font
+        face="Arial">Next Section 11.5 GRAPH <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

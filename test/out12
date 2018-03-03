@@ -1,0 +1,33 @@
+MENU: [n=name,t=type(i|f|s),v=value|string,w=width]
+
+PRINT: p=node, P=level, T=tree, ?=menu
+MOVES: U=up, D=down, L=left, R=right, F=find, E=exit
+ADD NODES: C=child|I=insert|A=append (name aWidth aHeight)
+ADD ATOMS:  a=add (int/float/string value)
+DELETE: r=remove node, d=delete atom
+SAVE/RESTORE: S=save|O=open (fileName)
+for a single node use aWidth=0, example: C N1 0
+>>
+PARENT: root
+NODE: N4
+NODE: N5
+NODE: N6
+atom: flag
+NODE: N2
+NODE: N1
+
+PARENT: N4
+NODE: N4[2.3]
+NODE: N4[1.3]
+atom: 0.003000
+NODE: N4[2.2]
+NODE: N4[1.2]
+NODE: N4[2.1]
+NODE: N4[1.1]
+
+PARENT: N5
+NODE: N5[1.4]
+NODE: N5[1.3]
+NODE: N5[1.2]
+NODE: N5[1.1]
+>result saved as -backup-

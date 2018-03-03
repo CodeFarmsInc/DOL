@@ -1,0 +1,18 @@
+Instruction how to compile the library with Microsoft Visual C++
+------------------------------------------------------------------
+(this description assumes that you installed the library in c:\orgc)
+
+In order to use Visual C++ properly, check that your autoexec.bat has
+the following PATH, INCLUDE, and LIB:
+    PATH .......;C:\msdev\bin
+    SET INCLUDE=c:\msdev\include
+    SET LIB=c:\orgc\lib;c:\msdev\lib
+
+The compilation is the same, whether you run under Win98 or WinNT.
+The only difference is that, for Win9*, you have to remove line
+    #define NT
+from the file c:\orgc\lib\envmsft.h.
+
+Compiling the library:
+    cd c:\orgc
+    msft

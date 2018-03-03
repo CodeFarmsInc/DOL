@@ -1,0 +1,73 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType1 *source; /* source entity */
+ strType2 *rel;    /* relation to add */
+ strType3 *target; /* target entity */
+.)l
+Description:
+ Add the new 1_TO_1 relation between two entities.
+.sp
+The relation must be disconnected. If a relation already exists between
+the two entities, no action is taken,
+an error message is issued, and the error flag is set.
+.sp
+Source and target (in fact even the relation) can have the same type.
+.sp
+Advice: Use generic ZZ_ADD_RELATION(), it simplifies the code.
+.(l
+Example of the use:
+   typedef struct Student Student;
+   typedef struct Thesis Thesis;
+   typedef struct WorkingOn WorkingOn;
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Thesis {
+       ZZ_EXT_Thesis
+       char *title;
+       int numPages;
+   };
+   struct WorkingOn {
+       ZZ_EXT_WorkingOn
+   };
+   ZZ_ORG_1_TO_1(workingOnThesis,Student,WorkingOn,Thesis)
+   ...
+   Student *s;
+   Thesis *t;
+   WorkingOn *w;
+   ...
+   ZZ_PLAIN_ALLOC(WorkingOn,1,w);
+   ZZ_ADD_RELATION(workingOnThesis,s,w,t);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_RELATION_1_TO_1(id,source,rel,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_RELATION_1_TO_1(id,ZZFP(ZZf,id),ZZFP(ZZx,id),ZZFP(ZZy,id), \
+ZZFP(ZZb,id),source,rel,target)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_RELATION_1_TO_1(id,fwd,src,trg,bwd,source,rel,target)\
+{\
+        (source)->fwd=(target)->bwd=(rel);\
+        (rel)->src=(source); (rel)->trg=(target);\
+}
+#else
+#define ZZZ_ADD_RELATION_1_TO_1(id,fwd,src,trg,bwd,source,rel,target)\
+{\
+    if((rel)->src || (rel)->trg){\
+        ZZmsgSS(19,ZZ_STRINGIT(id),(char *)(rel));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if((source)->fwd || (target)->bwd){\
+        ZZmsgSS(18,ZZ_STRINGIT(id),(char *)(rel));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        (source)->fwd=(target)->bwd=(rel);\
+        (rel)->src=(source); (rel)->trg=(target);\
+    }\
+}
+#endif

@@ -1,0 +1,16 @@
+cp lib/env0h.h environ.h
+cd lib
+cp env0h.h environ.h
+cc -w -Aa -D_HPUX_SOURCE -c util.c msgs.c time.c
+cd ..
+cc -w -Aa -D_HPUX_SOURCE zzprep.c zzutil.c lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+cc -w -Aa -D_HPUX_SOURCE zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+cc -w -Aa -D_HPUX_SOURCE zzhelp.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzhelp
+cc -w -Aa -D_HPUX_SOURCE zzsplit.c
+mv a.out zzsplit
+cc -w -Aa -D_HPUX_SOURCE zzroff.c
+mv a.out zzroff
+zzcomb

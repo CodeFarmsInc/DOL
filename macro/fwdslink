@@ -1,0 +1,42 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ strType1 *given; /* given object */
+ strType2 *ret;   /* returned object, other side of the link */
+.)l
+Description:
+ Returns the other side of the given link.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_SINGLE_LINK().
+.(l
+Example:
+
+typedef struct Rectangle Rectangle;
+typedef struct tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+     ...
+};
+struct tempRect {
+     ...
+};
+ZZ_ORG_SINGLE_LINK(rLink,Rectangle,tempRect)
+
+Rectangle *r;
+tempRect *tr;
+
+ ....
+ZZ_FORWARD_SINGLE_LINK(rLink,r,tr)
+.)l
+.pp
+See also: ZZ_ORG_SINGLE_LINK(), ZZ_ADD_SINGLE_LINK(),
+ZZ_DELETE_SINGLE_LINK(), and ZZ_FORWARD_GENERAL_LINK(),
+ZZ_FORWARD_DOUBLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_FORWARD_SINGLE_LINK(id,given,ret) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FORWARD_SINGLE_LINK(ZZFP(ZZf,id),given,ret)
+
+#define ZZZ_FORWARD_SINGLE_LINK(fwd,given,ret) {(ret)=(given)->fwd;}

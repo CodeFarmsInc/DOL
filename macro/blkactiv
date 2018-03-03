@@ -1,0 +1,59 @@
+/* =========================================================
+.(l
+ char *blkName; /* name of the memory block to be used, or an address */
+ int active; /* 1=makes the block active, 0=makes it passive
+	      * 2=makes it active, but using blkName as address, not name */
+.)l
+Description:
+ When using the fast memory blasting (ZZ_BLOCK_ALLOC with bits>0),
+it is sometimes handy to keep several separate memory blocks
+and allocate/save selectively from individual blocks.
+ In addition to the current (active) memory block, the program
+keeps an internal list of additional (passive) blocks.
+This command allows you to make the current block passive,
+or raise the status of the selected block to active. A block
+can be made active, only if there is no currently active block.
+When making a block active, its passive record is deleted.
+When making the current block passive, a new record is created.
+.sp
+Normally, you identify memory blocks by names. However, in some
+situations you may want to activate a block using an address that
+leads into this block (anywhere within the block). If you select
+active=2, 'blkName' is interpreted as an address (not as a string character),
+and the command searches for the block which contains this address.
+.sp
+When saving to disk, only the current block is saved.
+When openning a disk file, a new current block is created.
+Prior to calling ZZ_OPEN() or util.open(), there should
+be no active block. An active block can be removed
+by calling ZZ_CLEAR().
+.sp
+Example:
+ ZZ_BLOCK_ALLOC(6000000,17); /* opens new active block */
+ ZZ_PLAIN_ALLOC(...); 
+   ...
+ ZZ_PLAIN_ALLOC(...); 
+ ZZ_BLOCK_ACTIVE("A",0)); /* stores current block as A */
+ ZZ_BLOCK_ALLOC(3000000,20); /* opens another block */
+ ZZ_PLAIN_ALLOC(...); 
+   ...
+ ZZ_PLAIN_ALLOC(...); 
+ ZZ_BLOCK_ACTIVE("B",0); /* stores current block as B */
+ ZZ_BLOCK_ACTIVE("A",1); /* re-opens block A */
+ ZZ_PLAIN_ALLOC(...); 
+ ZZ_SAVE("fileA",...); /* stores block A to disk */
+ ZZ_CLEAR(...);  /* removes active block, A */
+ ZZ_BLOCK_ACTIVE("B",1); /* re-opens block B */
+ ZZ_SAVE("fileB",...); /* stores block B to disk */
+ ZZ_CLEAR(...);  /* removes active block, B */
+   ...
+ ZZ_OPEN("fileA",...); /* opens original data A as active block */
+ ZZ_BLOCK_ACTIVE("C",0)); /* stores current block as C */
+ ZZ_OPEN("fileB",...); /* opens original data B as active block */
+ ZZ_BLOCK_ACTIVE("D",0)); /* stores current block as D */
+.sp
+  ========================================================== */ 
+
+#define ZZ_BLOCK_ACTIVE(blkName,active) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{void ZZFUN_blkActive(); ZZmemSwitch=2; ZZblkActive(blkName,active);}

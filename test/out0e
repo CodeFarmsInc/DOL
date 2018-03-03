@@ -1,0 +1,6 @@
+block=B1 nets= N1(15,20) N5(12,43)
+block=B2 nets= N1(15,20) N2(24,31)
+block=B3 nets= N2(24,31) N3(35,40) N4(35,50)
+block=B4 nets= N3(35,40) N4(35,50) N5(12,43) N4(35,50)
+block=B5 nets= N4(35,50)
+

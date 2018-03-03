@@ -1,0 +1,59 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType1;         /* link from this structure */
+ TEXT strType2;         /* link to this structure */
+.)l
+Description:
+ One way link between two given structures.
+ The whole organization is really a single pointer between
+the two given objects.
+.pp
+A typical application for this organization is a temporary extention
+of a data structure for certain part of your calculation.
+For example, your database may contain a ring of rectangles,
+but within a particular algorithm, you may need frequently
+the perimeter and area of each rectangle. So you allocate
+a temporary extention of your original object, link the two
+structures together. When the algorithm is finished, you can free
+the temporary extention:
+.(l
+typedef Rectangle Rectangle;
+typedef struct tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+    int x1,y2,x2,y2;
+};
+struct tempRect {
+    int perim;
+    int area;
+};
+ZZ_ORG_SINGLE_RING(rRing,Rectangle)
+ZZ_ORG_SINGLE_LINK(tLink,Rectangle,tempRect)
+    
+Rectangle *start,*r;
+tempRect *tr;
+
+ ....
+ZZ_A_TRAVERSE_SINGLE_RING(rRing,start,r)
+    ZZ_ALLOCATE(tempRect,1,tr)
+    ZZ_ADD_SINGLE_LINK(tLink,r,tr)
+    tr->perim=2*(x2-x1+y2-y1);
+    tr->area=(x2-x1)*(y2-y1);
+ZZ_E_END
+ ....
+/* here you run your algorithm */
+ ....
+ZZ_A_TRAVERSE_SINGLE_RING(rRing,start,r)
+    ZZ_DELETE_SINGLE_LINK(tLink,r,tr)
+    ZZ_FREE(tempRect,1,tr)
+ZZ_E_END
+.)l
+/pp
+See also: ZZ_ADD_SINGLE_LINK(),
+ZZ_FORWARD_SINGLE_LINK(), ZZ_DELETE_SINGLE_LINK(), and
+also similar functions for typed general/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_SINGLE_LINK(id,strType1,strType2) /* ZZ_ORG_SINGLE_LINK */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

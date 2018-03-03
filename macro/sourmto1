@@ -1,0 +1,20 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *rel;  /* given relation */
+ strType *sour; /* source entity to be returned */
+.)l
+Description:
+ For a given relation, return the source of the M_TO_1 entity.
+.sp
+This is a special case of general ZZ_SOURCE() for the M_TO_1 relation.
+For more details, look at the description of ZZ_SOURCE().
+.sp
+Advice to users: 
+ When working with ER data, use generic ZZ_SOURCE(). It makes the code simpler.
+  ========================================================== */ 
+#define ZZ_SOURCE_M_TO_1(id,rel,sour) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_SOURCE_M_TO_1(ZZFP(ZZx,id),rel,sour)
+
+#define ZZZ_SOURCE_M_TO_1(src,rel,sour) {(sour)=(rel)->src;}

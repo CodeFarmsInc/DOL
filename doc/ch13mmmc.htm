@@ -1,0 +1,1819 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 13.3 Save/Open</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="13_3"></a><font size="4" face="Arial">13.3 SAVE/OPEN</font></h2>
+
+<p>If you are practically inclined and you like to learn from simple examples
+rather than to study the documentation, look at the 3 sets of examples
+in directory orgc\test: testa* testb* and testc*. The description of how
+to compile and run them is toward the end of file orgc/test/readme.txt.
+This information is only in DOL Ver.5.9 and higher. If you have an older version,
+download these examples as a <a href="saving.zip">zip file.</a>
+
+<p>The prime purpose of the <em>save()</em> and <em>open()</em> is, in a single command,
+to save and retrieve the entire data space to/from the disk. This includes all
+the objects and the relations  they form. Later on, we will discuss
+advanced features such as saving individual objects, saving data in several pieces, 
+saving the entire data space and updating a few objects later,
+plus the version control of both your program and of DOL. Let's start with the basic
+use of <em>save()</em> and <em>open()</em>.</p>
+
+<p>In practically any program, objects and their relations form a network, which
+connects all the objects together. Also, there is usually one or a few root 
+objects -- we call them 'key entries' -- which have the property that if we start from
+them and follow the data structure links, we will reach all the objects the program is
+using. This does not mean that we can reach all the objects from any key entry; rather
+any object can be reached from at least one key entry.</p>
+
+<p>Sometimes, there are a few additional objects which play some central or key
+role in the data structures, and you may want to know how to access these important
+objects after you download the data from the disk. In that case, include also these
+objects as 'key entries'.</p>
+
+<p>When you want to save your data to disk, you call 
+<em>void save()</em> and give it
+the name of the file where you want the data to store, number of key entries,
+key entries as (void*) pointers, and names of the classes of the key entries.
+For example: </p>
+
+<blockquote><pre><em>
+class A {
+    ZZ_EXT_A
+    ...
+};
+class B {
+    ZZ_EXT_B
+    ...
+};
+class C {
+    ZZ_EXT_C
+    ...
+};
+... many other classes ...
+... many ZZ_HYPER statements ...
+ZZ_HYPER_UTILITIES(util);
+
+A *a; B *b; C *c; ...
+void *v[2]; char *t[2];    // two key entries a,b
+
+...
+v[0]=a; t[0]="A";
+v[1]=b; t[1]="B";
+util.save("myFile",2,v,t); // saves the entire data space to the disk
+</blockquote></pre></em>
+
+<p>Function <em>open()</em> uses the same syntax, but in reverse: It moves the data
+from the given file to memory, updates all the pointers, and returns the given number
+of key entries. Naturally, the number of key entries must be the same when saving and
+retrieving the data. </p>
+
+<blockquote><pre><em>
+util.open("myFile",2,v,t); // retrieves the entire data space from the disk
+a=(A*)(v[0]); // first key entry, must cast
+b=(B*)(v[1]); // second key entry, must cast
+</blockquote></pre></em>
+
+<p>Function <em>clear()</em> as similar parameters as <em>save()</em> 
+and <em>open()</em>, except that no file name is given. This function traverses the
+memory data and destroys it. There are also two ways to check that the save/open operations
+worked correctly. If <em>util.error()</em> returns a non-zero value, and error occured.
+Also, after <em>open()</em>, no returned key entry should be NULL, and the type names
+should agree with those used when saving the data. Here a sample of the code which
+demonstrates these features, this time using only a single key entry.
+Note that <em>save()</em> and <em>open()</em> can be used
+multiple times, using the same or different file names:</p>
+
+<blockquote><pre><em>
+class A {
+    ZZ_EXT_A
+    ...
+};
+... other classes
+... ZZ_HYPER statements
+ZZ_HYPER_UTILITIES(util);
+
+A *a1, *a2, *a3; void *v[1]; char *t[1];
+
+....
+v[0]=a1; t[0]="A";
+util.save("file1",1,v,t);
+if(util.error())... // error recovery
+
+util.clear(1,v,t); // destroy all the data in memory
+...
+
+v[0]=NULL; // good for error detection
+util.open("file1",,v,t); // retrieves the entire data space from the disk
+if(util.error())... // error recovery
+if(!(v[0]) || !(t[0]) || strcmp("A",t[0]))... another check for correctness
+a2=(A*)(v[0]); // key entry for the new data
+
+// Note: If clear() were not used, we would now have two copies of the entire
+//       data space in memory, one starting from <em>a1</em>, one from <em>a2</em>
+// Note: clear() works only for the memory blasting mode - see the
+//       &quot;List of functions and their syntax&quot; at the end of this Chapter.
+
+... calculation which changes the data 
+v[0]=a2; t[0]="A";
+util.save("file2",1,v,t); // saving into a different file
+if(util.error())... // error recovery
+
+...
+if(someProblem){  // return to the original data from file1 
+    util.open("file1",,v,t); // retrieves the entire data space from the disk
+    a3=(A*)(v[0]); // key entry for the new data
+    if(util.error())... // error recovery
+
+    v[0]=a2; t[0]="A";
+    util.clear(1,v,t); // destroy the old data space
+
+    a2=a3; // replace it by the one from file1
+}  
+</blockquote></pre></em>
+
+<p><b>Important:</b> If you plan to save/retrieve your organization from disk, it
+is imperative that you use the <em>NAME </em>organization for text strings.
+<em>NAME</em> is the DOL equivalent of the String class.
+Without using <em>NAME</em>, text strings will not be properly retrieved from
+the disk. Examples:</p>
+
+<blockquote><pre><em>
+class A {
+    char *tName; // general advice: avoid using this
+    ZZ_EXT_A
+public:
+    void prt();
+};
+
+ZZ_HYPER_NAME(aName,A); // each A object is associated with string aName
+
+void A::prt(){
+    cout << tName << "\n"; // print the temporary, non-persistent name
+    cout << fwd.aName(this) << "\n"; // print the persistent name
+}
+</blockquote></pre></em>
+
+<p><b>Important:</b></p>
+
+<ol>
+    <li>Read about <i>ZZinheritAll</i>, <i>ZZ_INHERIT</i> and the
+        use in of virtual function, Chap.8.1.8.</li>
+</ol>
+
+<p><b>Other things to remember:</b></p>
+
+<ol>
+    <li>Organizations <em>GENERAL_LINK</em> and <em>SINGLE_LINK</em>
+        will cause problems in <i>save()</i> if the target class
+        does not have<em> ZZ_EXT.</em> This shows up as a
+        run-time error. The DOL code generator (<em>zzprep</em>) cannot check
+        for this condition.</li>
+    <li>If you use arrays, avoid referencing into an array by
+        pointer. That includes, for example, an array of objects
+        which also form a linked list. Even though
+        DOL can handle such situations (the array
+        must not re-allocated itself - must have declared as having a fixed
+        size), this is a potentially dangerous practice that
+        should be avoided. Try to always reference arrays by
+        indices.</li>
+    <li>If you plan to remove all the data by calling <i>clear()</i>,
+        do not use automatically allocated objects. <i>clear()</i>
+        will include such objects in the set of all objects, and
+        will attempt to deallocate them, which will result in a
+        crash.</li>
+    <li>When <i>ZZ_INHERIT</i> is defined in the environ.h file, 
+        which happens in most C++
+        programs, the function <i>util.clear()</i> works only
+        in the memory blasting mode. It is internally
+        disabled (bypassed) in the other two modes - see the syntax
+        section.</li>
+    <li>Memory blasting works
+        only in environments where <em>sizeof(char*)==sizeof(int)</em>.</li>
+</ol>
+
+<p><b>Examples:</b></p>
+
+<blockquote><pre><em>
+class Apple {
+    ZZ_EXT_Apple
+public:
+    int cIndex;
+    Cherry *cPtr;
+    char colour;
+};
+class Plum {
+public:
+    float size;
+};
+class Cherry {
+    ZZ_EXT_Cherry
+public:
+    int weight;
+};
+class Holder {
+    ZZ_EXT_Holder
+};
+ZZ_HYPER_ARRAY(arr,Holder,Cherry);
+ZZ_HYPER_GENERAL_LINK(gLink,Apple);
+ZZ_HYPER_SINGLE_LINK(cLink,Apple,Cherry);
+Apple a,*aa;
+Plum p,*pp;
+Cherry c,*cc;
+Holder h,*hh;</em></pre>
+    <pre><em>// CASE (1)</em></pre>
+    <pre><em>gLink.add(&amp;a,&amp;p); // is correct, but a and p cannot be saved unless ZZ_EXT_Plum is used </em></pre>
+    <pre><em>// CASE (2) </em></pre>
+    <pre><em>cc=arr.ind(&amp;h,8);
+a.cIndex=8; // correct reference into array
+cLink.add(&amp;a,cc); // incorrect reference into array
+a.cPtr=cc; // incorrect reference outside OrgC
+cLink.add(&amp;a,&amp;c); // correct, not into array
+a.cPtr=(&amp;c); // correct, but save will not include this </em></pre>
+    <pre><em>// CASE (3)</em></pre>
+    <pre><em>hh=new Holder;
+// util.save() can save both &amp;h and hh, but
+// util.clear() can be called only on hh </em></pre>
+</blockquote>
+
+
+<p>Note that when saving in binary format (none of these examples
+saves in only(!) binary), <i>ZZ_FORMAT()</i> statements are not
+required.</p>
+
+<h3><font size="3" face="Arial">Three formats of saving data to disk</font></h3>
+
+<p>DOL provides three optional formats for saving data to disk:
+<ol>
+    <li>The <i>binary format</i> is the default. It is the easiest one to incorporate
+        into your program. It runs faster
+        and takes less disk space than the ASCII format.</li>
+    <li>The <i>ASCII format</i> is the only format portable across different platforms
+        and compilers. It also supports version control and schema migration.
+        For example, you can have the same program running on a Sun workstation (under UNIX),
+        and on an IBM PC (under WinNT). If you <em>save()</em> the program data on the Sun,
+        and <em>open()</em> the file on the PC.</li>
+    <li><i>Memory blasting</i> far outperforms the other two methods, but it is
+        trickier to use. Also, destroyed object are not removed from the memory,
+        so it may be necessary to combine this method with the use of built-in 
+        free lists.</li>
+</ol>
+
+<p><b>Examples:</b></p>
+
+<p>Almost every test program in the <i>orgc/test</i> directory
+demonstrates saving to disk.</p>
+
+<ol>
+    <li><i>test0n.c</i> shows netlist processing with
+        ASCII saving, <i>test0m.c</i><b> </b>is another variation
+        of the same problem with both binary and ASCII saving
+        in the same program.</li>
+    <li><i>test23a.c</i> demonstrates the saving of objects which
+        contain virtual functions.</li>
+    <li><i>test16c.c</i> saves arrays, selfID, timeStamp, and
+        properties.</li>
+    <li><i>test23f</i> demonstrates saving with memory blasting.</li>
+</ol>
+
+
+<h3><font size="3" face="Arial">Method 1: Saving in binary format</font></h3>
+
+<p>If you don't invoke any special features and use <em>save()</em> and
+<em>open()</em> just as we showed above, the storage is performed in the
+default mode, using a 'binary format'. This means that the data space is
+stored in a binary form, as opposite to the ASCII - human readable format.</p>
+
+<p>When you call the DOL code generator <em>zzprep</em> prior to the compilation,
+<em>zzprep</em> analyzes all the class definitions marked with ZZ_EXT (this is
+equivalent to a partial compilation), and generates the serialization functions.
+Note that this happens automatically, and it guarantees a match between the output
+and input serialization function. If you have used a system where serialization
+functions have to be manually coded, you know that it is a lot of work, and the 
+result is highly error prone.</p>
+
+<p><em>zzprep</em> stores the definitions of the serialization functions under
+<em>ZZ_EXT_..</em> statements, and their implementation in one of the files it generates,
+<em>zzfunc.c</em>. Also, under the <em>ZZ_EXT_..</em> statements, <em>zzprep</em>
+stores all the pointers which form the data structures. Since DOL knows where these
+pointers are, the <em>save()</em> command can traverse all objects, starting from the
+key entries, and following these pointers from object to object.</p>
+
+<p>The disk file starts with a header, which describes details of how all your classes
+are constructed: Their sizes, inheritance, member objects and their types, where
+are the data structure pointers, and what are their names. This information is
+essential for making sure that the data on the file are compatible with the version of the
+program you are using. Also, as you will learn later (see "Managing Changes" below)
+DOL provides an automatic version control, which allows to read old data files even if
+your classes or relations change. We are very proud of this feature, and believe that
+no other persistent system or OODBS have it, at least not in this extent.</p>
+
+<p>The first objects recorded on the file are the key entries, then follow other objects.
+Each object is written to disk in two records: The first record describes the 
+class of the object, whether it is a single object or an array, and its memory
+location. The second record is a plain copy of the object, byte-by-byte, as it is
+in the memory - including the internal pointers. </p>
+
+<p>Saving to disk is relatively fast,
+because there is no formatting or massaging of data. Objects are stored as blocks
+of bytes. When restoring the objects from the disk (the <em>open()</em> function),
+objects are allocated in new places in memory, while keeping a table of their old
+and new address. After all objects are read to memory, DOL walks through them,
+and resets the internal pointers to new values (remember, DOL knows where the data
+structure pointers are, because <em>zzprep</em> created them. 
+Replacement of the pointers is again quite fast, using
+hashing and only occassionally binary search.
+</p>
+
+<h3><font size="3" face="Arial">Method 2: Saving in ASCII format</font></h3>
+
+<p>The use of <em>save()</em> and <em>open()</em> is the same as for the binary
+format. Also the internal algorithm is the same, but the storage to disk is 
+a human-readable format, using ASCII. The main advantage of the ASCII format is
+that it is portable among different platforms.
+Note a potential problem with the interpretation
+of class members:</p>
+
+<blockquote><pre><em>
+class X {
+    ZZ_EXT_X
+    char c;
+    int i;
+    char t[20];
+    float f;
+    ...
+};
+</blockquote></pre></em>
+
+<p>Is <em>c</em> a printable character or a short integer, and if latter, is it signed
+of unsigned? Is <em>t</em> a NULL ending string, or always 20 characters? What if 
+<em>t</em> represents a name which includes blanks, such as "John Scrivens", how could 
+we record that? Should f be printed in the decimal or exponencial format?
+Because only the program designer knows the meaning of the data members,
+it is much safer to let the programmer to specify this. When using the ASCII mode,
+the programmer must, at least in one *.h file, declare</p>
+<blockquote><pre><em>
+    #define ZZascii
+</blockquote></pre></em>
+<p>Also, the programmer must, for every class, provide a <em>ZZ_FORMAT()</em> statement.
+This statement describes, in the style used for <em>printf()</em>, the format
+for writing out all the object members. The format does not include the hidden (internal)
+data structure pointers. DOL knows about them, and knows how to interpret them in the
+serialization functions. Note that it is not necessary to store all members - temporary
+variables may be missing in the <em>ZZ_FORMAT()</em> statement and also in the disk
+image, resulting in a saving of the disk space. </p>
+
+<p>DOL writes out each object as three ASCII records: 
+The first record is a header similar to the header
+used in the binary saving, except that the values are in ASCII (readable numbers).
+The second record contains all the internal pointers, printed as integers.
+The third record contains all the members, printed in the format specified in the
+<em>ZZ_FORMAT()</em> statement.</p>
+
+<p>The small inconvenience of writing the <em>ZZ_FORMAT()</em> statements gives is compensated
+by a great flexibility of this method. Since <em>zzprep</em> generates both the input/output
+serialization functions from the same <em>ZZ_FORMAT()</em>, they are guaranteed to match.
+It is much safer than to code serialization functions by hand. example:</p>
+
+<blockquote><pre><em>
+#define ZZascii
+#define ZZmain
+  ...
+class X {
+    ZZ_EXT_X
+    unsigned char c;
+    int i,flg;
+    char t[20];
+    char *temp; // non-persistent pointer
+    float f;
+    ...
+};
+ZZ_FORMAT(X,"%d %o %s %f,c,i,t,f");
+</blockquote></pre></em>
+
+In the previous example, <em>temp</em> and <em>flg</em> are not stored on disk.
+Note the syntax slightly different from <em>printf</em>: Both the format and the
+parameter names are passed as a single text string.
+Also note that the order of the members does not have to be the same as in class X.
+For example, the following format provides the same functionality:</p>
+
+<blockquote><pre><em>
+ZZ_FORMAT(X,"%s %d %o %f,t,c,i,f");
+</blockquote></pre></em>
+
+<p><b>Exaple of using ZZ_FORMAT():</b></p>
+
+<blockquote>
+    <pre><em>class Obj1 {
+    ZZ_EXT_Obj1
+    int a,b;
+    float x;
+    char c;
+};
+ZZ_FORMAT(Obj1,&quot;%d %d %f %a,a,b,x,c&quot;);</em></pre>
+    <pre><em>class Obj2 {
+    long int a;
+    ZZ_EXT_Obj1
+public:
+    char *temp;
+    float x;
+};</em></pre>
+    <pre><em>ZZ_FORMAT(Obj2,&quot;%e %lu,x,a&quot;);</em></pre>
+    <pre><em>class Obj3 {
+    ZZ_EXT_Obj3
+};
+ZZ_FORMAT(Obj3,&quot;&quot;);</em></pre>
+    <pre><em>ZZ_HYPER_SINGLE_RING(ring1,Obj1);
+ZZ_HYPER_SINGLE_TRIANGLE(ring1,Obj1,Obj2);
+ZZ_HYPER_SINGLE_LINK(ring1,Obj1,Obj3);</em></pre>
+</blockquote>
+
+<p><b>Note:</b> When the object is used only as a part of the data structure, and has not
+attributes to be saved on the disk, an empty
+<em>ZZ_FORMAT()</em> still has to be provided. For example:
+<em>ZZ_FORMAT(myClass,&quot;&quot;);</em>
+
+<h3><font size="3" face="Arial">Method 3: Memory blasting</font></h3>
+
+<p>This method of saving to disk is dramatically (order of magnitude) faster
+than the binary/ASCII formats. However, it requires a more careful use,
+and setting of some parameters. When designing new software, we recommend to
+use the binary method first, and only when that program is debugged,
+switch to memory blasting by changing a few parameters.</p>
+
+<p>In memory blasting, objects are allocated from pages of memory. A small portion
+of each page (about 3%) is used for a binary map, which marks locations of
+individual poiners in the pages. These bits are
+set already when individual objects are allocated, and updating (swizzling) of the pointers
+does not require any search and is extremely fast.</p>
+
+<p>When saving data to disk, entire pages are directly copied (blasted) to disk, 
+without looking at individual objects. Automatically allocated
+objects do not transfer to the disk, only objects allocated from the heap with
+operator <em>new()</em>.</p>
+
+<p>When retrieving data from the disk, entire pages are copied back to memory.
+After that, memory blasting walks through the bit maps, and identifies
+data structure pointers without paying
+attention to individual objects. When the size of the pages is a power of 2,
+the pointer conversion can be done in a few computer instructions - no search
+or hashing is required. Details of this smart algorithm are described in Chapter 8
+of "Taming C++: Pattern Classes and Persistence for Large Projects" by Jiri Soukup,
+published by Addison-Wesley 1994, ISBN 0-201-52826-6.</p>
+
+<p>In order to invoke memory blasting, you just add two lines before the first call to
+<em>new</em>, usually in the begining of <em>main()</em>:</p>
+
+<blockquote><pre><em>
+util.mode(0,1,0,0);
+util.blkAlloc(sizeEstimate,pageSzBits);
+</blockquote></pre></em>
+
+<p> If you chose page size which is large enough to accomodate all your data,
+memory blasting is especially fast. The data moves in/out of disk as one single
+block, all the pointers move by a uniform shift, and only the used part of
+the page is stored on the disk - not the entire page. However, if your data
+exceed the one page, additional pages are automatically allocated, the save()
+and open() operation slow down just a tiny bit, but memory blasting still works seemlessly.</p>
+
+<p>For more details about the <em>mode()</em> function, see below.
+  <b><em>sizeEstimate</em> gives the maximum size of memory you expect your data to require.
+This is not a hard limit, just a realistic estimate. If more space is needed, the library
+will provide it and with only a small overhead;</b> it uses a smart algorithm
+which does not reallocate all the data -- it just adds a few pages to the existing set.
+  The size of pages must be a power of 2, and the parameter
+<em>pageSzBits</em> provides this power. For example, if you want pages of 1024 bytes,
+and your overall data storage will probably be under 1,000,000 bytes, you invoke:</p>
+<blockquote><pre><em>
+util.mode(0,1,0,0);
+util.blkAlloc(1000000,10);  // 2**10 = 1024
+</blockquote></pre></em>
+
+<p>IMPORTANT: If you cannot estimate the required memory or want to use all the available virtual memory, 
+you can specify sizeEstimate=0.This is fine if your pages are large, but if you work with
+small pages, chosing sizeEstimate=0 may not be the best option. DOL allocates two arrays of pointers, one
+entry for each potential page location. 
+If you chose to use all the address space (2**32) and, for example, pageSize=2**8=64,
+there can be up to 2**(32-8)=2**24 pages, and with two pointer arrays this may take the space of 2**28,
+or about 1/4 of the virtual memory space. 
+Fhe small pages, the best strategy is to start with a reasonable estimate, and let the library to increase
+the required space gradually, instead of aiming straight for all the available space.
+
+<p> NOTE: With memory blasting, key entries can
+even point inside of objects (to a base-object), which is not
+permitted in other saving methods.</p>
+
+<p>For examples of memory blasting, see <em>test23f.c</em> and
+<em>test70c.c</em>. In order to test the single page option, use test23f.c
+and modify PAGE_BITS from 17 to 19. You can also verify that the difference
+in the size of the data file 'myfile' is negligible:. 
+For bits=19 it is 361,325, for bits=17 it is 361,357. </p>
+<p><b>IMPORTANT: Allocation and deallocation</b></p>
+<p>Note that when you are working with memory blasting, you can use operator new() which has been transparently overloaded by functions that allocate entire pages of memory, find an unused space, and turn it into a valid object which operator new() returns to you. However, C++ language does not allow you to overwrite operator delete, and you cannot destroy only a part of such page. You may leave unused objects in that page, and if they are not too many, you may accept the overhead of this wasted space. If you want to remove this space, you can save the data using serialization  and then open it while allocationg into memory pages. Serialization saves only valid objects, and when reading them into new memory pages, all the dead space is automatically removed.</p>
+<p>In addition to this, DOL supports automatic lists of free objects, one for each application class. There is no reuse of strings:</p>
+<blockquote><pre><em>
+class A {
+    ZZ_EXT_A
+public:
+    char *myName;
+};
+
+A *ap;
+ap=new A; // allocates a new object as usual
+ap=A::newObj(); // allocates from the free list, calls new() when the list is empty
+A::delObj(ap); // places ap on the free list
+delete ap; // ERROR, never use delete in mem. blasting, program will CRASH
+str=util.strAlloc(“xyz”)); // allocates a string, copies “xyz” in it
+str=util.strAlloc(12)); // allocates a string 12 characters long
+util.strFree(ap->myName); // in mem.balsting, it does nothing, there is no point in using it
+</blockquote></pre></em>
+
+<p>When saving in mem.blasting, free lists are persistent.
+When using serialization, they are automatically discarded.</p>
+
+<h3><font size="3" face="Arial">
+Changing the mode of saving</font></h3>
+
+<p>Test programs <em>test34a.c, test34b.c, test34c.c,</em> and 
+<em>test34d.c</em> demonstrate how - within one program run - you can :w
+
+open data in one format, and 
+save it in another. All you have to do is to reset it by calling
+<em>util.mode(...)</em> with appropriate parameters before the next 
+<em>save()</em> or <em>open()</em>. If one of the storage modes is ASCII,
+then <em>#define ZZascii</em> and <em>ZZ_FORMAT()</em> statements must be present.</p>
+
+<blockquote><pre><em>
+// the following two lines invoke memory blasting
+util.mode(0,0,0,0);
+util.blkAlloc(sizeEstimate, pageSzBits);  
+...
+util.mode(1,0,0,0); // invokes ASCII mode
+...
+util.mode(0,1,0,0); // invokes binary mode
+...
+util.blkFree(1);   // destroys (cleans up) pages used by memory blasting
+util.clear(n,v,t); // cleans up the memory space used by the other two modes
+</blockquote></pre></em>
+
+<p>Functions <em>mode(), blkAlloc(),</em> and <em>blkFree()</em>
+are useful in advanced storage of data, and their full syntax and meaning
+of individual parameters will be described later.</p>
+
+<h3><font size="3" face="Arial">Saving individual objects</font></h3>
+
+<p>Except for the "List of functions and their syntax" at the end of this chapter,
+everything which will follow now can be considered the advanced use of the disk
+storage utilities. If you are a new user, read this part as an overview
+of what DOL can do, but unless you are experienced in using <em>save()</em>
+and <em>open()</em> with all the three basic saving (binary, ASCII,
+memory blasting), experimenting
+with the advanced features will bring you only frustration and a false impression that
+the library does not work.</p>
+
+<p>There are situations, where it may be beneficial to save explicitely
+individual objects rather than relying on DOL to traverse all your data.
+For example, if all your data form a linked list, traversing this list and
+storing the objects one-by-one is faster than the sophisticated DOL algorithm
+which must cover some general, tricky cases. You also need less memory to perform
+this. The internal algorithm uses an array of pointers, one for each object.
+For large data sets, this can be a very large array.</p>
+
+<p>Another situation where this may be useful is for saving updates of 
+a small number of objects. We can take the advantage of the fact that
+both the binary and ASCII formats accept multiple copies of the same object 
+on the file. If this happens, the latest copy is retrieved when you 'open'
+the file. A call to <em>save()</em> records each object on the file exactly once,
+except perhaps for the key entries, but consider the following situation.
+Assume we recently 'saved' the entire data image and, within the same run, a few
+objects change. If we record the new versions of those objects at the end of the file,
+we can avoid another call to <em>save()</em> - a significant performance
+enhancement.</p> 
+
+<p>If you alread called <em>save()</em>, the class tables and the key entries
+are already recorded at the beginning of the file. The only problem is that,
+in the default mode, the <em>save()</em> commend closes the output file.
+Since we want to add object at the end of the file, we must arrange that <em>save()</em>
+does not close the file, and then when we are finished with adding the few
+objects that changed, we must close the file explicitely.</p>
+
+<blockquote><pre><em>
+util.mode(0,0,0,2); // last parameter specifies not to close the file
+util.save("myFile",...);     // calling as usual
+... update some objects, and record the update ...
+util.close("myFile");
+</blockquote></pre></em>
+
+<p>If you you are storing all the object individually, you have start with
+the key objects. When you record the first key object, DOL automatically
+initiates the file with the description of all your classes. In order to
+register key entries, call <em>ZZ_KEY_SAVE()</em>.
+For all other objects, call <em>ZZ_STORE()</em> or <em>util.deep().</em>
+<em>ZZ_STORE() </em>stores a single object
+(shallow copy), while <em>util.deep()</em> stores all other objects that
+can be reached from it - through class membership, inheritance, or data structure
+pointers (more than a deep copy). At the end you have to close the file
+by calling <em>util.close(fileName)</em>.</p>
+
+<p><em>ZZ_KEY_SAVE()</em> and <em>ZZ_STORE()</em> are macros, and
+should be encapsulated under the classes that use them. For
+example:</p>
+
+<blockquote><pre><em>
+class myObj {
+    ZZ_EXT_myObj
+public:
+    void saveObj(char *fileName){ZZ_STORE(myObj,fileName);}
+    void saveKey(char *fileName){ZZ_KEY_SAVE(myObj,fileName,this);}
+};
+    
+myObj *p,*r;
+r-&gt;saveKey(&quot;myFile&quot;);
+p-&gt;saveObj(&quot;myFile&quot;);
+</em></pre></blockquote>
+
+<p>The order in which the objects are saved is irrelevant, except
+that the key entries must be written out first. If you have only
+one key entry, or if all key entries are simple objects 
+(no inheritance, no member objects), no calls
+to <em>ZZ_KEY_SAVE()</em> are required. The first object or objects
+automatically become key entries.</p>
+
+<p>All objects must be written out; if you forget even a single
+object, <em>util.open()</em> will detect the error when
+restoring the data from disk. A missing object means that some
+pointers will lead to unrecognized memory locations.</p>
+
+<p>As explained above, storing any object several times does not cause an error, even
+if the copies differ. The program eliminates duplications
+automatically (the last version written out is accepted as
+valid). However, multiple copies increase storage and increase the required CPU
+time. The option of being able to write out multiple copies is
+convenient, but should not be overused.</p>
+
+<p>When saving a text string, use</p>
+
+<blockquote>
+    <p><em>char *fileName, *ptr; int n;<br>
+    ZZ_OBJECT_SAVE(char,fileName,ptr,0); /* for NULL ending
+    string */<br>
+    ZZ_OBJECT_SAVE(char,fileName,ptr,n); /* for buffer of n bytes
+    */</em></p>
+</blockquote>
+
+<p>If your data has a single root, a call to <em>util.deep()</em> has
+essentially the same effect as <em>util.save()</em>, except that 
+you must record the key entries first, then call <em>deep()</em>, and
+finally close the file.
+
+<p><b>Important: </b>Retrieving data from disk is always done in a
+single command, <em>util.open()</em>, regardless of
+whether you stored individual objects with <em>ZZ_STORE()</em> or
+with <em>util.save().</em></p>
+
+
+<h3><font size="3" face="Arial">Multiple files, private labels</font></h3>
+
+<p>In rare situations, the programmer may need
+more control in how the data is saved, for example 
+splitting the data into several
+files, each with its own identification label or other information
+stored in the beginning of the file. 
+The main steps involved in doing this are:<p>
+
+<ol>
+    <li>Call <i>util.mode()</i> with the last
+        parameter <i>cntrl=2</i>,<b> </b>before the first command
+        which writes to disk, and open the file.</li>
+    <li>Write your label or private information to the disk. Make sure
+        you know where you are positioned on the disk. </li>
+    <li>Save the data using either <i>save()</i> or by <i>ZZ_STORE()</i>.</li>
+    <li>Close the file by <i>util.close()</i>.</li>
+    <li>Repeat these steps for other files.</li>
+    <li>When reading the data from the disk, use again
+        <i>util.mode()</i> with the last parameter <i>cntrl=2</i>,
+        open each file yourself, read the label or your private information,
+        and then call <i>open()</i>.
+    <li>After reading all the data back from the disk, pointers between the data stored
+        in different files can be restored by calling <i>util.bind()</i>.
+        This pointer conversion must be carefully planned, because
+        <i>util.bind()</i> has the following limitation:
+        If you are restoring data from the files <i>file1, file2</i>,
+        and <i>file3</i> (in this order), pointers between <i>file1</i>
+        and <i>file2</i>, and between <i>file2</i> and
+        <i>file3</i> can be recovered, but not pointers
+        between <i>file1</i><b> </b>and <i>file3</i><b>.</b></li>
+</ol>
+
+<p><b>Example:</b></p>
+
+<p>The following code demonstrates how to
+add your own label at the beginning of the file, or/and some private data at its end.
+Note that <i>util.save(), ZZ_OBJECT_SAVE(), ZZ_STORE(), ZZ_KEY_SAVE(),</i>
+and <i>util.open()</i> must not be given file name, but rather a file
+pointer instead. The code below assumes the ASCII format. For the binary format,
+there would be <em>mode(0,1,0,1)</em>, and <em>fwrite(..,fp)</em> would be
+used instead of <em>fprintf(fp,...)</em>:</p>
+
+<p>Saving data to disk:</p>
+
+<blockquote>
+    <p><em>util.mode(1,0,0,1);<br>
+    FILE* fp=fopen(&quot;myfile&quot;,&quot;w&quot;);<br>
+    fprintf(fp, ...); // adding label at the beginning of the file<br> 
+    util.save((char*)fp,...); <br>
+    fprintf(fp, ...); // private data at the end of the file<br>
+    ...<br>
+    fprintf(fp, ...);<br>
+    fclose(fp);</em></p>
+</blockquote>
+
+<p>Retrieving data from disk:</p>
+
+<blockquote>
+    <p><em>util.mode(...,1);<br>
+    FILE* fp=fopen(&quot;myfile&quot;,&quot;w&quot;);<br>
+    fgets(buff,BSIZE,fp); // read your label<br>
+    sscanf(buff,...); // decode the line<br>
+    util.open((char*)fp,...); <br>
+    fgets(buff,BSIZE,fp); // read private data<br>
+    sscanf(buff,...); // decode it<br>
+    ...  // must be synchronized with how the data was created<br>
+    fgets(buff,BSIZE,fp); <br>
+    sscanf(buff,...); <br>
+    fclose(fp);</em></p>
+</blockquote>
+
+<p><b>Another example:</b> Assume your data consists of several parts
+connected only by GENERAL_LINK's, and you want to save it in the binary format.
+You first call <i>util.mode(0.1.0.2)</i>, then
+call <i>util.save()</i><b><i> </i></b>several times (one call for
+each part). Close the output file with <i>util.close()</i>:</p>
+
+<blockquote>
+    <p><em>util.mode(0,1,0,2);<br>
+    util.save(...);<br>
+    util.save(...);<br>
+    util.close(...);</em></p>
+</blockquote>
+
+
+
+<h3><a name="13_3_4"></a><font size="3" face="Arial">Active and passive blocks</font></h3>
+
+<p>The mechanism of storing data to disk is closely related to how the data
+is allocated. This applies in particular to memory blasting, where objects are
+allocated from pages of memory, which then are directly copied to the disk.
+The bit map which marks the locations of all pointers on these pages is set
+right when each object is allocated.</p>
+
+<p>On the other hand, if different data sets are allocated from different pages, when
+we do not need one particular set any more, we can destroy its pages without
+looking at the individual objects inside them - assuming no other objects point
+into these pages. The destruction of objects in C++ can be quite expensive,
+and this simple technique can significantly improve the program performance. 
+For example, when we applied this idea to the core software of a telephone switch, 
+the overall speed of the switch improved three times!</p>
+
+</p>Consider how we invoke the memory blasting mode:</p>
+
+<blockquote><pre><em>
+util.mode(0,0,0,0);
+util.blkAlloc(sizeEstimate,pageSzBits);
+</blockquote></pre></em>
+
+<p>The call to <em>util.blkAlloc()</em> creates an 'active' block of pages.
+Word 'active' means that any call to <em>new()</em> will allocate the object
+from these pages. However, if we then call</p>
+
+<blockquote><pre><em>
+util.blkActive(&quot;blk1&quot;,0);
+</blockquote></pre></em>
+
+<p>It makes the block 'passive', and gives it the refence name, <em>blk1</em>.
+In order to allocate more objects, you need an active block. You either have to 
+establish a new block of pages by calling <em>util.blkAlloc()</em> again, possibly
+with different parameters, or you can activate one of the passive blocks</p>
+
+<blockquote><pre><em>
+util.blkActive(&quot;blk3&quot;,1); // blk3 must be a passive block we created earlier
+</blockquote></pre></em>
+
+<p> Another way to activate a block is to call <em>blkActive(ptr,2)</em> where <em>ptr</em>
+is a pointer into one of its pages:</p>
+
+<blockquote><pre><em>
+char *ptr;
+...
+util.blkActive(ptr,2); 
+</blockquote></pre></em>
+
+<p>In order to free the currently active block, call <em>util.blkFree(0).</em>
+ Other uses of this command: <em>blkFree(1)</em> switches from the reserved
+pages to the normal C++ allocation, and should be used for temporary objects
+you don't need to store to the disk. When you want to switch from the normal
+allocation back to the currently active block, use <em>mblkFree(2).</em></p>
+
+<p>Any call to <i>util.blkActive()</i> brings you back to memory
+blasting mode, even if the previous call to<i> util.blkFree()</i>
+reset allocation to 'normal'.</p>
+
+<p>When allocating objects from the active block pages, use either
+<em>new() </em>or<em>
+ZZ_OBJECT_NEW()</em> which also provides, on top of memory paging,
+a list of free objects by type.</p>
+
+<p>Use <em>new() </em>and constructors as usual, but
+<b>never</b> place <em>ZZ_OBJECT_NEW() </em>into
+a constructor. Look at<em> test23b.c</em> for the correct way to
+use <em>ZZ_OBJECT_NEW().</em></p>
+
+<p>Sometimes it is useful to remember an important object (or the key entry) for
+each memory block (block of pages). An example is a situation, where you use several
+blocks, one for each design view. Function <em>blkUtil()</em>
+provides the mechanism to do this: it allows you to store, for
+each block, one utility hook (<em>void *hook</em>).</p>
+
+
+<h3><font size="3" face="Arial">Coding your own serialization functions</font></h3>
+
+<p>When you declare <em>#define ZZascii</em> and, at the same time, a class
+has the <em>ZZ_FORMAT()</em> statement, <em>zzprep</em> automatically
+generates serialization functions for that class, and deposits the code
+into file <em>zzfunc.c</em>. In fact, it generates
+two input functions, and two output functions. Always, one function writes/reads
+the internal data structure pointers (you normally do not have no access to them, and
+may not even be aware they are in your objects), while the other function
+writes/reads the attributes which arem under your control. It is the latter
+function which is generated from the <em>ZZ_FORMAT()</em> statement.</p>
+
+<p>If you declare <em>#define ZZascii</em>, but a class does not have
+any <em>ZZ_FORMAT()</em> statement, <em>zzprep</em> generates only the
+functions which write/read the internal pointers, but not the functions
+which handle your attributes. Since DOL needs these functions to perform
+saving and opening of the data, you have to code them yourself. These
+functions are called <em><b>zz_inp_...()</b></em> and <em><b>zz_out_...()</b></em>,
+where the name of the class replaces the dots.
+
+<blockquote>
+    <pre><em>class Apple {
+    ZZ_EXT_Apple
+public:
+    char colour;
+    int numSeeds;
+};</em></pre>
+    <pre><em>struct Plum {
+    ZZ_EXT_Plum
+public:
+    float weight;
+};</em></pre>
+    <pre><em>#define BSIZE 80
+char buff[BSIZE];</em></pre>
+</blockquote>
+
+<p>Functions you have to code in this case are:</p>
+
+<blockquote>
+    <pre><em>int Apple::zz_out_Apple(FILE *fp,Apple *p){
+    fprintf(fp,&quot;%c %d\n&quot;,p-&gt;colour,p-&gt;numSeeds);
+    return(0);
+}</em></pre>
+    <pre><em>int Plum::zz_out_Plum(FILE *fp,Plum *p){
+    fprintf(fp,&quot;%f\n&quot;,p-&gt;&gt;weight);
+    return(0);
+}
+int Apple::zz_inp_Apple(FILE *fp,Apple *p){
+    if(!fgets(buff,BSIZE,fp))return(1);
+    sscanf(buff,&quot;%c %d&quot;,&amp;(p-&gt;colour), &amp;(p-&gt;numSeeds));
+    return(0);
+}
+int Plum::zz_inp_Plum(FILE *fp,Plum *p){
+    if(!fgets(buff,BSIZE,fp))return(1);
+    sscanf(buff,&quot;%f&quot;,&amp;(p-&gt;&gt;weight));
+    return(0);
+}</em></pre>
+</blockquote>
+
+<p>Rules for writing these functions:</p>
+
+<ul>
+    <li>start with <i>zz_out_</i>.. or <i>zz_inp_</i>... (small
+        zz, not ZZ);</li>
+    <li>return(1) when end of file;</li>
+    <li>print/read only the significant fields (temporary
+        variables do not have to be reported);</li>
+    <li>provide such functions for all structures that have <em>ZZ_EXT_...</em></li>
+    <li>input and output format must exactly match</li>
+</ul>
+
+<h3><font size="3" face="Arial">Saving a union</font></h3>
+
+<p>If your class includes a union member,
+then <em>ZZ_FORMAT()</em>
+does not have enough flexibility to handle the situation, and
+you have to code your own <em>zz_inp_...()</em> and <em>zz_out_...()</em>
+for that class:</p>
+
+<blockquote><pre><em>
+    class  A {
+        ZZ_EXT_A
+        union {     // persistent, to be stored on the disk
+            int k;
+            char c[4];
+        }uni;
+        int ss;
+        float ff;
+        ...
+    };
+
+int A::zz_out_A(FILE *fp,A *p){
+    fprintf(fp,&quot;%d %d %f\n&quot;,p-&gt;uni.k;p-&gt;ss,p-&gt;ff);
+    return(0);
+}
+int A::zz_inp_A(FILE *fp,A *p){
+    if(!fgets(buff,BSIZE,fp))return(1);
+    sscanf(buff,&quot;%d %d %f&quot;,&amp;(p-&gt;uni.k), &amp;(p-&gt;ss), &amp;(p-&gt;ff));
+    return(0);
+}
+</blockquote></em></pre>
+
+<p>The union to be saved must not include a pointer to a persistent object.</p>
+
+<p>If the union handles only temporary (non-persistent) values,
+<em>ZZ_FORMAT()</em> can be used as normal:</p> 
+
+<blockquote><pre><em>
+    class  A {
+        ZZ_EXT_A
+        union {    // temporary, non-persistent values
+            int k;
+            char c[4];
+        }uni;
+        int ss;
+        float ff;
+        ...
+    };
+    ZZ_FORMAT(A,&quot;%d %f,ss,ff&quot;);
+</blockquote></em></pre>
+
+
+<h3><a name="13_3_21"></a><font size="3" face="Arial">Format of
+the ASCII file</font></h3>
+
+<p>We encourage users neither to modify the format under which
+the ASCII data is stored, nor attempt to read it directly. The
+disk saving operation is more complex than it may appear on
+the surface. We include the format description mostly for
+curious, advanced users. If you are just starting with DOL,
+skip to the next section.</p>,
+
+<p>Before you continue reading, run one of the tests that save in
+ASCII format, for example <i>test23c.c</i> (includes inheritance)
+or <i>test0m.c</i> (no inheritance), and have a printout of
+the ASCII file ready when reading this explanation.</p>
+
+<p>The ASCII file starts with the type table similar to the<b><i>
+</i></b><i>ZZstrList[]</i> array which appears in your <i>zzincl.h</i>
+file. The difference is that in the ASCII file, all values are
+correctly set, while in <i>zzincl.h</i>, some of the values are
+just defaults that are overwritten by correct values at the
+beginning of the run. If you are curious about the meaning of
+individual fields in this table, look at the structure <i>ZZstrLST</i>
+in file <i>lib/bind.h</i>. </p>
+
+<p>The record of the type table on the disk ends with the line
+starting <i>ZZendMark ...</i></p>
+
+<p>The second section describes the transparent pointers used
+by DOL organizations. These are pointers hidden under <i>ZZ_EXT_..</i>
+statements, and you can find their names
+in the <i>zzincl.h</i> file which <i>zzprep</i> creates in your
+working directory. In the ASCII file, the name
+of each pointer is preceded by a special character, indicating its type
+(usually <i>a</i> for &quot;automatic pointer&quot;), and is
+appended by the character <i>[</i> and a number indicating the
+size of the array (1 for single objects). The size of this section is
+determined by the third last field on the line with <i>ZZendMark </i>above.</p>
+
+<p>The third section describes the inheritance lattice of the
+types, and ends with a<em> ZZendMark</em> record. The content of
+each line is described in the structure <em>ZZtypeHier</em>, as
+shown in<em> lib/bind.h</em>. Note that each type in the type
+table has an index into this table (<em>inhInd</em>). If neither
+inheritance nor object members are used, and (<em>#define ZZ_INHERIT</em>
+is not present in <em>environ.h</em>), this section is
+missing (it is not used).</p>
+
+<p>The fourth section contains, object by object, 2 or 3 records
+per object, depending on its type and content. The same object
+can appear several times, the last copy is considered valid when
+opening the file.</p>
+
+<p>The first object record is a header which always contains 4
+values: starting address, type index, size in bytes, array size
+(usually 1). </p>
+
+<p>The second object record contains the transparent pointers, in
+the order shown under the <em>ZZ_EXT_</em> statement. This record
+is produced by the <i>function zz_opt_..</i> from your <i>zzfunc.c</i><b>
+</b>file, and may be missing if there are no pointers.</p>
+
+<p>The third object record contains integers, floats, and other
+members that you specified under the <i>ZZ_FORMAT</i> statement,
+or in your <i>zz_out_...()</i> function.
+If you coded the function, it can be in any file. If <i>zzprep</i>
+generated it from <i>ZZ_FORMAT()</i>, it was deposited
+into file <i>zzfunc.c</i>. This record again may be missing,
+if there are no other values to be stored than the transparent
+pointers.</p>
+
+<p>In the case of an array, there is one header, and then pairs
+of lines corresponding to each object in the array.</p>
+
+<p>The file ends with the header record (0 -1 -1 0).</p>
+
+<h3><font size="3" face="Arial">Storing foreign objects</font></h3>
+
+<p>Another problem occurring in practice is that, in addition to
+regular classes and objects, the programmer wants to store
+objects from standard/private libraries. Classes for these
+objects cannot be modified by inserting pointers, or putting the <i>ZZ_EXT_..</i>
+statement into them. If these objects are not involved in any
+organizations except, perhaps, being a target for a <i>SINGLE_LINK</i>
+or <i>GENERAL_LINK</i>, then this can be done easily using the
+following method:</p>
+
+<blockquote>
+    <pre><em>// &#151;&#151;&#151;&#151; in the other library &#151;&#151;&#151;&#151; 
+struct foreign { 
+    int i,k; 
+};
+// &#151;&#151; in your code &#151;&#151; 
+ZZ_EXT_foreign 
+typedef struct foreign foreign;
+ZZ_FORMAT(foreign,&quot;%d %d,i,k&quot;);</em></pre>
+</blockquote>
+
+<p>How does this work? The presence of <em>ZZ_EXT.</em>. forces
+the code generator to register <i>foreign</i> as a recognized
+class. The class is not involved in any data organization,
+therefore it has no internal pointers or variables, <i>ZZ_EXT_foreign
+i</i>s empty, and can be anywhere, even outside the class.<i>
+ZZ_FORMAT() </i>automatically triggers the generation of
+appropriate IO functions, and the program can save this class
+like any other class:</p>
+
+<blockquote>
+    <p><em>foreign *f;<br>
+    ...<br>
+    ZZ_OBJECT_SAVE(foreign,&quot;myFile&quot;,f,1); // saves the
+    object </em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">User-controlled diskIO</font></h3>
+
+<p>When saving binary data to disk, the library is normally using
+fast binary IO - functions <i>open(), read(), write(),</i> and <i>close().</i>
+In exceptional situations, you may want to replace these
+functions by some other functions, for example when storing
+backup data to memory instead of to disk.</p>
+
+<p>In order to do this, you have to do two things:</p>
+
+<ol>
+    <li>Code your own functions for diskIO, and pass them to the
+        library through a call to <i>ZZinstallUserIO()</i>. Your
+        functions must have types identical to the functions they
+        are replacing. You may replace only <i>open&amp;close</i>
+        or only <i>read&amp;write</i>, and use NULL for the
+        remaining two functions (default will be used), but always
+        the two functions which form a pair must be provided.</li>
+    <li>Transfer the control to your functions by calling <i>util.mode(0,2,0,0)</i>
+        - this works for binary format only. If you want to
+        return to the default library IO, call <i>util.mode(0,diskIO,0,0)
+        </i>, with diskIO=0 or 1.</li>
+</ol>
+
+<p><b>Example: </b></p>
+
+<blockquote>
+    <p><em>.....<br>
+    FILE *myOpen(char *fileName,char *mode){ ... } <br>
+    int myRead(FILE *fp,char *buff,int n){ ... } <br>
+    int myWrite(FILE *fp,char *buff,int n){ ... }<br>
+    int myClose(FILE *fp){ ... }<br>
+    ..... <br>
+    ZZinstallUserIO(myOpen,myRead,myWrite,myClose);<br>
+    util.mode(0,2,0,0);</em></p>
+</blockquote>
+
+
+<h3><a name="13_3_22"></a><font size="3" face="Arial">Managing
+changes</font></h3>
+
+<p>As your program evolves, you may encounter two types of
+changes which may affect your ability to read your old
+data files:</p>
+<ol>
+    <li><b>New version of DOL.</b> As DOL grows and improves, we try
+        our best not to change the format of the disk storage.
+        Over the 12 years of the DOL existence, it happened only
+        twice but, theoretically, the possiblity is there.</li>
+
+    <li><b>Different data structures</b>. New data organizations
+        are added or some of the old data organizations are removed.
+        The types or names of some data organizations change.</li>
+
+    <li><b>Changes of classes,</b> 
+        adding or removing attributes, possibly adding new classes
+        or discontinue old ones. Inheritance changes.</li>
+</ol>
+
+<p>A change of DOL version is easy to handle. Function <i>mode()
+</i>allows you to set input and output format to two selected version
+of DOL.</p>
+
+<p>When a new data organization is added, DOL handles the conversion.
+After retreiving the old data, the new organization is set as disconnected
+(or better to say: not connected yet).</p>
+
+<p>When a data organization is removed, DOL again handles the conversion.
+Since the internal pointers which originally formed the organization
+do not exit any more, the organization naturally disappears.</li>
+
+<p><b>Important:</b> If any of the type parameters in a <em>ZZ_HYPER_..(id,type1,...)</em>
+statement change, <i>id</i> also must change. Essentially, the situation is handled
+as one data organization being cancelled, and another one introduced. 
+The data organization disconnects, and is not properly copied into the new environment.</p>
+
+<p>The number of key entries may be reduced. For example, if the
+data was saved with 3 key entries that correspond to types
+(Instance, Net, Instance), when reading the new data from disk
+only two key entries are returned (Instance, Instance). For more
+details see C examples in <i>test22a.c</i> and <i>test22b.c</i><b><i>.</i></b></p>
+
+<p>Note that when the new organization does not include the object
+type originally specified as the key entry, <i>open()</i>
+returns <i>NULL</i> for the corresonding key entry</p>.
+
+<p><b>Netlist example - changing members and the organizations</b><br>
+(see also C-code examples in <i>test7c.c</i> and <i>test7i.c</i>):</p>
+
+<p>This example describes connectivity of an electric circuit such
+as a VLSI chip, or a printed circuit board. Assume that the old data had
+3 classes with the following data structures:</p>
+
+<blockquote>
+    <pre><em>class Instance{
+    float current;
+    ZZ_EXT_Instance
+};
+class Net{
+    ZZ_EXT_Net
+};
+class ActTerm{
+    ZZ_EXT_ActTerm
+    int x,y;
+};
+ZZ_HYPER_SINGLE_RING(iRing,Instance);
+ZZ_HYPER_SINGLE_RING(nRing,Net);
+ZZ_HYPER_SINGLE_TRIANGLE(byInst,Instance,ActTerm);
+ZZ_HYPER_SINGLE_TRIANGLE(byNet,Net,ActTerm);
+ZZ_HYPER_NAME(iName,Instance);
+ZZ_HYPER_NAME(nName,Net);
+ZZ_HYPER_TIME_STAMP(Net);</em></pre>
+</blockquote>
+
+<p>In the new arrangement, we decided to drop class <strong><i>Net</i></strong>
+with all organizations related to it. However, we want to add a
+doubly-linked ring for all <b><i>ActTerms</i></b>, and also keep
+a name for <b><i>ActTerm</i></b>. This is a major change of the architecture.
+Note that the
+attribute <b><i>current</i></b><b> </b>has been removed from type
+<b><i>Instance</i></b>, and a new attribute <b><i>shape </i></b><i>&nbsp;</i>has
+been added to type <b><i>ActTerm</i></b>.</p>
+
+<blockquote>
+    <pre><em>class Instance{
+    ZZ_EXT_Instance
+};
+class ActTerm{
+    ZZ_EXT_ActTerm
+    int x,y;
+    int shape;
+};
+ZZ_HYPER_SINGLE_RING(iRing,Instance);
+ZZ_HYPER_SINGLE_TRIANGLE(byInst,Instance,ActTerm);
+ZZ_HYPER_NAME(iName,Instance);
+ZZ_HYPER_NAME(tName,ActTerm);
+ZZ_HYPER_DOUBLE_RING(aRing,ActTerm);</em></pre>
+</blockquote>
+
+<p>If you use the ASCII mode, DOL will be able to read the old data file
+into the new environment.
+It will generate the proper <em>RING</em> of Instances, the <em>TRIANGLE</em>
+of ActTerms by Instance, and the Instance name. Net related
+organizations will automatically be deleted. The RING <i>aRing</i>
+and the <em>NAME</em> <i>tName</i> will be initialized as unused.
+The value of<i> current</i><b><i> </i></b>will be discarded, <i>x,y</i><b>
+</b>will be re-generated correctly, and <i>shape</i><b> </b>will
+be left uninitialized.<br></p>
+
+<p>When you add members such as int, float, or char (for example
+<em>shape</em> in class <em>ActTerm</em>), the new
+members are not initialized, and are either 0 filled, or
+contain random values.</p>
+
+<p>The order of members can be changed arbitrarily, but the first
+part of the <em>ZZ_FORMAT</em> statement (the actual format) must
+remain the same between the program that saved the data and the program
+which opens it later on.</p>
+
+<p>When eliminating some data members, the action differs depending on whether
+you can anticipate the change already at the time when you save the data:</p>
+<ol>
+    <li>If you know about the change at the time you create the data
+        file (planned format conversion),
+        simply drop the particular members from the <i>ZZ_FORMAT()
+        </i>statement. </li>
+
+     <li>If you don't know about the change beforehand (handling
+         older data without an access to the program which generated the file),
+         give DOL a dummy variable into which it can read
+         the members that are being discarded.</li>
+</ol>
+
+<p><b>Example, not anticipating a change:</b></p>
+
+<blockquote><pre><em>
+class myClass { // the original class
+    int i,k,s;
+    ZZ_EXT_myClass
+    ...
+};
+ZZ_FORMAT(myClass,&quot;%d %d %d,i,k,s&quot;);
+
+// changed class, i is missing
+class myClass {
+    int s,k;
+    ZZ_EXT_myClass
+    ...
+};
+ZZ_FORMAT(myClass,&quot;%d %d %d,k,k,s&quot;);
+// reading the old i value into k, then overwriting it by the true k
+</em></pre></blockquote>
+
+<p><b>Example, not anticipating a change:</b></p>
+
+<blockquote><pre><em>
+class myClass { // the original class
+    int i,k,s;
+    float f;
+    ZZ_EXT_myClass
+    ...
+};
+ZZ_FORMAT(myClass,&quot;%d %d %d %s,i,k,s,f&quot;);
+// changed class, k and s are missing
+union uni {
+    int i;
+    float f;
+};
+class myClass {
+    int k;
+    union uni u; // overhead to keep all garbage
+    ZZ_EXT_myClass
+    ...
+};
+ZZ_FORMAT(myClass,&quot;%d %d %d %s,u.i,k,u.i,u.f&quot;);</em></pre>
+</blockquote>
+
+<p>For another example of this technique, see <i>test40a.c</i><b><i> </i></b>and
+<i>test40b.c</i>. <i>test7e.c</i><b> </b>shows another example of changing classes and their
+relations (schema migration).</p>
+
+<p>Even though the main format used for managing changes is the ASCII format,
+some smaller changes are also automatically absorbed even for the <b>binary format</b>.
+The condition is that the order of attributes before and
+after the <em>ZZ_EXT_</em>.. statement must remain the
+same. You may drop attributes only at the end of either
+section; new attributes must be added at their ends. 
+For example, compare the following class definitions:</p>
+
+<blockquote><pre><em>
+class ActTerm{  // original class
+    ZZ_EXT_ActTerm
+    int x,y;
+    int termID;
+};
+  
+class ActTerm{  // new class
+    int shape;  // OK, new member at the end of the section before ZZ_EXT
+    ZZ_EXT_ActTerm
+    int y,x;    // problem, values of x,y will switch around
+    // int termId; // OK, end of the section removed
+};
+ 
+class ActTerm{  // new class
+    int shape;  // OK, added at the end of the section before ZZ_EXT
+    ZZ_EXT_ActTerm
+    int x,y;    // no problem
+    int termID;
+    int numOfPins; // OK, after the end of the section after ZZ_EXT_...
+public:
+    ActTerm(){shape=rotation=0;}
+    int rotation; // OK, after the end of the section after ZZ_EXT_...
+};
+</blockquote></pre></em>
+
+<p>Note that when using the ASCII format, you control the read/write operation of
+        attributes with the <i>ZZ_FORMAT</i> statement. The <i>ZZ_FORMAT()
+        </i>statement or the custom coded <i>zz_inp_...()</i> and<b>
+        </b><i>zz_out_...()</i><b> </b>refer to attributes by
+        name; their order is irrelevant. When changing the
+        organization, either code <i>zz_inp_.</i><b><i>.</i></b><b>
+        </b>and <i>zz_out_..</i> functions by hand, or use a
+        different <i>ZZ_FORMAT() </i>for each version. DOL
+        takes care of transparent pointers and other registered
+        variables.<br>
+        For example, in the situation above, when reading the old
+        file and creating a new one, you need the following two
+        functions. You are free to choose the order of attributes
+        in<i> zz_out_ActTerm()</i>;<b> </b>the order in<b> </b><i>zz_int_ActTerm()</i><b>
+        </b>must be the same as it was in <i>zz_out_ActTerm()</i><b>
+        </b>for the old data.</p>
+
+<blockquote><pre><em>
+int ActTerm::zz_out_ActTerm(FILE *fp,ActTerm *p){
+    fprintf(fp,&quot;%d %d %d\n&quot;,p-&gt;x,p-&gt;y,p-&gt;shape);
+    return(0);
+}
+int ActTerm::zz_inp_ActTerm(FILE *fp,ActTerm *p){
+    if(!fgets(buff,BSIZE,fp))return(1);
+    sscanf(buff,&quot;%d %d&quot;,&amp;(p-&gt;x),&amp;(p-&gt;y));
+    return(0);
+}
+</em></pre></blockquote>
+
+<p>Note that if the change involves a deletion of arrays or
+properties, dummy (unused objects) may be created when opening
+the old file. However, when saving the new organization, the
+dummy objects will disappear.</p>
+
+<h3><font size="3" face="Arial">Version changes </font></h3>
+
+<p>The last section of this User's Guide, called <strong>Revision history
+</strong> lists new features and improvements since DOL Ver.5.0. 
+It also indicates
+the compatibility of disk files with previous versions.</p>
+
+<p>Only in two cases did the disk format change (Ver.1.65 and
+2.0). No other changes in disk file
+format are planned in the foreseeable future.</p>
+
+<p>DOL utility is most flexible. For example, if you can read
+data created under Ver.1.62 which is in the binary format, 
+and write it to the disk in the ASCII format, using the current DOL
+version. All this is accomplished just by two <i>mode()</i>
+calls:</p>
+
+<blockquote>
+    <p><em>#define ZZascii<br>
+    ZZ_HYPER_UTILITIES(util); <br>
+    util.mode(0,1,162,0); // binary, buffered IO, ver.1.62 <br>
+    util.open(...);<br>
+    ...<br>
+    util.mode(1,1,0,0); // ASCII, IO irrelevant, current version <br>
+    util.save(...);</em></p>
+</blockquote>
+
+<p><i>test21.c</i><b> </b>shows the situation when using the same
+data organization, but transferring between different versions of
+DOL.</p>
+
+
+<h3><font size="3" face="Arial">Hierarchical types</font></h3>
+
+<p>This sections explains in more details the reasons for using
+<em>#define ZZ_INHERIT</em> in the <em>environ.h</em> file.</p>
+
+<p>The algorithm for re-calculation of pointers during the <em>open()</em>
+operation is much simpler, if the pointers are guaranteed to point to the
+beginning of the allocated objects. Since persistent pointers in your objects can be implemented
+only through DOL organizations, you may ask when a pointer would not do that.
+There are two typical situations:</p>
+<ol>
+    <li> pointer to a base class;
+    <li> pointer to a member inside an object;
+<ol>
+
+<p><b>Examples:</b></p>
+
+<blockquote><pre><em>
+    class D {
+        ...
+    };
+
+    class C {
+        ...
+    };
+    class B {
+        ...
+    };
+    class A : public B {
+        int ii;
+        C cc;
+        ...
+    };
+    ZZ_HYPER_SINGLE_LINK(cLink,D,C);
+    ZZ_HYPER_SINGLE_LINK(bLink,D,B);
+
+    D* d=new D;
+    A* a=new A;
+    B* b=a;
+    bLink.add(d,b); // setting pointer to the base class
+
+    C* c= &amp;(a->cc);
+    cLink.add(d,c); // setting pointer to the member object
+</blockquote></pre></em>
+
+<p>If we can prevent these two situations, we can remove <em>ZZ_INHERIT</em>
+from file <em>environ.h</em>, and  even in the binary format <em>open()</em>
+will be noticeably faster. This means: lightweight objects (no inheritance),
+and no member objects. </p>
+        
+<p>For additional information, look at <a href="ch08Synt.htm#8_1_8"> Chap.8.1.8</a><font
+color="#FF0000">. </font> which also explains the use of <i>#define ZZ_INHERIT</i>.</p>
+
+<p>Another example of the code where <em>#define ZZ_INHERIT</em> is definitely required:</p>
+
+<blockquote>
+    <pre><em>class Root {
+    ZZ_EXT_Root
+};
+class Shape {
+    ZZ_EXT_Shape
+public:
+    virtual void anyFunction(); // see below
+};
+class Rectangle : public Shape {
+    ZZ_EXT_Rectangle
+    ...
+};
+ZZ_HYPER_SINGLE_COLLECT(col,Root,Shape);
+ZZ_UTILITIES(util);
+Root *rp; char *v[1],*t[1];
+    ...
+    v[0]=(char *)rp; t[0]=&quot;Root&quot;; // set the key entry
+    util.save(&quot;myFile&quot;,1,v,t); // saves all geometry</em></pre>
+</blockquote>
+
+<p><b>Important:</b> If your class inherits from another class, 
+it is critical that the base class has at least
+one virtual function. If it does not have one, the DOL internal type table is not
+constructed correctly. But why would you have a base class, if there are no
+virtual functions? Here DOL tries to be space efficient. The code generator
+(<em>zzprep</em>)
+analyses class definitions, and never expands them by introducing
+hidden virtual pointers, unless virtual functions are already used.</p>
+
+<p>The same arrangement (requirement of at least one virtual function,
+perhaps a dummy one) applies to the automatic type detection - see <a
+href="ch11o.htm">Chap.11.15</a><font color="#FF0000">.</font></p>
+
+<p>For examples of saving hierarchical types, see <em>test33a.c</em>.</p>
+
+<p><b>Warning:</b> If you save to disk, a class may inherit from a class, but not
+from a struct. For example</p>
+
+<blockquote>
+    <p><em>class A { ... };<br>
+    class B: public A { ... }; // is fine</em></p>
+</blockquote>
+
+<p>but</p>
+
+<blockquote>
+    <p><em>struct A { ... };<br>
+    class B: public A { ... }; // will not work</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Member objects</font></h3>
+
+<p>When storing objects of class B which includes members that
+are instances of another class A, one of the two conditions must
+be satisfied in order to provide automatic persistency. Either
+class A is a DOL registered class:</p>
+
+<blockquote>
+    <pre><em>class A {
+    ZZ_EXT_A // A is a registered class
+    ...
+public:
+    A(){....) // anything in default constructor
+};
+class B {
+    ZZ_EXT_B // B is a registered class
+    A a; // instance of A is a member
+    ...
+};</em></pre>
+</blockquote>
+
+<p>Or the default constructor for class A must do nothing:</p>
+
+<blockquote>
+    <pre><em>class A { // class without ZZ_EXT_..
+    ...
+public:
+    A(){} // or it must not be defined
+};
+class B {
+    ZZ_EXT_B // B is a registered class
+    A a; // instance of A is a member
+    ...
+};</em></pre>
+</blockquote>
+
+
+<h3><font size="3" face="Arial">Making existing programs
+persistent</font></h3>
+
+<p>We often meet programmers who coded large projects without
+DOL - using their own data structures or other class
+libraries which either are not persistent, or are slow or have
+persistence which is difficult to use. Converison to DOL
+persistency can be done without converting all data structures:</p>
+
+<ol>
+    <li>Insert the <em>ZZ_EXT_..</em> statement into all your
+        classes.</li>
+    <li>Replace all member pointers in your classes by either the <em>NAME</em>
+        organization (for pointers to character strings), or by <em>SINGLE_LINK</em>
+        (all other pointers).</li>
+    <li>Control the persistency usind DOL's <em>save()</em> and <em>open()</em>.</li>
+</ol>
+
+<p>DOL also has macro <em>ZZ_PTR(id)</em> which used to simplify
+the conversion of older programs to DOL, especially when using the C language.
+This macro was used to replace all occurences of pointers in the original code.
+The idea is simple, but has not been used for several years. All recent conversions
+were done from scratch, because the programmers wanted to benefit not only from DOL
+persistency, but also from its fast data structures.</p>
+
+<p>Example of converting a legacy code. Here is the original program:</p>
+
+<blockquote>
+    <pre><em>
+class Dept {
+    Dept *next;
+    char *name;
+public:
+    char *nextName(void){return(next-&gt;list);}
+    ...
+};</em></pre>
+</blockquote>
+
+<p>Which can be converted to DOL, and then saved with <i>util.save()</i>
+or <i>ZZ_STORE()</i>. Here is the version saving individual objects:</p>
+
+<blockquote>
+    <pre><em>class Dept {
+    ZZ_EXT_Dept
+public:
+    char *nextName(void){return(ZZ_PTR(next)-&gt;ZZ_PTR(name));}
+    void save(char *fileName){ZZ_STORE(Dept,fileName);}
+    ...
+};
+ZZ_HYPER_SINGLE_LINK(next,Dept,Dept);
+ZZ_HYPER_NAME(name,Dept); </em></pre>
+    <pre><em>
+int main(void){
+    Dept* d=new Dept;
+    ...
+    d-&gt;save(&quot;myFile&quot;);</em></pre>
+</blockquote>
+<br><br>
+
+<h3><font size="3" face="Arial">List of functions and their syntax:</font></h3>
+
+<p>Note: Commands with names entirely in capital letters are formally macros,
+usually hiding one or a few function calls. Remaining commands are methods of
+the UTILITIES class. The definition of this class hides under ZZ_HYPER_UTILITIES().</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_UTILITIES(id); </em></td>
+        <td>declaration of the UTILITIES class, creates also its instance, <em>id</em></td>
+    </tr>
+    <tr>
+        <td><em>void id.close(char *fileName) </em></td>
+        <td>writes out an end-record, and closes the output file
+        (several files may be open simultaneously).</td>
+    </tr>
+    <tr>
+        <td><em>void id.save(char *fileName,int num,char
+        *keyEntries[],char *keyTypes[])</em></td>
+        <td>starts from the given key entries [total of <i>num</i>
+        key entries is given], and saves the entire data set to
+        the file.</td>
+    </tr>
+    <tr>
+        <td><em>void id.deep(char *fileName,void *obj,char *type)</em></td>
+        <td>saves one object with all connected objects, and can
+        be thought of as a simplified case of <i>save()</i>.
+        However, this command is different in how it opens and
+        closes the output file, and should be used in special
+        situations only. </td>
+    </tr>
+    <tr>
+        <td><em>ZZ_STORE(TYPE,char *fileName) </em></td>
+        <td>is a macro which can be encapsulated in a function to
+        save a single object.</td>
+    </tr>
+    <tr>
+        <td><em>ZZ_OBJECT_SAVE(TYPE,char *fileName,char *obj,int
+        num)</em></td>
+        <td>is a more general macro for the same purpose, which
+        allows you to write out arrays of objects or text
+        strings. <i>num</i> is the number of objects (size of the
+        array). If <i>TYPE=char </i>and <i>num=0,</i><b><i> </i></b><i>t</i>he
+        object is treated as a NULL ending string. If <i>TYPE=char</i>
+        and <i>num0</i><b><i>,</i></b> the object is treated as a
+        block of <i>num</i> bytes.</td>
+    </tr>
+    <tr>
+        <td><em>void id.open(char *fileName,int num,char
+        *keyEntries[],char *keyTypes[])</em></td>
+        <td>retrieves the entire data set from the given file,
+        and restores all pointers. The key entries are returned
+        in their original order [total of <i>num</i> key entries
+        is expected]<i>.</i></td>
+    </tr>
+    <tr>
+        <td><em>void id.clear(int num,char *keyEntries[],char
+        *keyTypes[])</em></td>
+        <td>starting from the given key entries [total of <i>num</i><b>
+        </b>key entries is given], this command collects all of
+        the objects in the given organizations, and deallocates
+        them without testing the pointers. This command is
+        disabled (it does nothing) in the binary and ASCII modes
+        when <em>ZZ_INHERIT</em> is
+        defined in the environ.h file (most C++ programs). 
+        You have to traverse the organization and deallocate objects
+        individually instead. This function always works in the
+        memory blasting mode.</td>
+    </tr>
+    <tr>
+        <td><em>void id.mode(int ascii,int diskIO,int version,int
+        fileCntrl)</em></td>
+        <td>resets the format for SAVE/OPEN <br>
+        <i>ascii</i>=0 for binary format, =1 for ASCII format,<br>
+        <em>diskIO</em>=0 for direct diskIO (write/read), =1 for
+        buffered diskIO(fwrite/fread), =2 for user-controlled
+        diskIO. <br>
+        <i>version</i>=version number as an integer, for example
+        164 for version 1.64, or 200 for version 2.0. You can
+        also use version=0 for the current version. <i>fileCntrl</i>=0
+        automatically closes the output file, =1 for outside file
+        opening/closing, =2 does not close the file.</td>
+    </tr>
+    <tr>
+        <td><em>char* id.bind(char *oldPtr)</em></td>
+        <td>converts the old pointer into the new location, after
+        <b><i>open()</i></b><b> </b>has been called. This command
+        is tricky to use, and is not intended for novice users.
+        It allows you to reset connections between data sets
+        stored in different files. </td>
+    </tr>
+    <tr>
+        <td><em>void id.keepTbl(void) </em></td>
+        <td>has to be called prior to<i> open(), </i>if you plan
+        to convert old-to-new pointers in a semi-automatic way.
+        The result is that the internal conversion tables remain
+        in memory after the program returns from <i>open()</i>.
+        The tables stay in memory until you call <i>freeTbl()</i>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.freeTbl(void) </em></td>
+        <td>frees the internal tables used for the conversion of
+        pointers.</td>
+    </tr>
+    <tr>
+        <td><em>void id.blkAlloc(int size,int bits)</em></td>
+        <td>reserves either one big block of memory of <i>size</i><b>
+        </b>bytes (if bits=0), or opens a set of pages that
+        correspond to <i>bits</i><b> </b>(for example <i>bits=8</i>
+        represents pages of 256 bytes). In the second case, size
+        is the overall (very rough) limit on the memory to be
+        used.</td>
+    </tr>
+    <tr>
+        <td><em>void id.blkFree(m)</em></td>
+        <td>for <em>m</em>=0 frees the currently active block of pages,
+         for <em>m</em>=1
+        switches to regular (plain) allocation, for<b> </b><em>m</em>=2
+        returns to block allocation.</td>
+    </tr>
+    <tr>
+        <td><em>void id.blkActive(char *blkName, int aCode)</em></td>
+        <td>For <i>aCode=0</i>, it makes the current block of
+        pages passive, and stores it under the given name (in
+        memory, not on disk). For <i>aCode=1</i>, it restores the
+        given block as active. For<b><i> </i></b><i>aCode=2</i>,
+        it restores the block identified by the address (not by
+        the name). In this case, blkName represents not a
+        character string, but a pointer anywhere into the block
+        to be activated.</td>
+    </tr>
+    <tr>
+        <td><em>char* id.blkUtil(char *blkName,void **hook,int
+        mode)</em></td>
+        <td>searches for a block identified by its name or by the
+        address anywhere inside the block (<i>blkName</i>). Then
+        it sets or retrieves a utility hook to user data:<i><br>
+        mode=0</i> sets hook, <i>blkName</i> represents block
+        name,<br>
+        <i>mode=1</i> sets hook, blkName represents an address,<br>
+        <i>mode=2</i> gets hook, <i>blkName</i> represents block
+        name,<br>
+        <i>mode=3</i> gets hook, <i>blkName</i> represents an
+        address.<br>
+        In all cases, the function returns the name of the
+        identified block, NULL if the block has not been found.</td>
+    </tr>
+    <tr>
+        <td><i>ZZ_FORMAT(myObj,aFormat)</i></td>
+        <td>declares the ASCII format for those attributes of <i>objType</i>,
+        which should be stored/restored from disk automatically.
+        This command is an instruction for the code generator,
+        which generates the functions <i>zz_inp_objType() </i>and<b><i>
+        </i></b><i>zz_out_objType() </i>in the file <i>zzfunc.c</i>.<b><i>
+        </i></b>Note that <i>aFormat</i><b><i> </i></b>is the same as the
+        regular format used for <i>printf()</i> and <i>scanf()</i>,
+        except that the attribute list is also within double
+        quotes. The attributes are listed directly without any
+        pointer (or object) reference, and can be listed in any
+        order. Temporary variables that do not have to be stored
+        may also be omitted; in some situations, this can save a
+        considerable amount of disk space. If there are no
+        attributes to be saved, use an empty string, for example,
+        ZZ_FORMAT(myObj,&quot;&quot;).<p>If you save in ASCII
+        format, there must be a <i>ZZ_FORMAT()</i> statement for
+        every class with <i>ZZ_EXT_...</i> Classes without the <i>ZZ_FORMAT()</i>
+        statement do not get stored!</p>
+        </td>
+    </tr>
+</table>
+
+<p><b>Comments:</b></p>
+
+<ol>
+    <li>If you use the binary and ASCII format for saving to disk, 
+        we recommend  buffered IO  (<i>util.mode()</i>
+        option <i>diskIO</i>=1). It minimizes disk
+        access. Instead of writing
+        individual objects to disk, the objects are written
+        into an internal buffer, which automatically
+        moves to disk when full or when the file is closed.</li>
+    <li><i>aFormat</i> in <i>ZZ_FORMAT()</i> must be an explicitly typed text string,
+        not a run-time generated string.</li>
+    <li>If you use single byte variables to store small integers
+        instead of real characters, use a special format (%a)
+        which writes/reads them as numbers. This format is DOL
+        specific, it is not supported by C/C++ compilers.<br>
+        If you want to use %d, but cast the member as some
+        unusual type, use %a and cast for the member, as
+        in the example below.</li>
+</ol>
+
+
+<blockquote>
+    <blockquote>
+        <p><em>ZZ_FORMAT(myObj,&quot;%a,(short)w&quot;);</em></p>
+    </blockquote>
+</blockquote>
+
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch13MmMb.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 13.2 Memory Management</font></a></td>
+        <td align="right" width="50%"><a href="ch13MmMd.htm"><font
+        face="Arial">Next Section 13.4 Collecting Objects <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

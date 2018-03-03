@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the instance of the organization */
+ str2Type *pp;   /* given pointer to a child object */
+ str2Type *fwd;  /* next object */
+.)l
+Description:
+ For a given pointer to the bottom element of a triangle,
+it returns next object on the bottom ring.
+ For the description of the 'triangle' structure, see also
+ZZ_ADD_SINGLE_TRIANGLE().
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+
+typedef struct Country Country;
+typedef struct Town Town;
+struct Country{
+    ZZ_EXT_Country
+    int population;
+    float sqMiles;
+    char *name;
+};
+struct Town{
+    ZZ_EXT_Town
+    char river; /* yes or no */
+    char color; /* color people hate most */
+    char *contryName;
+    char *townName;
+};
+ZZ_ORG_SINGLE_TRIANGLE(myTriangle,Country,Town);
+
+Country *c;
+Town *t1,*t2;
+
+/* let us assume that towns have been organized into triangles,
+ * all towns under its country name. For a given town 't',
+ * to find the next town in the same country, we do: */
+
+    ZZ_FORWARD(myTriangle,t1,t2);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORWARD_SINGLE_TRIANGLE(id,pp,fwd) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_FORWARD_SINGLE_TRIANGLE(ZZFP(ZZs,id),pp,fwd)
+
+#define ZZZ_FORWARD_SINGLE_TRIANGLE(sibling,pp,fwd) {(fwd)=(pp)->sibling;}

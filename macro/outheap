@@ -1,0 +1,99 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id of the array */
+ int sortFun();         /* function that controls the heap */ 
+ str1Type *obj;  /* object on which the heap is */
+ str2Type *top;  /* allocated structure for the old top */
+ void (*bck)(void *obj,int ind); /* callback function */
+.)l
+Description:
+ Remove from the top element, and re-sort the heap.
+If the heap is empty, the macro does nothing. To detect an empty heap,
+use ZZ_SIZE_ARRAY(); waterM<0 means empty heap.
+ For the description of the callback function, see files orgarray and
+hyparray.
+.sp
+WARNING: top must point to an already allocated structure that will
+store the result.
+.sp
+The heap is sorted with the minimum value at the top. The first element
+in the array is always the top of the heap (arr[0]).
+.sp
+The size of the heap is internally stored with the array and
+automatically updated (waterMark).
+.sp
+The heap is only partially sorted, this operation is
+of order O(log n), where n is number of elements in the heap.
+.sp
+IMPORTANT: The array for the heap must be formed by calling ZZ_FORM_ARRAY()
+before the first use of the heap.
+.sp
+IMPORTANT: Note that the structure for the "top" must be given, not just
+a pointer.
+.sp
+To re-initialize a heap as empty, call ZZ_RESET_ARRAY() with waterMark=-1.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example: 
+Ring of Branches, Employees sorted into a heap for each Branch.
+
+typedef struct Branch Branch;
+typedef struct Employee Employee;
+struct Branch {
+    ZZ_EXT_Branch
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_ARRAY(eHeap,Branch,Employee)
+ZZ_ORG_SINGLE_RING(company,Branch)
+Branch *b;
+Employee e;
+int num,waterM,salarySort();
+ ....
+/* remove the current top of the heap on object b */
+ZZ_SIZE_HEAP(eHeap,num,waterM)
+if(waterM>=0)ZZ_OUT_HEAP(eHeap,salarySort,b,&e,bck)
+/* e is a copy of the old top, now removed */
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+void bck(v,i) void *v; int i;{}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_OUT_HEAP(id,sortFun,obj,top,bck) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_OUT_HEAP(id,ZZFP(ZZa,id),ZZFT(2,id),sortFun,obj,top,bck)
+
+#define ZZZ_OUT_HEAP(id,aPtr,str2Type,sortFun,obj,top,bck) \
+{ str2Type *ZZs; ZZarray *ZZa;\
+  ZZint ZZFUN_downHeap();\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        if(ZZa->waterM>=0){\
+            ZZs=(str2Type *)(ZZa->array);\
+            *(top)=ZZs[0];\
+            if(bck)bck((void*)ZZs,-1);\
+            ZZs[0]=ZZs[ZZa->waterM];\
+            if(bck)bck((void*)ZZs,0);\
+            (ZZa->waterM)--;\
+            ZZdownHeap(ZZa,0,sortFun,bck);\
+        }\
+    }\
+    else ZZerrFLG=04;\
+}

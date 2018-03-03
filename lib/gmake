@@ -1,0 +1,30 @@
+cp env0g.h environ.h
+ ../zzprep pager.h pager.k zzmaster pager.g
+rm *.o;\
+rm glib.a;\
+gcc -c \
+ bind.c\
+ sweap.c\
+ sortring.c\
+ msgs.c\
+ blast.c\
+ pager.c\
+ util.c\
+ property.c\
+ time.c\
+ array.c\
+ ;
+ar cr glib.a\
+ blast.o\
+ pager.o\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+ranlib glib.a;
+echo make glib.a done

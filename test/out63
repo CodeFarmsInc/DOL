@@ -1,0 +1,14 @@
+
+Print content of the library:
+book0 cat0
+book1 cat1
+book2 cat1
+book3 cat0
+before save()
+before open()
+
+Print content of the library:
+book0 cat0
+book1 cat1
+book2 cat1
+book3 cat0

@@ -1,0 +1,120 @@
+/* =========================================================
+.(l
+int mode;
+.)l
+Description:
+ mode=0 free the whole block of memory;
+ mode=1 switch to normal allocation mode, keep the big block;
+ mode=2 switch back to the big block allocation (single block)
+ mode=3 switch back to the big block allocation (multiple blocks)
+.sp
+See also: ZZ_BLOCK_ALLOC() which must be used to start the big block
+memory allocation.
+.sp
+Error conditions:
+ There are no error conditions. If this command is called, and there is
+currently no big memory in use, simply nothing happens.
+.sp
+ If all objects are being allocated from one large block of memory,
+freeing and object by ZZ_PLAIN_FREE(), does nothing. It leaves a dead
+area in the block of memory. In order to actually free the memory,
+the whole block must be discarded at one shot.
+ Note that after using this command, all objects built with Organized C
+and all relations between them become invalid, even though they may
+appear as being available for some time.
+.sp
+Organized C does not need any additional memory or tables that would add
+to the space you need, except for operations of SAVE, SWEAP, and OPEN.
+Command ZZ_BLOCK_FREE() allows you to switch between allocation modes,
+so that the big block can contain only your own data, and the normal 
+free operation applies to the SAVE, SWEAP, and OPEN internal data.
+ WARNING: The program is not protected against mixing up the single/multiple
+big block modes. For example
+ ZZ_BLOCK_ALLOC(8000000,20); /* multiple block invoked */
+   ...
+ ZZ_BLOCK_FREE(1); /* temporarily using normal mode */
+   ...
+ ZZ_BLOCK_FREE(2); /* returning to single(!) user mode will crash
+                      without giving any error messages or codes.
+                      ZZ_BLOCK_FREE(3) would be correct here */
+ 
+.(l
+Example of typical use:
+
+ZZ_BLOCK_ALLOC(3500,0); /* reserves a block of 3500 bytes for OrgC objects */
+  ...
+/* here you create your data */
+ZZ_PLAIN_ALLOC(...);
+ZZ_PLAIN_ALLOC(...);
+  ...
+ZZ_BLOCK_FREE(1);  /* switch to normal allocation mode */
+ZZ_SAVE(...);
+ZZ_BLOCK_FREE(0);   /* free the block of data */
+.)l
+.sp 1
+  ========================================================== */ 
+
+#ifdef ZZ_ANSI
+#ifdef ZZcplus
+
+#ifdef SUN3_0
+#define ZZ_BLOCK_FREE(mode) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ ZZint ZZm; void ZZFUN_blastClear();\
+  ZZm=mode;\
+  if(ZZm==0){\
+      if(ZZmemSwitch==2)ZZblastClear();\
+      else if(ZZmemStart) {\
+	  delete ZZmemStart;\
+	  0; /* This hack is necessary due to a Sun 3.0.1 C++ compiler bug */\
+      }\
+      ZZmemStart=NULL;\
+      ZZmemSwitch=0;\
+  }\
+  else ZZmemSwitch=ZZm-1;\
+}
+#else
+#define ZZ_BLOCK_FREE(mode) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ int ZZm; void ZZFUN_blastClear();\
+  ZZm=mode;\
+  if(ZZm==0){\
+      if(ZZmemSwitch==2)ZZblastClear();\
+      else if(ZZmemStart) delete ZZmemStart;\
+      ZZmemStart=NULL;\
+      ZZmemSwitch=0;\
+  }\
+  else ZZmemSwitch=ZZm-1;\
+}
+#endif
+
+#else
+#define ZZ_BLOCK_FREE(mode) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ int ZZm; void ZZFUN_blastClear();\
+  void free(void *p);\
+  ZZm=mode;\
+  if(ZZm==0){\
+      if(ZZmemSwitch==2)ZZblastClear();\
+      else if(ZZmemStart)free(ZZmemStart);\
+      ZZmemStart=NULL;\
+      ZZmemSwitch=0;\
+  }\
+  else ZZmemSwitch=ZZm-1;\
+}
+#endif
+#else
+#define ZZ_BLOCK_FREE(mode) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ int ZZm; void ZZFUN_blastClear();\
+  void free();\
+  ZZm=mode;\
+  if(ZZm==0){\
+      if(ZZmemSwitch==2)ZZblastClear();\
+      else if(ZZmemStart)free(ZZmemStart);\
+      ZZmemStart=NULL;\
+      ZZmemSwitch=0;\
+  }\
+  else ZZmemSwitch=ZZm-1;\
+}
+#endif

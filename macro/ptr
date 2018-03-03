@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+.)l
+Description:
+ Generic representation of a pointer, which can be used for conversion
+of private data organizations to Organized C, so that the private
+data can be saved on disk.
+ This macro works for SINGLE_LINK and NAME only, and returns the raw
+name of the pointer. There is no type or validity checking. The command
+should be used with extreme caution; it is truly not a part of the
+Organized C system, and is provided only as a special feature for
+the conversion/linkage to private systems.
+.(l
+Example in C:
+
+typedef struct Block Block;
+struct Block {
+    ZZ_EXT_Block
+    int x1,y1,x2,y2;
+};
+struct Pin {
+    ZZ_EXT_Pin  
+    int x,y;
+};
+ZZ_ORG_SINGLE_LINK(pin1,Block,Pin);
+ZZ_ORG_SINGLE_LINK(pin2,Block,Pin);
+ZZ_ORG_NAME(bName,Block);
+
+Block *bp;
+Pin *pp;
+
+bp->ZZ_PTR(pin1)=NULL;
+pp=bp->ZZ_PTR(pin2);
+printf("block name=%s\n",bp->ZZ_PTR(bName));
+.)l
+.(l
+Example in C++:
+
+class Block {
+    ZZ_EXT_Block
+public:
+    int x1,y1,x2,y2;
+    void add1(Pin *p){ZZ_PTR(pin1)=p;};
+    void del2(void){ZZ_PTR(pin2)=NULL;};
+};
+class Pin {
+public:
+    ZZ_EXT_Pin  
+    int x,y;
+};
+ZZ_HYPER_SINGLE_LINK(pin1,Block,Pin);
+ZZ_HYPER_SINGLE_LINK(pin2,Block,Pin);
+ZZ_HYPER_NAME(pName,Pin);
+
+Pin *pp;
+
+printf("block name=%s\n",pp->ZZ_PTR(pName));
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_PTR(id) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_PTR,id)(id)

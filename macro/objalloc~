@@ -1,0 +1,56 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* structure to allocate */
+ strType *ptr; /* returned pointer, NULL if allocation problems */
+.)l
+Description:
+ Picks up a single object from the pool of free objects.
+If the pool is empty, a new block is allocated. The returned object is
+disconnected from allorganizations (ZZ_INITIAL() does not have to be called).
+.sp
+This macro is typically used in C, not in C++. The C++ equivalent is
+ZZ_OBJECT_NEW(). ZZ_OBJECT_ALLOC() can be use even in C++, but only
+on objects that do not use virtual functions, because the macro does
+not initialize virtual function pointers.
+.sp
+In case of allocation problem, error message appears and the error
+flag is set (see ZZ_ERROR).
+.sp
+The object
+must be declared as
+.i "Organized C"
+object, i.e. it must have ZZ_EXT.. line.
+If used on other objects, the command converts to plain allocation.
+.sp
+Note that this macro works only for single objects. For allocation of
+arrays of objects, use ZZ_PLAIN_ALLOC().
+.sp
+See also: ZZ_OBJECT_FREE() which moves an object into the pool, and
+ZZ_OBJECT_CLEAR() which frees the whole pool.
+.sp
+.(l
+Examples:
+
+typedef struct Insect Insect;
+struct Insect{
+    ZZ_EXT_Insect
+    short numLegs;
+    char color;
+    char category;
+};
+
+Insect *p1,*p2;
+
+   ....
+/* allocate 2 objects of type Insect */
+ZZ_OBJECT_ALLOC(Insect,p1)
+ZZ_OBJECT_ALLOC(Insect,p2)
+
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_OBJECT_ALLOC(strType,ptr) \
+{char *ZZFUN_allo();\
+    (ptr)= (strType *)ZZallo(ZZstrList,(char **)ZZselfArr,ZZFP(ZZJ,strType),\
+        ZZ_STRINGIT(strType),ZZFP(ZZI,strType),0,(int)sizeof(strType),2);\
+}

@@ -1,0 +1,121 @@
+--------------------------------------------------------------------
+ZZ_ORG_SINGLE_RING(id,type)           ZZ_HYPER_SINGLE_RING(id,type)
+--------------------------------------------------------------------
+type *entry,*p;
+int cmpF(char *p1,char *p2);
+
+ZZ_FORWARD(id,p,next);                next=id.fwd(p);
+ZZ_ADD(id,entry,p);                   entry=id.add(entry,p);
+ZZ_DELETE(id,entry,p);                entry=id.del(entry,p);
+ZZ_MERGE(id,s,t,NULL);                s=id.merge(s,t);
+ZZ_SORT(id,cmpFun,entry);             entry=id.sort(cmpFun,entry);
+
+ZZ_A_TRAVERSE(id,entry,p){            id_iterator it(entry);
+  ...                                 while(p=it++){
+}ZZ_A_END;                              ...
+                                      };
+
+--------------------------------------------------------------------
+ZZ_ORG_DOUBLE_RING(id,type)           ZZ_HYPER_DOUBLE_RING(id,type)
+--------------------------------------------------------------------
+type *entry,*p,*next;
+int cmpF(char *p1,char *p2);
+
+ZZ_FORWARD(id,p,next);                next=id.fwd(p);
+ZZ_BACKWARD(id,p,next);               next=id.bwd(p);
+ZZ_ADD(id,entry,p);                   entry=id.add(entry,p);
+ZZ_INSERT(id,entry,p);                entry=id.ins(entry,p);
+ZZ_DELETE(id,entry,p);                entry=id.del(entry,p);
+ZZ_MERGE(id,s,t,NULL);                s=id.merge(s,t);
+ZZ_SORT(id,cmpFun,entry);             entry=id.sort(cmpFun,entry);
+
+ZZ_A_TRAVERSE(id,entry,p){            id_iterator it(entry);
+  ...                                 while(p=it++){
+}ZZ_A_END;                              ...
+                                      };
+
+ZZ_A_REVERSE(id,entry,p){             id_iterator it(entry);
+  ...                                 while(p=it--){
+}ZZ_A_END;                              ...
+                                      };
+
+--------------------------------------------------------------------
+ZZ_ORG_SINGLE_TRIANGLE(id,parT,chiT)  ZZ_HYPER_SINGLE_TRIANGLE(id,parT,chiT)
+--------------------------------------------------------------------
+parT *p;
+chiT *c,*s;
+
+ZZ_PARENT(id,c,p);                     p=id.par(c);
+ZZ_CHILD(id,c,p);                      p=id.child(c);
+ZZ_FORWARD(id,c,s);                    s=id.fwd(c);
+ZZ_SET(id,p,c);                        id.set(p,c);
+ZZ_ADD(id,p,c);                        id.add(p,c);
+ZZ_DELETE(id,p,c);                     id.del(p,c);
+ZZ_MERGE(id,c,s,p);                    id.merge(c,s,p);
+ZZ_SORT(id,cmpFun,p);                  id.sort(cmpFun,p);
+
+ZZ_A_TRAVERSE(id,p,c){                 id_iterator it(p);
+  ...                                  while(c=it++){
+}ZZ_A_END;                               ...
+                                       };
+
+--------------------------------------------------------------------
+ZZ_ORG_SINGLE_COLLECT(id,parT,chiT)    ZZ_HYPER_SINGLE_COLLECT(id,parT,chiT)
+--------------------------------------------------------------------
+parT *p;
+chiT *c,*s;
+
+ZZ_CHILD(id,c,p);                      p=id.child(c);
+ZZ_FORWARD(id,c,s);                    s=id.fwd(c);
+ZZ_SET(id,p,c);                        id.set(p,c);
+ZZ_ADD(id,p,c);                        id.add(p,c);
+ZZ_DELETE(id,p,c);                     id.del(p,c);
+ZZ_MERGE(id,c,s,p);                    id.merge(c,s,p);
+ZZ_SORT(id,cmpFun,p);                  id.sort(cmpFun,p);
+
+ZZ_A_TRAVERSE(id,p,c){                 id_iterator it(p);
+  ...                                  while(c=it++){
+}ZZ_A_END;                               ...
+                                       };
+
+--------------------------------------------------------------------
+ZZ_ORG_NAME(id,type)                   ZZ_HYPER_NAME(id,type)
+--------------------------------------------------------------------
+type *p;
+char *n;
+
+ZZ_FORWARD(id,p,n);                    n=id.fwd(p);
+ZZ_ADD(id,p,n);                        id.add(p,n);
+ZZ_DELETE(id,p,n);                     n=id.del(p);
+
+--------------------------------------------------------------------
+ZZ_ORG_SINGLE_LINK(id,sourT,targT)     ZZ_HYPER_SINGLE_LINK(id,sourT,targT)
+--------------------------------------------------------------------
+sourT *s;
+targT *t;
+
+ZZ_FORWARD(id,s,t);                    t=id.fwd(p);
+ZZ_ADD(id,s,t);                        id.add(p,t);
+ZZ_DELETE(id,s,t);                     t=id.del(p);
+
+--------------------------------------------------------------------
+ZZ_ORG_DOUBLE_LINK(id,sourT,targT)     ZZ_HYPER_DOUBLE_LINK(id,sourT,targT)
+--------------------------------------------------------------------
+sourT *s;
+targT *t;
+
+ZZ_FORWARD(id,s,t);                    t=id.fwd(p);
+ZZ_BACKWARD(id,t,s);                   s=id.bwd(t);
+ZZ_ADD(id,s,t);                        id.add(p,t);
+ZZ_DELETE(id,s,t);                     t=id.del(p);
+
+
+--------------------------------------------------------------------
+ZZ_ORG_GENERAL_LINK(id,sourT)          ZZ_HYPER_GENERAL_LINK(id,sourT)
+--------------------------------------------------------------------
+sourT *s;
+char *t;
+
+ZZ_FORWARD(id,s,t);                    t=id.fwd(p);
+ZZ_ADD(id,s,t);                        id.add(p,t);
+ZZ_DELETE(id,s,t);                     t=id.del(p);

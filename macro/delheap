@@ -1,0 +1,96 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id of the array */
+ int sortFun();        /* function that controls the heap */ 
+ str1Type *obj; /* object on which the heap is */
+ int ind;              /* index of the element to be deleted */
+ void (*bck)(void *obj,int ind); /* callback function */
+.)l
+Description:
+ Delete one element from the heap.
+.sp
+No index checking is done, to detect an empty heap,
+use ZZ_SIZE_ARRAY(); waterM<0 means empty.
+ For the description of the callback function, see files orgarray and
+hyparray.
+.sp
+The size of the heap decreases by 1;
+.sp
+Since the heap is only partially sorted, this operation is
+of order O(log n), where n is number of elements in the heap.
+.sp
+Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+If sortFun(p1,p2)<0 then p1 will be before p2;
+if sortFun(p1,p2)>0 then p2 will be before p1;
+if sortFun(p1,p2)==0 then the mutual position of p1,p2 is irrelevant.
+.(l
+Example: 
+Ring of Branches, Employees sorted into a heap for each Branch.
+
+typedef struct Branch Branch;
+typedef struct Employee Employee;
+struct Branch {
+    ZZ_EXT_Branch
+};
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_ARRAY(eHeap,Branch,Employee)
+ZZ_ORG_SINGLE_RING(company,Branch)
+Branch *b;
+Employee e;
+int num,waterM,salarySort();
+ ....
+ZZ_DELETE_HEAP(eHeap,salarySort,b,i,bck)
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+void bck(v,i) void *v; int i;{}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_HEAP(id,sortFun,obj,ind,bck) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_HEAP(id,ZZFP(ZZa,id),ZZFT(2,id),sortFun,obj,ind,bck) 
+
+#ifdef ZZnoCheck
+#define ZZZ_DELETE_HEAP(id,aPtr,str2Type,sortFun,obj,ind,bck) \
+{ ZZarray *ZZa; str2Type *ZZs; int ZZw;\
+    ZZw=ind;\
+    ZZa=(obj)->aPtr;\
+    ZZs=(str2Type *)(ZZa->array);\
+    if(bck)(*bck)((void*)(&(ZZs[ZZw])),-1);\
+    ZZs[ZZw]=ZZs[ZZa->waterM];\
+    if(bck)(*bck)((void*)(&(ZZs[ZZw])),ZZw);\
+    (ZZa->waterM)--;\
+    if(ZZw<=ZZa->waterM){ZZ_UPDATE_HEAP(id,sortFun,obj,ZZw,bck);}\
+}
+#else
+#define ZZZ_DELETE_HEAP(id,aPtr,str2Type,sortFun,obj,ind,bck) \
+{ ZZarray *ZZa; str2Type *ZZs; ZZint ZZw;\
+    ZZw=ind;\
+    ZZa=(obj)->aPtr;\
+    ZZs=(str2Type *)(ZZa->array);\
+    if(ZZa){\
+        if(bck)bck((void*)(&(ZZs[ZZw])),-1);\
+        ZZs[ZZw]=ZZs[ZZa->waterM];\
+        if(bck)bck((void*)(&(ZZs[ZZw])),ZZw);\
+        (ZZa->waterM)--;\
+        if(ZZw<=ZZa->waterM){ZZ_UPDATE_HEAP(id,sortFun,obj,ZZw,bck);}\
+    }\
+    else {\
+       ZZerrFLG=04;\
+       ZZmsgS(25,ZZ_STRINGIT(id));\
+    }\
+}
+#endif

@@ -1,0 +1,11 @@
+OBJECT employee
+int salary 450
+string name Miguel Cordero
+OBJECT employee
+int salary 550
+string address 14 Vista Dr., Santiago
+OBJECT department
+string name Computer Science
+OBJECT employee
+string name Jiri Vrba
+string address Zitna 2, Praha

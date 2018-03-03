@@ -1,0 +1,29 @@
+cp env0h.h environ.h
+../zzprep pager.h pager.k zzmaster pager.g
+rm -f *.o;\
+rm -f zzlib.a;\
+cc -w -Aa -D_HPUX_SOURCE -c \
+ blast.c\
+ bind.c\
+ pager.c\
+ msgs.c\
+ util.c\
+ sweap.c\
+ property.c\
+ sortring.c\
+ time.c\
+ array.c\
+ ;
+ar cr zzlib.a\
+ blast.o\
+ pager.o\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+echo make zzlib.a done

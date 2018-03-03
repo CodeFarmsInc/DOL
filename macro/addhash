@@ -1,0 +1,121 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the hash table */
+ str1Type *obj1; /* object on which the hash table lives */
+ str2Type *obj2; /* object to add to the table */
+.)l
+Description:
+ The new object is added to the table. If the object already
+is in the table, nothing is changed. The program avoids duplications.
+.sp
+This always works, there is no possible error condition. 
+No allocation is needed to add an object to the table.
+.sp
+Generic ZZ_ADD() can be used.
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee *ep1,*ep2;
+
+ ZZ_FORM_HASH(byName,&h,200)
+  ....
+ ZZ_ADD_HASH(byName,&h,ep1)
+ ZZ_ADD(byName,&h,ep2)
+.)l
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZ_ADD_HASH(id,obj1,obj2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2)
+
+#define ZZZ_ADD_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2) \
+{ int ZZi,indF(),cmpF(); char **ZZs; type2 *ZZp,*ZZt;\
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)obj2,(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+        if(!cmpF((char *)ZZt,(char *)obj2))break;\
+        if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));}\
+}
+#endif
+
+#ifdef ZZ_ANSI
+#ifndef ZZcplus
+#define ZZ_ADD_HASH(id,obj1,obj2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2)
+
+#define ZZZ_ADD_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2) \
+{ int ZZi,indF(char *p,int s),cmpF(char *p1,char *p2);\
+  char **ZZs; type2 *ZZp,*ZZt;\
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)(obj2),(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+        if(!cmpF((char *)ZZt,(char *)(obj2)))break;\
+        if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));}\
+}
+#endif
+#endif
+
+#ifdef ZZcplus
+#define ZZ_ADD_HASH(id,obj1,obj2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashInd_,id),ZZFP(zz_hashCmp_,id),obj1,obj2)
+
+#define ZZZ_ADD_HASH(id,type2,fwp,aPtr,indF,cmpF,obj1,obj2) \
+{ ZZint ZZi;\
+  char **ZZs; type2 *ZZp,*ZZt;\
+  if(!obj1 || !(obj1->aPtr)){ZZerror=ZZerror|010;\
+                              ZZmsgS(27,ZZ_STRINGIT(id));}\
+  else if((obj2) && !((obj2)->fwp)){\
+    ZZi=indF((char *)(obj2),(obj1)->aPtr->num);\
+    ZZs=(char**)((obj1)->aPtr->array);\
+    ZZp=(type2 *)(ZZs[ZZi]);\
+    if(ZZp){\
+      for(ZZt=ZZp;ZZt;ZZt=ZZt->fwp){\
+        if(!cmpF((char *)ZZt,(char *)(obj2)))break;\
+        if(ZZt->fwp==ZZp){ZZt=NULL; break;}\
+      }\
+      if(!ZZt){(obj2)->fwp=ZZp->fwp; ZZp->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+    }\
+    else {ZZs[ZZi]=(char*)(obj2); (obj2)->fwp=(obj2); ((obj1)->aPtr->incr)++;}\
+  }\
+  else {ZZerror=ZZerror|010; ZZmsgSS(30,(char *)obj2,ZZ_STRINGIT(id));}\
+}
+#endif

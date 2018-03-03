@@ -1,0 +1,101 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ str1Type *par;   /* parent of this collection */
+ str2Type *pp;    /* element to add to the collection */
+.)l
+Description:
+ This macro adds a new child to the collection under the given parent
+.i "par."
+If the collection does not exist yet, the macro sets the new element
+as the first and only child.
+.sp
+ Collection is like one level of hierarchy, one parent and number
+of children linked into a ring. It is similar to a TRIANGLE, except
+that the parent pointer is not intranally stored on each child.
+ The reason for having this organization in addition to the more
+general tree is a memory saving,
+and also the fact that, in a tree, all elements are supposed to have the
+same type; in the collection (just like in a triangle, the parent has a
+different type from the children.
+ The saving in pointers, which are invisible to users, is 1/2 of the memory
+needed for a tree. Each parent has only one pointer, and each child has
+only one pointer.
+.sp
+ Note that if you allocate an object with any of the ZZ-commands,
+all internal pointers are automatically initialized as NULL,
+which has the same effect as if, for example, the parent has no children.
+If the parent has been allocated in some other way, its content can be
+set to NULL by calling ZZ_INITIAL().
+.(l
+Example:
+Organize a group of employees with salary under 15000
+
+typedef struct Employee Employee;
+typedef struct SalaryGroup SalaryGroup;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+struct SalaryGroup{
+    ZZ_EXT_SalaryGroup
+    int low,high;   
+};
+ZZ_ORG_SINGLE_COLLECT(under,SalaryGroup,Employee);
+
+Employee *list,*pp,arr[20];
+SalaryGroup group[5];
+int i;
+
+ZZ_INITIAL(SalaryGroup,0,5,group);
+ZZ_INITIAL(Employee,0,20,arr);
+group[0].low=0;
+group[0].high=15000;
+  ....
+
+for(i=0,pp=arr;i<20;i++,pp++){
+    if(Employee[i].salary<15000){
+	ZZ_ADD(under,&(group[0]),pp);
+    }
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_SINGLE_COLLECT(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_ADD_SINGLE_COLLECT\
+(id,ZZFP(ZZs,id),ZZFP(ZZc,id),par,pp)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_SINGLE_COLLECT(id,sibling,child,par,pp) \
+{\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+        }\
+}
+#else
+#define ZZZ_ADD_SINGLE_COLLECT(id,sibling,child,par,pp) \
+{\
+    if((pp)->sibling!=NULL){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        if((par)->child==NULL){\
+            (par)->child=(pp);\
+            (pp)->sibling=(pp);\
+        }\
+	else {\
+            (pp)->sibling=((par)->child)->sibling;\
+            ((par)->child)->sibling=(pp);\
+        }\
+    }\
+}
+#endif

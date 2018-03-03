@@ -1,0 +1,52 @@
+/* =========================================================
+.(l
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Explicit definition of the organization of property.
+.pp
+ZZ-macros allow you to add any number of
+.i "properties"
+to any structure. A
+.i "property"
+can be an int, float, char, or string, or an array of any of these.
+A property is identified by name.
+.pp
+This is a very efficient mechanism for storing arbitrary
+attributes of objects with the minimum overhead. Only a single
+pointer is allocated to the structure, only a single character for
+single properties, and minimum memory for arrays.
+.(l
+ structure
+    property  ->  (name + internal 1 byte identifier)
+		  union {
+		      value
+		      array  ->   array header {
+		  }                   array size
+		  next...             array pointer
+			.
+			V
+Example:
+  typedef struct Apple Apple;
+  struct Apple {
+      ZZ_EXT_Apple
+      char color;
+      char type;
+      short size;
+  };
+  ZZ_ORG_PROPERTY(Apple)
+
+  If we decide to add properties to the basic structure,
+  there may be thousands of Apples that have no additional
+  property, and the only overhead is the presence of a single
+  pointer inside ZZ_EXT_Apple.
+
+  At the same time for selected Apples, we can add arbitrary
+  attributes such as:
+    Apple=A  name="weight" value=3.25
+    Apple=A  name="nursery" value="McDouglas"
+    Apple=B  name="year" value=1988
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_PROPERTY(strType) /* ZZ_ORG_PROPERTY */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

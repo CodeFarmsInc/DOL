@@ -1,0 +1,9 @@
+    i=0;
+    bit.start(this);
+    ITERATE(bit,bk){
+        at=toAuthor.fwd(bk);
+	// limit number of prints, but go through all books 
+	if(i<6) printf("%s: %s\n",authName.fwd(at),bookName.fwd(bk));
+	i++;
+    }
+    printf("total of %d books\n",i);

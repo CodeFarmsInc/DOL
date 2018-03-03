@@ -1,0 +1,94 @@
+/* =========================================================
+.(l
+ TEXT strType;       /* structure to handle */
+ int mode;           /* 0=zero ZZ_EXT_ pointers only, 1=whole structure */
+ int num;            /* number of structures to initialize */
+ strType *pp; /* beginning of the block to be initialized,
+		      * can be any pointer, not only strType* */
+.)l
+Description:
+ Depending on the
+.i "mode"
+parameter, it zeros the whole structure or all its ZZ_EXT_ pointers.
+It can be used for a single structure or for an array of structures.
+Time stamp is set to the current date and time.
+SelfID is automatically set.
+.pp
+For initialization in C++ constructors, look at macro ZZ_INIT().
+.pp
+ZZ_PLAIN_ALLOC() and ZZ_OBJECT_ALLOC() are eqivalents of the
+.i "creator"
+function used in object oriented languages like C++ or Eifel. 
+.i "Organized C"
+is more flexible in that it also allows to use your own allocation
+schemes, but in such case you must initialize new objects by
+calling ZZ_INITIAL(). Automatically allocated objects must also be
+initialized, see the example below.
+.sp
+WARNING:
+ ZZ_INITIAL() must be called just before bringing a new object into use,
+never on objects that are a part of some organization already. For automatic
+variables, make it a rule to call ZZ_INITIAL() at the beginning of each
+function only.
+.(l
+Example:
+
+typedef struct Car Car;
+struct Car {
+    ZZ_EXT_Car
+    char *make;
+    int numWheels;
+    float gasRate;
+};
+
+int myFunction(a,b)
+Car *a;
+int b;
+{
+    int m,n,q;
+    char *p,s;
+    Car oneCar,carList[50];
+
+    ZZ_INITIAL(Car,0,1,&oneCar)
+    ZZ_INITIAL(Car,0,50,carList)
+
+    /* here starts the body of your function */
+    ......
+}
+.)l
+.(l
+BAD EXAMPLE:
+
+int myFunction(a,b)
+Car *a;
+int b;
+{
+    int m,n,q;
+    char *p,s;
+    Car oneCar,carList[50];
+
+    /* here starts the body of your function */
+    ......
+
+    /* somewhere in the middle you have */
+    ZZ_INITIAL(Car,0,1,&oneCar)
+    ZZ_INITIAL(Car,0,50,carList)
+    ......
+}
+.)l
+Note that this macro can be used BOTH for the structures that have
+ZZ_EXT... as for those that don't have it.
+If the structure does not have ZZ-EXT, mode=0 will reset no pointers.
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_INITIAL(strType,mode,num,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{void ZZFUN_ini(); strType *ZZp; ZZint ZZi;\
+    ZZi=ZZFP(ZZI,strType); \
+    if(ZZstrList[ZZi].size==0)ZZFN(ZZS,strType); \
+    ZZp=(pp);\
+    if(mode || ZZstrList[ZZi].numPtr>0) \
+        ZZini((char*)ZZp,ZZstrList,ZZselfArr,ZZFP(ZZJ,strType),mode,\
+             ZZi,num,(int)sizeof(strType));\
+}

@@ -1,0 +1,101 @@
+/* =========================================================
+.(l
+ TEXT type;    /* class on which to use selfID */
+.)l
+Description:
+ Hyper-object declaration for the organization of selfID.
+This feature has always global scope.
+.pp
+Limitations:
+ In large multi-programmer projects, ZZ_ORG_SELF_ID() may be called
+only from the top (project global) level. This is a centrally controlled
+function, individual programmers cannot add selfID in their subprojects.
+ Also, selfID can be used only on objects that have ZZ_EXT_... statement
+right at the beginning of the class and do not inherit other classes.
+If this condition is not met, you may get false readings
+(unidentified objects), or error messages when saving on disk.
+.pp
+It is a good practice to work with strongly typed objects.
+However, in some situations programmers prefer to cast and re-use the same
+pointer for several different purposes. In such case, it is useful
+to be able to identify the type of object.
+.pp
+The identification requires one pointer field (4 bytes in UNIX) per object,
+and you should consider whether using selfID really represents a memory
+saving in your particular situation; it definitely makes code less structured.
+.pp
+In C, selfID can be set globally on all objects, using ZZ_ALL_SELF_ID.
+In C++, this does not work, and ZZ_HYPER_SELF_ID() has to be declared
+individually.
+.pp
+Note that the ID is internally programmed so that if your pointer
+leads to a (random) object which does not have a selfID field,
+ZZ_GET_SELF_ID() macro detects the situation with extremely high probablility
+(almost always, though a mistake is theoretically possible).
+.pp
+It is not a mistake that ZZ_GET_SELF_ID() is listed under general UTILITIES
+and not under the SELF_ID hyper-class. The reason is that ZZ_GET_SELF_ID()
+operates generally on any object, and is therefore type independent.
+.pp
+ZZ_INITIAL() which must be called in the constructor of each class initializes,
+besides other things, also the selfID field. No additional setting is necessary.
+Except for special situations, avoid using ZZ_SET_SELF_ID(). Setting
+an incorrect ID on an object can lead to grave problems.
+.(l
+Example:
+
+class Apple {
+    ZZ_EXT_Apple
+public:
+    char color;
+    int numSeeds;
+    Apple(){ZZ_INITIAL(Apple,0,1,this);};
+    ~Apple(){ZZ_CHECK_FREE(Apple,1,this);};
+};
+
+class Melon {
+    ZZ_EXT_Melon
+public:
+    int zone;
+    float pitSize;
+    Melon(){ZZ_INITIAL(Melon,0,1,this);};
+    ~Melon(){ZZ_CHECK_FREE(Melon,1,this);};
+};
+
+class Plum {
+    float weight;
+    float cost;
+};
+
+ZZ_ORG_SELF_ID(Apple)
+ZZ_ORG_SELF_ID(Melon)
+
+char *n1,*n2;
+int i;
+Apple ap[6];
+Plum *p;
+Mellon *m;
+
+p=new Plum;
+n1=p->getSelf(); /* returns NULL */ 
+n2=i->getSelf(); /* returns NULL */ 
+
+ap->setSelf("Apple",6); 
+n2=&(ap[4])->getSelf(); /* returns "Apple" */
+
+m=new Melon;
+n2=m->getSelf(); /* returns "Melon" */
+.)l
+.sp 1
+  ========================================================== */ 
+#ifdef VMS
+#define ZZ_HYPER_SELF_ID(type) unsigned char ZZSELF##type 
+#else
+#define ZZ_HYPER_SELF_ID(type) /* ZZ_HYPER_SELF_ID */
+#endif
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+#define ZZEXTSELF_ID(type) \
+    void setSelf(char *tp,ZZint n);
+
+/* _______________________________________________________________________ */
+void $ :: setSelf(char *tp,ZZint n){ZZ_SET_SELF_ID(tp,this,n);}

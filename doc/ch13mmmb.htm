@@ -1,0 +1,536 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 13.2 Memory Management</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="13_2"></a><font size="4" face="Arial">13.2 MEMORY
+MANAGEMENT (ALLOCATION/ FREE)</font></h2>
+
+<p>In addition to static checking through strict typing, DOL
+provides run-time protection against pointer errors that surpasses both STL
+and existing Java libraries.
+The integrity of
+of your data structure is guaranteed, and the <em>ZZ_CHECK()</em>
+statement in your destructor detects any attempt to destroy an object
+which is still connected with other objects. The idea is simple:</p>
+
+<p> The pointers that form data structure 
+hide under the  <em>ZZ_EXT_</em>statements and, automatically and trasparently, they are initialized to NULL when you allocate a new object.  An object
+can join a new organization or be de-allocated only when it has been disconnected
+from all the relations in which it participates or, in other words, when
+all its pointers are NULL. </p>
+
+<p>In DOL, all linked lists are rings, not NULL-ending lists. That allows a simple
+check whether an object is connected (its pointers are not NULL) or disconnected (its pointers are NULL).
+This provides a complete error protection for doubly linked data structures,
+or data structures based on a linked list (here implemented as ring).
+<p
+>The exception are a few data organization where the target object does not know
+the source, such as
+<em>SINGLE_LINK</em> or <em>GENERAL_LINK</em>.
+If you want your software to be fully protected, always used doubly
+linked data structures. The small increase in the size of the objects is worth it.
+</p>
+
+<p>DOL is not protected against first allocating an array of
+objects and then attempting to free each object separately - which
+is a coding style which should be avoided anyway. The purpose of an array is to
+provide accees to individual objects through an index, not through a pointer.</p>
+
+<p>The <em>util.clear() </em>function which automatically destroyes your
+entire data organization also works only if all objects were allocated
+individually. Unless you use the <em>ARRAY</em> organization, a raw array
+of objects is saved as individual objects, one for each element of the array. 
+After opening such data, pointer linked data structures using these objects
+are correct, but you cannot index the elements of the array.</p>
+
+<p> Also note that automatically allocated objects are restored as heap-allocated.
+For more on these functions, see
+<a href="ch13MmMc.htm">Chap.13.3<font color="#FF0000">.</font></a></p>
+
+<h3><font size="3" face="Arial">Important:</font></h3>
+
+<p> When you allocate an object or an array of objects from the heap 
+(using operator <em>new</em>), DOL initializes all data organizations as empty,
+with all the internal data structure pointers set to NULL. 
+For example:</p>
+
+<blockquote><pre><em>
+class Town {
+    ZZ_EXT_Town
+    ...
+};
+
+void foo(...){
+    Town *myTown;      // pointer, not object
+    myTown = new Town; // internal pointers automatically initialized
+</blockquote></pre></em>
+
+This automatic initialization is not provided for automatically allocated
+objects, is for example:</p>
+
+<blockquote><pre><em>
+class Town {
+    ZZ_EXT_Town
+    ...
+};
+
+void foo(...){
+    Town myTown; // object, internal pointers not initialized
+</blockquote></pre></em>
+
+<p>When using DOL, you can use one of the following two strategies.
+(a) Not to worry about this issue and, consistently, allocate all objects
+from the heap. (b) Insert <em>ZZ_INIT</em> either into constructors
+of all your classes that have ZZ_EXT_... (prefered strategy), or at least into
+those classes that have automatically allocated objects:</p>
+
+<blockquote><pre><em>
+class Town {
+    ZZ_EXT_Town
+    ...
+public:
+    Town(){ZZ_INIT(Town); ... your code ...}
+    Town(int i){ZZ_INIT(Town); ... }
+    ...
+};
+
+void foo(...){
+    Town myTown; // object initialized as disconnected
+</blockquote></pre></em>
+
+<p>Since DOL implements all data structures as pointer-linked rings, it allows 
+powerful and yet inexpensive integrity checking. For example, any time you <em>add()</em>
+an object to any data structure, DOL checks that all its internal pointer(s) are NULL. 
+It is impossible to mess up the data structure or create
+stray pointers, and it all happens transparently. </p>
+
+<p> One of the typical ways to crash any program is to destroy an object without
+disconnecting it from a linked list or other data structure.
+All data structures in DOL provide <em>del()</em> function which disconnects
+a given object. But what if we forget to call <em>del()</em> before destroying
+the object?</p>
+
+<p>If you insert <em>ZZ_CHECK(objType) </em> into the destructor(s) of a class
+which has the<em> ZZ_EXT</em> statement, any time you try to destroy an object
+of that class, regardless whether it was allocated automatically or from the heap,
+all its internal pointers are
+checked for being NULL. If any pointer is not NULL, it means the object was not
+properly disconnected, and a detailed warning
+message is issued which tells you which data structure caused the problem.
+Unfortunately, the C++
+language does not allow to interrupt the destruction process once it started,
+so after printing the message your program will likely crash or mulfunction.
+This will not be a blind crash though.
+You will know exactly where the problem is, and will be able to correct it
+without any debugging.</p>
+
+<blockquote><pre><em>
+class Town {
+    ZZ_EXT_Town
+    ...
+public:
+    Town(){ZZ_INIT(Town); ... your code ...}
+    ~Town(){ ... your code ...; ZZ_CHECK(Town);}
+    ...
+};
+
+void foo(...){
+    Town myTown, *townPtr; 
+    ...
+    delete townPtr; // checks whether this is safe
+}   // on return from foo(), myTown is checked before destruction
+</blockquote></pre></em>
+
+<p>For examples of the use of <em>ZZ_INIT()</em>, see<em>
+test4d.c, test27a.c, test29d,</em> and <em>test31.c. </em>In <em>test4d.c</em>,
+the use of <em>ZZ_INIT() </em>is essential, at least for class <em>Apple</em>.
+In <em>test29d.c</em>, the macro is there
+for historical reasons, but could be removed without any effect
+on the operation of the program. For examples of <em>ZZ_CHECK()</em>,
+see<em> test4d.c, test0n.c </em>and <em>test31.c. </em>
+Note that <em>ZZ_CHECK_FREE(Pin,1,this)</em> is an older equivalent of
+<em>ZZ_CHECK(Pin)</em>. For
+another example, see the <a href="ch06what.htm#6_Important">end
+of Chap.6</a>.</p>
+
+<p>For objects that do not have any hidden pointers (their classes
+are not used in any of the <em>ZZ_HYPER_</em>.. statements), neither <em>ZZ_INIT()
+</em> nor <em> ZZ_CHECK() </em> should be used.</p>
+
+
+<h3><font size="3" face="Arial">Using the internal free lists:</font></h3>
+
+<p>Some programs have to deal with a large number of objects that
+are frequently allocated and freed. The standard allocation
+available on most systems may lead to memory fragmentation,
+causing performance deterioration, and possibly program failure
+due to insufficient memory. In particular, this is very important
+for memory blasting 
+(see <a href="ch13MmMc.htm">Chap.13.3<font color="#FF0000">.</font></a>),
+which does not automatically reuse the space from discarded objects.
+Operator <em>delete</em> there is overloaded to do nothing, and if we don't do anything
+else, each destructed object would leave an unused hole in the memory space.
+Since memory blasting saves the entire memory image to disk, this would also 
+dramatically increase the size of the disk file.</p>
+
+<p>In such situations, the best strategy is to keep a list of
+free objects, and reuse them instead of allocating them
+again.</p>
+
+<p>DOL has a manager of the free space, which hides under
+<em>ZZ_HYPER_UTILITIES(util)</em>. This manager works with three types of objects:</p>
+
+<ol>
+    <li>registered classes (those that have <em>ZZ_EXT_</em>..); </li>
+    <li>other objects and text strings that do not exceed in size
+        the largest registered object (<em>maxSz</em>);</li>
+    <li>large objects and arrays.</li>
+</ol>
+
+<p>The manager keeps a set of free lists, one for each object
+size up to <em>maxSz</em>, with the increment of 4 bytes. Free
+objects are linked by a pointer which overlays the first four
+bytes of the object. No additional memory is needed in order to
+maintain the free list. There is one
+linked list of large objects, with each object keeping pointer to
+the next object plus its own size.</p>
+
+<p>There are three pairs of functions to allocate/free objects in
+this manner. Mixing these calls can lead to serious errors. </p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>delete, delete[]</em></td>
+        <td>for registered objects</td>
+    </tr>
+    <tr>
+        <td><em>util.newStr()<br>
+        util.delStr()</em></td>
+        <td>NULL ending text strings</td>
+    </tr>
+    <tr>
+        <td><em>util.newArr()<br>
+        util.delArr()</em></td>
+        <td>plain blocks of memory</td>
+    </tr>
+</table>
+
+<p>Note how different cases are handled internally. Functions <em>new()</em>
+and <em>delete()</em> know the class and its size, and can reuse
+the the space without a header or any other overhead. Functions<em>
+newStr()</em> and <em>delStr()</em> rely on the \0 character to
+determine the size of the string; they also do not use any
+overhead for the memory management. Functions <em>newArr() </em>and
+<em>delArr()</em> keep the size of the space internally (overhead
+of one<em> int</em>). Since these
+operations are typeless, <em>delArr()</em> must know the size
+of the object.</p>
+
+<p>Examples of correct reuse:</p>
+
+<blockquote>
+    <pre><em>class Town { ... }; Town* tp=new Town; delete tp; //registered class
+char* s=util.newStr(&quot;John Brown&quot;); util.delStr(s); //fixed string reuse
+int i[]; int n=12000;
+i=(int*)util.newArr(n*sizeof(int)); util.delArr(i); //general block
+char* s=(char*)util.newArr(80); strcpy(s,&quot;Joe Doe&quot;); 
+util.delArr(i); // text buffer</em></pre>
+</blockquote>
+
+<p>Examples of incorrect use:</p>
+
+<blockquote>
+    <pre><em>// no possibility of problems with new() and delete()
+char* s=util.newStr(&quot;John Brown&quot;); delete(s); // will crash
+char* s=new char[12]; strcpy(s,&quot;John Brown&quot;);
+util.delStr(s); // will crash in open
+char* s=util.newStr(&quot;John Brown&quot;); 
+strcpy(s,&quot;Joe Doe&quot;); util.delStr(s); // memory leak 
+char* s=util.newStr(&quot;John Brown&quot;); util.delArr(s); //will crash</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Control of free storage:</font></h3>
+
+<p>Function <em>util.freeCount(int sz)</em> returns the present
+number of free objects of this size. Using<em> sz=0</em> returns
+number of large (variable sized) objects. </p>
+
+<p>You can turn on the free store by calling<em>
+util.useFreeStore(1</em>), and turn it off by<em>
+util.useFreeStore(0)</em>. 
+For memory blasting,the default is free storage on.</p>
+
+<p>Instead of globally invoking free lists for all registered classes, you can
+invoke free lists only for selected classes.
+ ZZ_OBJECT_NEW(type,ptr) is a macro which picks up the next object from the free list
+     (or allocates it if the free list is empty);
+ ZZ_OBJECT_FREE(type,ptr) places the object on the internal free list.</p>
+
+<p>You can control (and mix) the regular allocation with free lists:</p>
+
+<blockquote><pre><em>
+    class myObj {
+        ZZ_EXT_myObj
+    publ:
+        static myObj *newObj(){ myObj *p; ZZ_OBJECT_NEW(myObj,p); return(p); }
+        void delObj(){ ZZ_OBJECT_FREE(myObj,this); }
+    };
+
+    
+    myObj* obj1 = new myObj; // straight allocation, not using free list
+    myObj* obj2 = myObj::newObj(); // using free list
+    delete obj1; // destroys object regardless of where it came from
+    obj2->delObj(); // move obj2 to the free list
+</blockquote></pre></em>
+
+<p> <em>util.clear(void)</em> deallocates all internal free lists.</p>
+
+<p>For an example of how to use the free
+list allocation, see<em> test23b.c</em></p>
+
+<h3><font size="3" face="Arial">Handling names:</font></h3>
+
+<p>In addition to free lists of text strings (see just explained),
+DOL also helps with the general management of
+names. It has the organization <em>ZZ_HYPER_NAME </em>(<a
+href="ch11e.htm#11_5">Chap.11.5</a> - similar to a String class),
+which treats names as
+instances of a string object, and it provides additional
+functions that facilitate creating/freeing names:</p>
+
+<p><em>char *ptr=util.strAlloc(char *name)</em> for a given <em>name
+</em>allocates the appropriate space, copies the name into it,
+and returns a pointer to it.</p>
+
+<p><em>void util.strFree(char *ptr) </em>frees the given string.</p>
+
+<p><strong>IMPORTANT: </strong>When saving data to disk, all
+names must first be allocated with <em>util.strAlloc()</em>, and
+then registered as <em>NAME</em>, if you use automatically
+allocated strings like &quot;abcd&quot; (for more details, see <a
+href="ch11f.htm#11_6_2">page 11.6.2</a>).</p>
+
+<p>For examples of how to handle variable length names, see <em>test0n.c,
+test9a.c, test16c.c, </em>and <em>test25b.c.</em></p>
+
+<h3><font size="3" face="Arial">Allocating arrays:</font></h3>
+
+<p>DOL also provides a package for the management of arrays
+(see <a href="ch11l.htm">Chap.11.12</a>). Note that binary heaps
+and hash tables, which are both based on arrays, use the same
+method of allocation/deallocation as arrays do.</p>
+
+<p>In DOL, an array exists as a data organization attached to an object.</p>
+
+<p><em>ZZ_HYPER_ARRAY(id,HOLDER,TYPE);</em> declares that every
+object of type HOLDER can have an array of objects type<em> TYPE</em>.</p>
+
+<p><em>TYPE *arr=id.form(HOLDER *obj,int size,int increment);</em>
+this function allocates an array of size objects, initializes the
+pointers of all its members, and properly sets the internal array
+header. It also sets the size <em>increment</em>, and returns the
+pointer to the array (<em>arr</em>) for fast unprotected
+indexing. It is recommended not(!) to use <em>arr</em> directly (as in
+<em>arr[i]</em>, but
+through the index function, <em>id.ind(obj,i)</em>.
+The array may reallocate itself, and render the [..] reference invalid.</p>
+
+<p><em>void id.reset(HOLDER *obj,int size,int increment) </em>resets
+the control parameters of the array (current <em>waterMark </em>and
+<em>increment</em>), without re-allocating the array or changing
+its actual content.</p>
+
+<p><em>void id.free(HOLDER *obj) </em>frees (destroys) the array.</p>
+
+<p>For an example of allocating/deallocating arrays, see <em>test16c.c.</em></p>
+
+<p> Historical note: DOL has been used on large and complex projects long
+before the existing (non-persistent) data structure libraries came
+to existence. For this reason the DOL terminology related to arrays
+is slightly different from that used in the STL library and in Java.
+For example:<br>
+<i>size</i> in DOL corresponds to <i>capacity</i> in STL, and<br>
+<i>waterMark</i> in DOL is the highest index currently used which corresponds
+to <i>(length-1)</i> in STL.</p>
+
+<h3><font size="3" face="Arial">Private allocation schemes:</font></h3>
+
+<p>If you have a private memory management system which you
+prefer to use, allocate objects through your system, and then
+initialize them with <em>ZZ_INIT()</em>. It is even better to
+convert the entire DOL to your memory management
+system:</p>
+
+<p>File <em>orgc/lib/msgs.c </em>contains functions <em>ZZmassAlloc()
+</em>and <em>ZZmassFree()</em>, which control
+allocation/deallocation throughout DOL. Replace <em>malloc() </em>and
+<em>calloc() </em>there by your private functions, and recompile
+the library.</p>
+
+<h3><font size="3" face="Arial">Big block of memory (DISCONTINUED)</font></h3>
+
+<font color="#FF0000">
+<p> This feature allocated all objects from a large block of memory,
+which was easy to store/restore. The conversion of pointers (swizzling)
+was also simple, because all pointers shifted by the same offset. The
+disadvantage was the fixed block size, which lead to a failure
+when the memory demand exceeded the block size.</p>
+
+<p> Big Block was superseeded by Memory Blasting. Simply select page size
+large enough to accomodate all the data, and you get the same advantages of
+efficiency and easy handling. On the top of it, Memory Blasting automatically
+creates additional pages if needed, thus preventing unpleasant surprises.</p>
+
+<p>Note that Memory Blasting is more efficient, because it does not 
+work with individual objects but rather with entire pages that have the pointer
+locations recorded in a bitmap. Also, for a single active page, Memory Blasting
+does the same simple pointer conversion as the Big Block did - the same
+precalculated offset is applied to all the pointers.</p>
+</font>
+
+<p>One of the methods available for fast storage to disk
+(persistency) is based on the idea of reserving a block of memory
+for allocation of runtime objects, and restoring them from disk
+into the same relative position in another memory block, which
+has the same size. The advantage of this arrangement is that
+mutual offsets between objects remain constant, which allows fast
+updating of pointers after restoring the data from disk.</p>
+
+<p>The disadvantage of this arrangement is the need to estimate
+the size of required memory, which is often difficult to predict.
+Also, even though the memory is reserved as one compact block, the
+data is saved to disk object-by-object, and even when buffered,
+it cannot match the efficiency of <a href="ch13MmMc.htm#13_3_4"><em>memory
+blasting </em></a>.</p>
+
+<p>This option is still in DOL
+mainly for historical reasons. Some large commercial applications
+use this option, and do not want it to disappear from the
+system. Two functions control big block allocation:</p>
+
+<p><em>void util.blkAlloc(int n,0) </em>allocates a new block of <em>n
+</em>bytes. If called several times, the most recent block acts
+as the currently active block.<em> <br>
+void util.blkFree(int i) </em>controls the use of the existing
+block. i=0 deallocates the active
+block; i=1 keeps it but, temporarily, returns to the normal
+allocation algorithm; i=2 turns allocation back to the big memory
+block.</p>
+
+<p>There are no special <em>SAVE/OPEN</em> commands for this
+option - regular<em> util.save(...) </em>and <em>util.open(...) </em>are
+used. If the data was saved as one big block of memory, <em>util.open(...)</em>
+makes the following attempts:</p>
+
+<ol>
+    <li>If there is no active memory block, it opens a block of
+        the same size as was originally used, including the free
+        section of the pool.</li>
+    <li>If there is an active memory block that can contain the
+        new data, the block is used, and the free pool is
+        appropriately reduced.</li>
+    <li>If there is an active block of memory, but its free area
+        is not large enough, the program creates a new block,
+        which becomes a new active block. </li>
+    <li>If all allocation attempts fail (block size is too big),
+        the program issues a warning message, and returns to
+        normal allocation mode.</li>
+</ol>
+
+<p>When the active pool is exhausted, a warning message is
+issued, and the operation automatically switches to normal
+allocation mode. Your program can safely continue the run. You
+can even save your data to disk. All you lose is the speed when
+re-opening the data from disk.</p>
+
+<p>Allocation based on internal free lists works together with
+the memory block.</p>
+
+<p>Note that all internal data, such as stacks and tables used
+by<em> util.save() </em>and <em>util.open() </em>are
+allocated from this the same memory block. (This is not true for other
+memory allocation modes.)</p>
+
+<p>The current memory assigning algorithm is simple. For every
+new object, the high water mark of the given pool is raised.
+Unless you use the free-list option, discarded objects are not
+reused. </p>
+
+<p>If <em>util.blkAlloc() </em>is called several times, the old
+data remains in memory. The most recently allocated block becomes
+the active block.</p>
+
+<p><em>util.blkFree(1) </em>allows you to separate the allocation
+of useful objects from temporary data, as in the following
+example, where all the application data has been allocated
+through the memory block, but then before calling <em>util.save()
+</em>allocation switches to normal mode, thus avoiding the
+allocation of temporary data, internal only to <em>util.save() </em>from
+the same block. </p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_UTILITIES(util);<br>
+    myObj *p,*s,m;<br>
+    util.blkAlloc(3500,0); // reserves block of 3500 bytes<br>
+    ...<br>
+    p=m.newObj(1); // create object<br>
+    s=m.newObj(1); // create object<br>
+    ...<br>
+    util.blkFree(1);// switch to normal allocation mode<br>
+    util.save(...); // normal allocation, inter. tables<br>
+    util.blkFree(0); // free the memory block</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Free lists:</font></h3>
+
+<p>When allocating objects from a block of pages, you
+can use either <em>new() </em>or<em>
+ZZ_OBJECT_NEW()</em> which also provides, on top of memory paging,
+a list of free objects by type.</p>
+
+<p>Use <em>new() </em>and constructors as usual, but 
+<b>never</b> place <em>ZZ_OBJECT_NEW() </em>into
+a constructor. Look at<em> test23b.c</em> for the correct way to
+use <em>ZZ_OBJECT_NEW().</em></p>
+
+<h3><font size="3" face="Arial">Error conditions:</font></h3>
+
+<p>If a block of a given size cannot be allocated, <em>util.error()
+</em>returns 01, and a warning message is printed. The situation
+is the same as when exhausting the available pool. You can
+continue to run, but <em>util.open() </em>will allocate memory
+for individual objects, not from one big block.</p>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<p>DOL used to be available both for C and C++, and the test suite does not have any
+examples of the big block
+allocation in C++. For examples in C, look at <em>test0k.c,
+test24c.c </em>and <em>test33b.c.</em> Note that <em>ZZ_BLOCK_ALLOC()
+</em>and <em>ZZ_BLOCK_FREE() </em>are identical to <em>util.blkAlloc()
+</em>and <em>util.blkFree().</em></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch13MemM.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 13.1 Virtual Functions and Internal Pointers</font></a></td>
+        <td align="right" width="50%"><a href="ch13MmMc.htm"><font
+        face="Arial">Next Section 13.3 Saving on Disk <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

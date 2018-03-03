@@ -1,0 +1,51 @@
+/* =========================================================
+.(l
+ TEXT id;          /* organization id */
+ strType2 *rel;    /* relation to be deleted */
+.)l
+Description:
+ Delete the given 1_TO_1 relation. If the relation does not exist,
+nothing happens (no error message issued).
+.sp
+Advice: Use generic ZZ_DELETE_RELATION(), it simplifies the code.
+.(l
+Example of the use:
+   typedef struct Student Student;
+   typedef struct Thesis Thesis;
+   typedef struct WorkingOn WorkingOn;
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Thesis {
+       ZZ_EXT_Thesis
+       char *title;
+       int numPages;
+   };
+   struct WorkingOn {
+       ZZ_EXT_WorkingOn
+   };
+   ZZ_ORG_1_TO_1(workingOnThesis,Student,WorkingOn,Thesis)
+   ...
+   Student *s;
+   Thesis *t;
+   WorkingOn *w;
+   ...
+   ZZ_PLAIN_ALLOC(WorkingOn,1,w);
+   ZZ_ADD_RELATION(workingOnThesis,s,w,t);
+   ...
+   ZZ_DELETE_RELATION(workingOnThesis,w);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_RELATION_1_TO_1(id,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_DELETE_RELATION_1_TO_1(id,ZZFP(ZZf,id),ZZFP(ZZx,id),ZZFP(ZZy,id), \
+ZZFP(ZZb,id),rel)
+
+#define ZZZ_DELETE_RELATION_1_TO_1(id,fwd,src,trg,bwd,rel)\
+{ if((rel)->src && (rel)->trg){\
+     (rel)->src->fwd=(rel)->trg->bwd=NULL;\
+     (rel)->src=NULL; (rel)->trg=NULL;\
+  }\
+}     

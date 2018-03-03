@@ -1,0 +1,448 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="Template"
+content="C:\PROGRAM FILES\MICROSOFT OFFICE\OFFICE\html.dot">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 5, What is Organized C++</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">5. WHAT IS ORGANIZED C++?</font></h1>
+
+<p>OrgC++ is a package for the complete management of data in C++
+programs, based on the new concept of <i>hyper-objects</i> (see
+below), sometimes also called <i>pattern classes</i>. OrgC++ is
+much more than just a class library. It provides an additional
+abstract layer, a whole subsystem for the management of data. You
+do not have to assemble the organization from library objects.
+The organization is automatically generated in a way which
+provides optimum run-time performance. Combined with automatic
+persistency (storage to disk) and version control, OrgC++
+provides a set of powerful tools which are useful for a variety
+of tasks ranging from the management of internal data to the
+design of fast memory resident databases.</p>
+
+<p>Compared to usual class libraries, OrgC++ has the following
+advantages: C</p>
+
+<ul>
+    <li>Data persistency: Individual objects and whole
+        organizations can be saved to disk in a single command,
+        using either binary or ASCII format. Programmers do not
+        have to code IO functions for every new class.</li>
+    <li>Setting up the organization is much simpler. The user
+        declares the organization in compact format, which is
+        automatically translated into special transparent
+        classes. There is no need to use inheritance, or to
+        redeclare access functions, everything happens
+        automatically.</li>
+    <li>OrgC++ naturally handles complicated organizations which
+        cause difficulties or inefficiencies in classical C++
+        libraries. One object may be part of many organizations,
+        and one organization may include objects of several
+        different types. </li>
+    <li>Working with OrgC++ is like using database schema and
+        access routines, but keeping the run-time performance of
+        a custom coded program.</li>
+    <li>Data portability between C and C++. Data created by a C
+        program can be reopened by equivalent C++ programs.</li>
+</ul>
+
+<h3><font size="3" face="Arial">Hyper-objects</font></h3>
+
+<p>What are hyper-objects? Hyper-objects are objects that store
+their data in other objects, called carriers. Carriers passively
+keep the data, but hyper-objects provide the methods.
+Hyper-objects are a perfect model for the organization of data in
+computer programs. For example, a graph can be represented as a
+hyper-object, which keeps its data (pointers forming the graph
+organization) in objects of type vertex and edge. Operations such
+as <i>&quot;add&quot;</i> or <i>&quot;traverse&quot;</i> are
+associated with the graph, not with vertices or edges.</p>
+
+<p>Hyper-objects make the management of data conceptually clean.
+The new abstract layer removes unnecessary multiple inheritance/
+friend declarations from the application code, and maintains
+optimum run-time performance.</p>
+
+<p>There is a basic conceptual difference between OrgC++ and
+standard class libraries. For example, classical implementation
+of the linked list by Stroustrup uses two classes: <i>slink</i>
+which represents one link of the list, and <i>slist</i> which
+contains the entry into the list. When we split a list into two
+sublists, we need two instances of <i>slist</i>, but when we want
+to place an object into two parallel lists, we cannot easily
+differentiate between the two lists. Reference [5] in Appendix B
+explains this in a greater detail.</p>
+
+<p>In OrgC++, when we split a list, the sublists, each with its
+own instance of <i>slink</i>, remains in the same hyper-object.
+Two parallel lists are represented as two instances of the list
+hyper-object.</p>
+
+<p>Individual hyper-classes can be implemented in C++ with
+multiple inheritance and friend declarations, but an efficient
+library based on generic functions needs a special manager.
+OrgC++ supplies this missing link.</p>
+
+<p>OrgC++ consists of a class generator and a special library.
+The class generator typically reads your header file with the
+declarations of your objects and organization, and it creates two
+files: an include file (the default name is <i>zzincl.h</i>), and
+a source file with all the access routines required by your
+program (default name <i>zzfunc.c</i>). You compile and link your
+original source code with these two files. This method has two
+advantages:</p>
+
+<ul>
+    <li>Compiler and debugger messages refer to your original
+        code. </li>
+    <li>The class generator is called only when modifying data
+        objects, not before every re-compilation.</li>
+</ul>
+
+<p>OrgC++ provides a high level of error checking. As a result of
+strong typing, many coding errors are detected by the class
+generator or by the compiler. At run-time, OrgC++ protects your
+program against dangling pointers caused by incorrectly moving or
+deallocating some objects. It takes slightly longer to get a
+program through the compiler, but once it compiles, it is much
+safer to run.</p>
+
+<p>The library contains all standard data objects: </p>
+
+<ul>
+    <li>Singly or doubly linked rings, which can be also used as
+        a list, ordered and unordered collection.</li>
+    <li>Singly and doubly linked collections (linked lists with
+        an encapsulated entry point). </li>
+    <li>Object hierarchies and aggregations (different object
+        type for each parent and for its children). </li>
+    <li>Trees and general graphs (directed or undirected).</li>
+    <li>Stacks and queues (LIFO, FIFO).</li>
+    <li>Optional selfID tags (objects with this tag can report
+        their own type). </li>
+    <li>Optional timeStamp records the time when the object was
+        created or modified. </li>
+    <li>Run time extensibility of objects (Lisp property) allows
+        you to expand objects by labelled attributes, which may
+        be unknown at compile time.</li>
+    <li>Dynamic arrays automatically expand when the index
+        overflows the current size. The user controls whether and
+        how the array will expand. Fast access without index
+        checking is also available.</li>
+    <li>Partially sorted binary heaps which control their sizes
+        automatically.</li>
+    <li>Hash tables depend upon two control functions: <i>compare_objects()</i>
+        and<i> hash_name()</i>. OrgC++ provides default functions
+        for regular users; sophisticated users may use their own
+        functions. </li>
+    <li>Four basic Entity-Relationship models are available:
+        1-to-1, 1-to-N, M-to-1, and M-to-N.</li>
+</ul>
+
+<p>Most of the organizations come in source. The library is open.
+This means that users may modify the existing organizations and
+add new ones. All OrgC++ calls are fully encapsulated in C++
+classes, and are separated from the application code. A special
+UTILITIES hyper-object contains general utilities such as
+allocation routines and saving to disk.</p>
+
+<p>OrgC++ uses generic functions. For example<i>, add() </i>can
+be used to add an object to a ring, to a tree, or to a graph,
+without loosing the advantage of full type checking. The user
+does not have to remember many functions, only a small set of
+names such as <i>add(), del()</i> for deleting (disconnecting) an
+object<i>, fwd() </i>for moving forward in a chain of objects, or
+<i>par()</i> for reaching a parent in hierarchies or trees.</p>
+
+<p>When creating a new object with a regular constructor, all
+internal data pointers are automatically initialized as
+&quot;disconnected&quot;. When you insert <i>ZZ_CHECK()</i> into
+a class destructor, OrgC++ prevents objects from being
+deallocated prior to disconnecting pointers to other objects.
+Variable length names and other string-type attributes are
+treated as objects.</p>
+
+<p>Whole organizations of data can be saved to disk with a single
+command (structure blasting). When reading the data back into
+memory, all pointers forming the organization, and also all
+internal virtual function pointers are automatically restored.
+Binary or ASCII format can be used; the latter permitting the
+transfer of entire databases between different computers and
+operating systems.</p>
+
+<p>Note that the C version of Organized C provides the same
+functionality in a less elegant setting. Hyper-objects there are
+declared in a very similar manner, but the access calls are
+macros instead of C++ methods.</p>
+
+<p>For example, the C++ situation</p>
+
+<blockquote>
+    <p><em>class listHead { ... };<br>
+    class myObject { ... };<br>
+    ZZ_HYPER_SINGLE_COLLECT(myList,listHead,myObject);<br>
+    listHead *hp;<br>
+    myObject *op;<br>
+    hp=new listHead; // initialize empty list<br>
+    ...<br>
+    op=new myObject;<br>
+    myList.add(hp,op); // add op to myList</em></p>
+</blockquote>
+
+<p>is, in C, represented as:</p>
+
+<blockquote>
+    <p><em>typedef struct listHead listHead;<br>
+    typedef struct myObject myObject;<br>
+    struct listHead { ... };<br>
+    struct myObject { ... };<br>
+    ZZ_ORG_SINGLE_COLLECT(myList,listHead,myObject);<br>
+    listHead *hp;<br>
+    myObject *op;<br>
+    ZZ_PLAIN_ALLOC(listHead,1,hp);<br>
+    ...<br>
+    ZZ_PLAIN_ALLOC(myObject,1,op);<br>
+    ZZ_ADD(myList,hp,op); /* add op to myList */</em></p>
+</blockquote>
+
+<p>One of the most important features of Organized C (both in C
+and C++) is that it unifies programming style between scientific
+(algorithmic) programming and databases. It allows organized
+database-like access to be used within algorithmic programs
+without losing the speed and efficiency of custom coded data and,
+on the other hand, allows rapid coding of complicated in-core
+databases which, when combined with hierarchical representation
+and saving to disk, work for essentially any data size.</p>
+
+<p align="center"><img src="images/dol6_1.jpg" width="450"
+height="300"></p>
+
+<h3><font size="3" face="Arial">Example of using OrgC++:</font></h3>
+
+<p>The problem involves towns located in different states. Two
+transportation networks connect the towns: highways and airline
+connections. The problem is to code a program, which will
+determine the least expensive route between a given pair of
+towns. The program will have several parts:</p>
+
+<h4><font size="2" face="Arial">Part 1: General includes.</font></h4>
+
+<blockquote>
+    <p><em>#define ZZmain // declares the main part of the
+    program <br>
+    #include &lt;&lt;stdio.h&gt;&gt;<br>
+    #include &quot;ZZinclude.h&quot; // orgC++ class generator
+    will create this file</em></p>
+</blockquote>
+
+<h4><font size="2" face="Arial">Part 2: Declaration of objects.</font></h4>
+
+<p>For each object, only the attributes that do not relate to the
+organization of data are declared. To make the example easy to
+read, these attributes such as <i>gasPrice</i> or <i>cost</i> are
+public even though, in a real application, they would most likely
+be private. Objects which will be involved in the automatic
+handling of data must contain a line of the form<b><i> </i></b><i>ZZ_EXT_&lt;objectType&gt;</i>.
+This statement marks the place where the transparent pointers
+will be inserted.</p>
+
+<blockquote>
+    <pre><em>class State {
+    ZZ_EXT_State
+public:
+    float gasPrice;
+};
+class Town {
+    ZZ_EXT_Town
+public:
+    float cost; // for the algorithm
+    struct Town *trace; // route traceback
+};
+class Highway {
+    ZZ_EXT_Highway
+public:
+    int distance;
+};
+class AirLink {
+    ZZ_EXT_AirLink
+public:
+    float fare;
+};</em></pre>
+</blockquote>
+
+<h4><font size="2" face="Arial">Part 3: Declaration of the
+organization.</font></h4>
+
+<p>Each line declares one organization as a hyper-class. For
+example, the first line declares a graph with <i>Towns</i><b><i> </i></b>as
+nodes, and <i>AirLinks</i><b><i> </i></b>as edges; <i>air</i><b> </b>is
+the instance of the GRAPH organization. The words SINGLE and
+DOUBLE denote singly and doubly linked organizations. AGGREGATE
+is used when one object type contains several objects of another
+type. We always use RING to represent a linked-list (we do not
+recommend the use of NULL ending list). Performance and access
+are about the same, and RING allows better run-time error
+checking. </p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_GRAPH(air, Town, AirLink); <br>
+    ZZ_HYPER_SINGLE_GRAPH(hwy,Town, Highway);<br>
+    ZZ_HYPER_DOUBLE_RING(states, State); <br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byState, State, Town);<br>
+    ZZ_HYPER_UTILITIES(util);</em></p>
+</blockquote>
+
+<h4><font size="2" face="Arial">Part 4: User program.</font></h4>
+
+<p>Once the organization has been declared in this manner, the
+program can manipulate the data by calling the functions
+associated with the hyper-objects. <i>states</i><b><i>, </i></b><i>byState</i><b><i>,
+</i></b><i>hwy</i><b><i>, </i></b>and<i> air</i><b><i> </i></b>are
+instances of organizations (hyper-objects).<i>&nbsp;</i>The <i>save()</i><b><i>
+</i></b>function starts from a given object, called here
+&quot;key entry&quot;, collects all objects connected to it by
+the network of pointers, and saves the whole organization to
+disk.</p>
+
+<p>Often, data organizations require more than one key entry to
+collect all objects. This is the reason for having char
+*v[1],*t[1] which, in our simple case of one entry, may appear
+superfluous. </p>
+
+<blockquote>
+    <pre><em>Highway *hp;
+State *sp,*ss;
+Town *tp;
+char *v[1],*t[1];
+tp=new Town; // allocates and initializes new town
+byState.add(sp,tp); // adds town tp under state sp
+hwy.del(hp); // deletes highway hp from graph &quot;hwy&quot;
+ss=states.fwd(sp); // returns next state after sp
+states_iterator sIter(ss); // starts iterator from ss
+while(sp=sIter++){ // loops through all states 
+    printf(&quot;gasPrice=%f\n&quot;,sp-&gt;gasPrice); 
+}
+v[0]=(char*)ss; /* entry into the data network */ 
+t[0]=&quot;State&quot;; /* type of the entry object */
+util.save(&quot;myFile&quot;,v,t,1); // saves whole organization on file &quot;myFile&quot;</em></pre>
+</blockquote>
+
+<p>The iterators are automatically declared for all organizations
+specified in the <em>ZZ_HYPER_</em>.. statements. Typically, an
+iterator traverses the whole set (for example of a ring/list or
+collection), or a subset: for a tree it traverses the children of
+a given node, for a graph it traverses the adjacent edges and
+nodes.</p>
+
+<p>The convenient form of the iterator<i> while(..=..){</i> is
+accepted by the AT&amp;T C++ compiler, but ZORTECH and BORLAND
+compilers issue warning messages. If you want to avoid these
+messages, use the following statement which does the same thing,
+but is more difficult to read:</p>
+
+<blockquote>
+    <p><i>for(sp=sIter++; sp; sp=sIter++){ ...</i></p>
+</blockquote>
+
+<h4><font size="2" face="Arial">Part 5: Changing the organization</font></h4>
+
+<p>Changing the organization is easy. For example, we may want to
+add a town name and a hash table that would allow fast selection
+of <i>Towns</i> by name. Also, the graph traversing algorithm may
+need a binary heap. All we need are the following additions:</p>
+
+<blockquote>
+    <pre><em>class Header { // header for arrays and for the hash table
+    ZZ_EXT_Header
+};
+ZZ_HYPER_NAME(townName,Town); // town name
+ZZ_HYPER_ARRAY(heap,Header,Town*);// heap of town pointers
+ZZ_HYPER_HASH(hash1,Header,Town); // hash table</em></pre>
+</blockquote>
+
+<p>Once this is declared, the new organizations can be used:</p>
+
+<blockquote>
+    <pre><em>Header *hd;
+Town t,*tp;
+char *cp;
+int cmpFun(char *,char *); // compares two objects as for qsort()</em></pre>
+    <pre><em>cp=util.str(&quot;name1&quot;); // allocates new string &quot;name1&quot;
+townName.add(&amp;t,cp); // adds name to temporary town t
+...</em>
+<em>p=hash1.get(hd,&amp;t); // finds Town with this name</em>
+<em>if(tp){
+    cp=townName.fwd(tp); // returns name of town tp
+    printf(&quot;town=%s\n&quot;,cp); 
+    heap.inHeap(cmpFun,hd,tp); // inserts tp into the heap
+    }</em></pre>
+</blockquote>
+
+<h4><a name="6_Important"></a><font face="Arial">Important:</font></h4>
+
+<p>If you allocate all objects with operator <i>new()</i>, as in
+the example above, pointers in all objects are automatically
+initialized as disconnected (<i>NULL</i>). Without a proper
+initialization, you are likely to run into serious problems with
+the data.</p>
+
+<p>Objects are not automatically initialized, if you allocate
+them automatically. In such a case, you must include macro <i>ZZ_INIT()</i>
+in the constructor of the class. For example if, instead of what
+we had above:</p>
+
+<p>&nbsp;</p>
+
+<blockquote>
+    <pre><em>class Town {
+    ZZ_EXT_Town
+public:
+    float cost;
+    Town *trace;
+};
+Town *tp;
+tp=new Town;
+...</em></pre>
+</blockquote>
+
+<pre>you write:</pre>
+
+<blockquote>
+    <pre><em>class Town {
+    ZZ_EXT_Town
+public:
+    float cost;
+    Town *trace;
+    Town(){ZZ_INIT(Town);}
+};
+Town tp;
+...</em></pre>
+</blockquote>
+
+<p>It is recommended to be consistent and use the same style for
+all your classes: Either use <i>ZZ_INIT() </i>in all your
+constructors, or avoid automatically allocated objects.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch04Envr.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Chapter 4: Environment UNIX, DOS, MAC</font></a></td>
+        <td align="right" width="50%"><a href="ch06Exmp.htm"><font
+        face="Arial">Chapter 6: Examples <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

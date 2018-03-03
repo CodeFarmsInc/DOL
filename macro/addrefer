@@ -1,0 +1,30 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ strType1 *from;  /* link from this object */
+ strType2 *to;    /* link to this object */
+.)l
+Description:
+ Adds a one way link between the two given objects; adds 1 to
+ the reference count. Strict typing is observed.
+.pp
+For more description and an example, see ZZ_ORG_REFERENCE() or
+ZZ_HYPER_REFERENCE().
+.sp
+  ========================================================== */ 
+#define ZZ_ADD_REFERENCE(id,from,to) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_ADD_REFERENCE(id,ZZFP(ZZf,id),ZZFP(ZZc,id),from,to)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_REFERENCE(id,ptr,cnt,from,to) {\
+   (from)->ptr=(to); ((to)->cnt)++;}
+#else
+#define ZZZ_ADD_REFERENCE(id,ptr,cnt,from,to) \
+{if((from)->ptr){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(from));\
+        ZZerrFLG=ZZerrFLG|010;\
+ }\
+ else {(from)->ptr=(to); ((to)->cnt)++;}\
+}
+#endif

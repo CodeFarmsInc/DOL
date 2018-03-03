@@ -1,0 +1,39 @@
+/* =========================================================
+.(l
+ strType *ptr;   /* object to be stamped with the time stamp */
+.)l
+Description:
+ The object is is stamped with the current date/time,
+using the accuaracy of 1 sec.
+If the object already has
+a time stamp, the new stamp overwrites the old one.
+The year must be at least 1988.
+.sp
+When you issue this command, you do't give the time, the program
+automatically picks up the system time and creates the time stamp
+as a string of characters.
+.sp
+On how to retrieve /compare the time stamps, see ZZ_GET_TIME_STAMP(),
+ZZ_ORG_TIME_STAMP(), ZZ_CMP_TIME_STAMP().
+.(l
+Example:
+
+typedef struct Block Block;
+struct Block {
+    ZZ_EXT_Block
+    char *name;
+    int x1,y1,x2,y2;
+};
+ZZ_ORG_TIME_STAMP(Block)
+
+Block *bp;
+
+/* place time stamp on block bp */
+ZZ_SET_TIME_STAMP(bp)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SET_TIME_STAMP(ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{void ZZFUN_stTime(); ZZstTime((ptr)->ZZtimeStamp);}

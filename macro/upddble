@@ -1,0 +1,26 @@
+/* =========================================================
+.(l
+tp2       ... type of the objects in the ring;
+fwp       ... name of the forward pointer;
+bwp       ... name of the backward pointer;
+tp2 *obj; ... an object in the ring
+.)l
+Description:
+ This is just a utility macro not listed in the User's Guide.
+For a doubly linked list with correctly set forward pointers,`
+it updates the backward pointers.
+ The typical use us the SORT function/macro which is identical
+for singly/doubly linked rings, because it uses only the forward
+pointer. After the ring is sorted as a singly linked ring, the
+backward pointers are updated by calling UPD_DOUBLE().
+  ========================================================== */ 
+#define ZZ_UPD_DOUBLE(tp2,fwp,bwp,obj) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+{tp2 *ZZp,*ZZs;\
+    if(obj){\
+        for(ZZp=(obj),ZZs=(obj)->fwp; ; ZZp=ZZs, ZZs=ZZs->fwp){\
+            ZZs->bwp=ZZp;\
+            if(ZZs==(obj))break;\
+        }\
+    }\
+}

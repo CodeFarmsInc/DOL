@@ -1,0 +1,42 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *obj;   /* object from which the link should be cancelled */
+ char *name;     /* returns the name to be disconnected */
+.)l
+Description:
+ Delete the name from the given object. Note the dummy parameter which
+is used to get the same syntax for all 'delete' commands.
+.pp
+The name remains in the memory, it is not freed.
+Only the pointer between the object and the name is removed.
+.pp
+If the object has no name, the command does nothing.
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+ZZ_ORG_NAME(fName,Fruit)
+
+Fruit *f;
+char *name;
+ ....
+ZZ_DELETE_NAME(fName,f,name);
+ZZ_STRING_FREE(name);
+.)l
+.pp
+Note that prior to using ZZ_PLAIN_FREE() on f all organizations
+must be disconnected, otherwise ZZ_PLAIN_FREE() singals an error.
+.pp
+.sp
+  ========================================================== */ 
+#define ZZ_DELETE_NAME(id,obj,name) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_NAME(ZZFP(ZZn,id),obj,name)
+
+#define ZZZ_DELETE_NAME(nPtr,obj,name) \
+{(name)=(obj)->nPtr; (obj)->nPtr=NULL;}

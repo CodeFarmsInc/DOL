@@ -1,0 +1,13 @@
+/* =========================================================
+.(l
+ TEXT id;           /* organization id */
+ strType *rel;      /* relation to be deleted */
+.)l
+Description:
+ Generic function that deletes a given relation.
+This is equivalent to ZZ_DELETE_RELATION() but used for compiled functions.
+.sp 1
+  ========================================================== */ 
+#define ZZF_DELETE_RELATION(id,relation) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZF_DELETE_RELATION,id)(id,relation)

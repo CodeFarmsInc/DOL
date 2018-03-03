@@ -1,0 +1,515 @@
+/* ==============================================================
+/****************************************************************/
+/*							      	*/
+/*   Copyright (C) 1988                  			*/
+/*	Jiri Soukup.  All Rights Reserved.			*/
+/*							  	*/
+/****************************************************************/
+
+/* Master file with the frame of all organizations and functions.
+ * To read full macros - look at individual files ZZfunction.fileName */
+
+/*  Number of inputs for new organizations should be >=2,
+ *  nInp=1 is used only for special hardwired internal functions.
+ */
+
+/*  ind   organization              p1 p2 nInp */
+
+ZZorganization {
+     0  SINGLE_RING                0  0  2 
+     1  PROPERTY                   1  1  1
+     2  DOUBLE_RING                2  3  2
+     3  SINGLE_TRIANGLE            4  6  3
+     4  SELF_ID                    7  7  1
+     5  TIME_STAMP                 8  8  1
+     6  GENERAL_LINK               9  9  2
+     7  SINGLE_LINK               10 10  3
+     8  DOUBLE_LINK               11 12  3
+     9  NAME                      13 13  2
+    10  SINGLE_GRAPH              14 18  3
+    11  FIFO                      19 19  2
+    12  LIFO                      20 20  2
+    13  SINGLE_TREE               21 23  2
+    14  ARRAY                     24 24  3
+    15  DOUBLE_TREE               25 28  2
+    16  HASH                      29 30  3
+    17  1_TO_1                    31 34  4
+    18  1_TO_N                    35 40  4
+    19  M_TO_1                    41 46  4
+    20  M_TO_N                    47 54  4
+    21  SINGLE_COLLECT            55 56  3
+    22  DIRECT_GRAPH              58 60  3
+    23  DOUBLE_COLLECT            61 63  3
+    24  PAGER                     64 64  2
+    25  REFERENCE                 65 66  3
+    26  DOUBLE_TRIANGLE           67 70  3
+    27  BINARY_TREE               71 73  2
+}
+
+/* Comments on the meaning of the inputs:
+ * SINGLE_TRIANGLE: 1=top, 2=bottom;
+ * SINGLE_GRAPH:    1=node, 2=edge;
+ * DIRECT_GRAPH:    1=node, 2=edge;
+ */
+
+/* With the exception of special hard-wired functions,
+ * pointTo=0 means to use default cast of (char*).
+ */
+
+/* ind usedOn pointTo arraySize ptrType ptrCode   */
+
+ZZpointer {
+    0 1 1 1 a  ZZf        /* forward pointer on the ring */
+    1 1 0 1 a  ZZprop   
+    2 1 1 1 a  ZZf        /* forward pointer */
+    3 1 1 1 a  ZZb        /* backward pointer */
+    4 2 1 1 a  ZZp        /* parent */
+    5 1 2 1 a  ZZc        /* child */
+    6 2 2 1 a  ZZs        /* sibling */
+    7 1 0 1 a  ZZselfID  
+    8 1 0 4 c  ZZtimeStamp
+    9 1 0 1 g  ZZg        /* general link pointer */
+   10 1 2 1 a  ZZf        /* forward link */
+   11 1 2 1 a  ZZf        /* forward link */
+   12 2 1 1 a  ZZb        /* backward link */
+   13 1 0 1 a  ZZn        /* pointer to the name */
+   14 2 1 1 a  ZZx        /* node1 for the edge */
+   15 2 1 1 a  ZZy        /* node2 for the edge */
+   16 2 2 1 a  ZZr        /* next edge on node1 */
+   17 2 2 1 a  ZZs        /* next edge on node2 */
+   18 1 2 1 a  ZZe        /* starting edge for a given node */
+   19 1 1 1 a  ZZf        /* forward (ring) pointer */
+   20 1 1 1 a  ZZf        /* forward (ring) pointer */
+   21 1 1 1 a  ZZp        /* parent */
+   22 1 1 1 a  ZZc        /* child */
+   23 1 1 1 a  ZZs        /* sibling */
+   24 1 2 1 A  ZZa        /* array */
+   25 1 1 1 a  ZZp        /* parent */
+   26 1 1 1 a  ZZc        /* child */
+   27 1 1 1 a  ZZs        /* sibling (forward) */
+   28 1 1 1 a  ZZb        /* backward sibling
+   29 1 2 1 A  ZZa        /* array (hash table) */
+   30 2 2 1 a  ZZf        /* forward pointer (within the same bucket) */
+   31 1 2 1 a  ZZf        /* forward (source->relation) */
+   32 2 1 1 a  ZZx        /* source (relation->source) */
+   33 2 3 1 a  ZZy        /* target (relation->target) */
+   34 3 2 1 a  ZZb        /* backward (target->relation) */
+   35 1 2 1 a  ZZf        /* forward (source->relation) */
+   36 2 1 1 a  ZZx        /* source (relation->source) */
+   37 2 2 1 a  ZZs        /* forward sibling (next on source entity) */
+   38 2 2 1 a  ZZr        /* reverse sibling (next on source entity) */
+   39 2 3 1 a  ZZy        /* target (relation->target) */
+   40 3 2 1 a  ZZb        /* backward (target->relation) */
+   41 1 2 1 a  ZZf        /* forward (source->relation) */
+   42 2 1 1 a  ZZx        /* source (relation->source) */
+   43 2 2 1 a  ZZs        /* forward sibling (next on target entity) */
+   44 2 2 1 a  ZZr        /* reverse sibling (next on target entity) */
+   45 2 3 1 a  ZZy        /* target (relation->target) */
+   46 3 2 1 a  ZZb        /* backward (target->relation) */
+   47 2 1 1 a  ZZx        /* source (relation->source) */
+   48 2 3 1 a  ZZy        /* target (relation->target) */
+   49 2 2 1 a  ZZr        /* forward sibling (next on source entity) */
+   50 2 2 1 a  ZZs        /* forward sibling (next on target entity) */
+   51 2 2 1 a  ZZv        /* reverse sibling (next on source entity) */
+   52 2 2 1 a  ZZw        /* reverse sibling (next on target entity) */
+   53 1 2 1 a  ZZf        /* forward (source->relation) */
+   54 3 2 1 a  ZZb        /* backward (target->relation) */
+   55 1 2 1 a  ZZc        /* child */
+   56 2 2 1 a  ZZs        /* sibling */
+   57 2 1 1 a  ZZo        /* not used */
+   58 2 1 1 a  ZZy        /* node2 for the edge */
+   59 2 2 1 a  ZZr        /* next edge on node1 */
+   60 1 2 1 a  ZZe        /* starting edge for a given node */
+   61 1 2 1 a  ZZc        /* child */
+   62 2 2 1 a  ZZf        /* sibling forward */
+   63 2 2 1 a  ZZb        /* sibling backward */
+   64 1 0 1 g  ZZh        /* pager needs only a general pointer */
+   65 1 2 1 a  ZZf        /* forward reference */
+   66 2 0 1 i  ZZc        /* reference count */
+   67 2 2 1 a  ZZb        /* sibling backward, double-triangle */
+   68 2 1 1 a  ZZp        /* parent, double-triangle */
+   69 1 2 1 a  ZZc        /* child, double-triangle */
+   70 2 2 1 a  ZZf        /* sibling forward, double-triangle */
+   71 1 1 1 a  ZZp        /* parent */
+   72 1 1 1 a  ZZl        /* left child */
+   73 1 1 1 a  ZZr        /* right child */
+}
+
+/* Comments on the pointer codes:
+ * Always ZZf=forward pointer, ZZb=backward pointer in rings and lists;
+ * 4-6 for SINGLE_TRIANGLE: ZZp=parent,ZZc=child,ZZs=sibling;
+ * 14-17 for SINGLE_GRAPH:  ZZx,ZZy=nodes for given edge,
+ *                          ZZr,ZZs=next edge on x,y rings;
+ *                          ZZe=edges for a given node;
+ *
+ * Comments on pointer types:
+ * a=automatic pointer, s=string (char*), c=char, i=int, f=float,
+ * g=general link pointer, A=automatic array.
+ */
+
+
+/* When no pointers are used  orgInd can be anything (-1 used here),
+ * generic functions are marked by ind= -2, create='g', function='f',
+ * organization='o', class='c' */
+
+/* shortName     functionName               fileName    org sup  create */
+
+ZZfunction {
+  ZZformPg    ZZ_FORM_PAGER                   formpage     24  -1   n
+  ZZioPg      ZZ_IO_PAGER                     iopage       24  -1   n
+  ZZclosePg   ZZ_CLOSE_PAGER                  closepag     24  -1   n
+  ZZaddrPg    ZZ_ADDRESS_PAGER                addrpage     24  -1   n
+  ZZorgPg     ZZ_ORG_PAGER                    orgpage      24  -1   o
+  ZZhypPg     ZZ_HYPER_PAGER                  hyppage      24  -1   h
+  ZZlocPg     ZZ_LOCAL_PAGER                  hyppage      24  -1   L
+  ZZbindPtr   ZZ_BIND_POINTER                 bindptr      -1  -1   n
+  ZZkeepTb    ZZ_KEEP_TABLES                  keeptb       -1  -1   n
+  ZZfreeTb    ZZ_FREE_TABLES                  freetb       -1  -1   n
+  ZZformat    ZZ_FORMAT                       format       -1  -1   F
+  ZZupdDbl    ZZ_UPD_DOUBLE                   upddble      -1  -1   n
+  ZZmer1R     ZZ_MERGE_SINGLE_RING            mersring      0  -1   t 
+  ZZmer2R     ZZ_MERGE_DOUBLE_RING            merdring      2  -1   t 
+  ZZ3merZ     ZZ_MERGE_SINGLE_TRIANGLE        merstria     -1  -1   t 
+  ZZmerge     ZZ_MERGE                        merge        -2  -1   g 
+  ZZaRead     ZZ_ALLOCATE_AND_READ            allocrea     -1  -1   n 
+  ZZswSet     ZZ_SWEEP_SET                    swpset       -1   6   n
+  ZZswFree    ZZ_SWEEP_FREE                   swpfree      -1   6   n
+  ZZswFun     ZZ_SWEEP_FUNCTION               swpfun       -1   6   n
+  ZZsave      ZZ_SAVE                         save         -1   6   n
+  ZZdeep      ZZ_DEEP                         deep         -1   6   n
+  ZZmode      ZZ_MODE_SAVE                    mode         -1  -1   n
+  ZZclear     ZZ_CLEAR                        clear        -1   6   n
+  ZZerror     ZZ_ERROR                        error        -1  -1   n 
+  ZZhypUtil   ZZ_HYPER_UTILITIES              hyputil      -1  -1   h
+  ZZhypType   ZZ_HYPER_TYPE                   hyptype      -1  -1   h
+  ZZgetID     ZZ_GET_SELF_ID                  getselfi     -1   4   s 
+  ZZsetID     ZZ_SET_SELF_ID                  setselfi      4   4   t 
+  ZZorg1R     ZZ_ORG_SINGLE_RING              orgsring      0  -1   o 
+  ZZhyp1R     ZZ_HYPER_SINGLE_RING            hypsring      0  -1   h
+  ZZloc1R     ZZ_LOCAL_SINGLE_RING            hypsring      0  -1   L
+  ZZadd1R     ZZ_ADD_SINGLE_RING              addsring      0  -1   t 
+  ZZdel1R     ZZ_DELETE_SINGLE_RING           delsring      0  -1   t 
+  ZZAtr1R     ZZ_A_TRAVERSE_SINGLE_RING       travsrin      0  -1   t 
+  ZZsrt1R     ZZ_SORT_SINGLE_RING             sortsrin      0   2   t 
+  ZZfwd1R     ZZ_FORWARD_SINGLE_RING          fwdsring      0  -1   t 
+  ZZorg2R     ZZ_ORG_DOUBLE_RING              orgdring      2  -1   o 
+  ZZhyp2R     ZZ_HYPER_DOUBLE_RING            hypdring      2  -1   h
+  ZZloc2R     ZZ_LOCAL_DOUBLE_RING            hypdring      2  -1   L
+  ZZadd2R     ZZ_ADD_DOUBLE_RING              adddring      2  -1   t 
+  ZZins2R     ZZ_INSERT_DOUBLE_RING           insdring      2  -1   t 
+  ZZdel2R     ZZ_DELETE_DOUBLE_RING           deldring      2  -1   t 
+  ZZAtr2R     ZZ_A_TRAVERSE_DOUBLE_RING       travdrin      2  -1   t 
+  ZZArt2R     ZZ_A_RETRACE_DOUBLE_RING        retrdrin      2  -1   t 
+  ZZsrt2R     ZZ_SORT_DOUBLE_RING             sortdrin      2   2   t 
+  ZZfwd2R     ZZ_FORWARD_DOUBLE_RING          fwddring      2  -1   t 
+  ZZbwd2R     ZZ_BACKWARD_DOUBLE_RING         bwddring      2  -1   t 
+  ZZstrAlloc  ZZ_STRING_ALLOC                 stralloc     -1  -1   n 
+  ZZstrFree   ZZ_STRING_FREE                  strfree      -1  -1   n
+  ZZalloc     ZZ_PLAIN_ALLOC                  plainall     -1  -1   n 
+  ZZplainNew  ZZ_PLAIN_NEW                    plainnew     -1  -1   n 
+  ZZblkAlloc  ZZ_BLOCK_ALLOC                  blkalloc     -1  -1   n 
+  ZZblkAct    ZZ_BLOCK_ACTIVE                 blkactiv     -1  -1   n 
+  ZZblkU      ZZ_BLOCK_UTIL                   blkutil      -1  -1   n 
+  ZZblkF      ZZ_BLOCK_FREE                   blkfree      -1  -1   n 
+  ZZchk       ZZ_CHECK_FREE                   chkfree      -1  -1   n
+  ZZcheck     ZZ_CHECK                        check        -1  -1   n
+  ZZfree      ZZ_PLAIN_FREE                   plainfre     -1  -1   n
+  ZZobjAlloc  ZZ_OBJECT_ALLOC                 objalloc     -1  -1   n 
+  ZZobjNew    ZZ_OBJECT_NEW                   objnew       -1  -1   n 
+  ZZobjFree   ZZ_OBJECT_FREE                  objfree      -1  -1   n
+  ZZobjClear  ZZ_OBJECT_CLEAR                 objclear     -1  -1   n
+  ZZ3addZ     ZZ_ADD_SINGLE_TRIANGLE          addstria      3  -1   t 
+  ZZ3fwdZ     ZZ_FORWARD_SINGLE_TRIANGLE      fwdstria      3  -1   t 
+  ZZ3chiZ     ZZ_CHILD_SINGLE_TRIANGLE        chistria      3  -1   t 
+  ZZF3addZ    ZZF_ADD_SINGLE_TRIANGLE         faddstri      3  -1   f 
+  ZZ3delZ     ZZ_DELETE_SINGLE_TRIANGLE       delstria      3  -1   t 
+  ZZA3travZ   ZZ_A_TRAVERSE_SINGLE_TRIANGLE   travstri      3  -1   t 
+  ZZ3parZ     ZZ_PARENT_SINGLE_TRIANGLE       parstria      3  -1   t 
+  ZZ3srtZ     ZZ_SORT_SINGLE_TRIANGLE         sortstri      3   2   t 
+  ZZ3setZ     ZZ_SET_SINGLE_TRIANGLE          setstria      3  -1   t 
+  ZZorg1Tri   ZZ_ORG_SINGLE_TRIANGLE          orgstria      3  -1   o 
+  ZZorg1Agr   ZZ_ORG_SINGLE_AGGREGATE         orgstria      3  -1   o 
+  ZZhyp1Tri   ZZ_HYPER_SINGLE_TRIANGLE        hypstria      3  -1   h 
+  ZZloc1Tri   ZZ_LOCAL_SINGLE_TRIANGLE        hypstria      3  -1   L 
+  ZZhyp1Agr   ZZ_HYPER_SINGLE_AGGREGATE       hypstria      3  -1   h 
+  ZZloc1Agr   ZZ_LOCAL_SINGLE_AGGREGATE       hypstria      3  -1   L 
+  ZZinpNames  ZZ_INPUT_NAMES                  inpnames     -1  -1   n 
+  ZZsetProp   ZZ_SET_PROPERTY                 setprop       1   5   t 
+  ZZgetProp   ZZ_GET_PROPERTY                 getprop       1   5   t 
+  ZZdelProp   ZZ_DELETE_PROPERTY              delprop       1   5   t 
+  ZZprtProp   ZZ_PRINT_PROPERTY               prtprop      -1  -1   n 
+  ZZAtravP    ZZ_A_TRAVERSE_PROPERTY          travprop      1   4   t 
+  ZZsetTime   ZZ_SET_TIME_STAMP               settime       5   3   t 
+  ZZgetTime   ZZ_GET_TIME_STAMP               gettime       5   1   t 
+  ZZcmpTime   ZZ_CMP_TIME_STAMP               cmptime       5   1   t 
+  ZZAend      ZZ_A_END                        aend         -1  -1   n 
+  ZZAbreak    ZZ_A_BREAK                      abreak       -1  -1   n
+  ZZinitial   ZZ_INITIAL                      initial      -1  -1   n 
+  ZZinit      ZZ_INIT                         init         -1  -1   n
+  ZZorgProp   ZZ_ORG_PROPERTY                 orgprop       1   5   o 
+  ZZhypProp   ZZ_HYPER_PROPERTY               hypprop       1   5   H 
+  ZZorgTime   ZZ_ORG_TIME_STAMP               orgtime       5   3   o 
+  ZZhypTime   ZZ_HYPER_TIME_STAMP             hyptime       5   3   H
+  ZZorgSelf   ZZ_ORG_SELF_ID                  orgselfi      4   4   o 
+  ZZhypSelf   ZZ_HYPER_SELF_ID                hypselfi      4   4   H 
+  ZZobjSave   ZZ_OBJECT_SAVE                  objsave      -1  -1   n
+  ZZkeySave   ZZ_KEY_SAVE                     keysave      -1  -1   n
+  ZZstore     ZZ_STORE                        store        -1  -1   n
+  ZZclBind    ZZ_CLOSE_BIND                   closebin     -1  -1   n
+  ZZopen      ZZ_OPEN                         open         -1  -1   n
+  ZZorgGLink  ZZ_ORG_GENERAL_LINK             orgglink      6  -1   o
+  ZZhypGLink  ZZ_HYPER_GENERAL_LINK           hypglink      6  -1   h
+  ZZlocGLink  ZZ_LOCAL_GENERAL_LINK           hypglink      6  -1   L
+  ZZorgSLink  ZZ_ORG_SINGLE_LINK              orgslink      7  -1   o
+  ZZhypSLink  ZZ_HYPER_SINGLE_LINK            hypslink      7  -1   h
+  ZZlocSLink  ZZ_LOCAL_SINGLE_LINK            hypslink      7  -1   L
+  ZZorgDLink  ZZ_ORG_DOUBLE_LINK              orgdlink      8  -1   o
+  ZZhypDLink  ZZ_HYPER_DOUBLE_LINK            hypdlink      8  -1   h
+  ZZlocDLink  ZZ_LOCAL_DOUBLE_LINK            hypdlink      8  -1   L
+  ZZaddGLink  ZZ_ADD_GENERAL_LINK             addglink      6  -1   t
+  ZZptrSLink  ZZ_PTR_SINGLE_LINK              ptrslink      7  -1   t
+  ZZaddSLink  ZZ_ADD_SINGLE_LINK              addslink      7  -1   t
+  ZZaddDLink  ZZ_ADD_DOUBLE_LINK              adddlink      8  -1   t
+  ZZfwdGLink  ZZ_FORWARD_GENERAL_LINK         fwdglink      6  -1   t
+  ZZfwdSLink  ZZ_FORWARD_SINGLE_LINK          fwdslink      7  -1   t
+  ZZfwdDLink  ZZ_FORWARD_DOUBLE_LINK          fwddlink      8  -1   t
+  ZZbwdDLink  ZZ_BACKWARD_DOUBLE_LINK         bwddlink      8  -1   t
+  ZZdelGLink  ZZ_DELETE_GENERAL_LINK          delglink      6  -1   t
+  ZZdelSLink  ZZ_DELETE_SINGLE_LINK           delslink      7  -1   t
+  ZZdelDLink  ZZ_DELETE_DOUBLE_LINK           deldlink      8  -1   t
+  ZZorgRefer  ZZ_ORG_REFERENCE                orgrefer     25  -1   o
+  ZZlocRefer  ZZ_LOCAL_REFERENCE              hyprefer     25  -1   L
+  ZZhypRefer  ZZ_HYPER_REFERENCE              hyprefer     25  -1   h
+  ZZaddRefer  ZZ_ADD_REFERENCE                addrefer     25  -1   t
+  ZZdelRefer  ZZ_DELETE_REFERENCE             delrefer     25  -1   t
+  ZZfwdRefer  ZZ_FORWARD_REFERENCE            fwdrefer     25  -1   t
+  ZZsetRefer  ZZ_SET_REFERENCE                setrefer     25  -1   t
+  ZZgetRefer  ZZ_GET_REFERENCE                getrefer     25  -1   t
+  ZZadd       ZZ_ADD                          add          -2  -1   g
+  ZZFadd      ZZF_ADD                         fadd         -2  -1   G
+  ZZset       ZZ_SET                          set          -2  -1   g
+  ZZget       ZZ_GET                          get          -2  -1   g
+  ZZins       ZZ_INSERT                       insert       -2  -1   g
+  ZZapp       ZZ_APPEND                       append       -2  -1   g
+  ZZdel       ZZ_DELETE                       del          -2  -1   g
+  ZZAtrav     ZZ_A_TRAVERSE                   trav         -2  -1   g
+  ZZAretr     ZZ_A_RETRACE                    retr         -2  -1   g
+  ZZfwd       ZZ_FORWARD                      fwd          -2  -1   g
+  ZZbwd       ZZ_BACKWARD                     bwd          -2  -1   g
+  ZZpar       ZZ_PARENT                       par          -2  -1   g
+  ZZchi       ZZ_CHILD                        chi          -2  -1   g
+  ZZsort      ZZ_SORT                         sort         -2  -1   g
+  ZZpop       ZZ_POP                          pop          -2  -1   g
+  ZZpush      ZZ_PUSH                         push         -2  -1   g
+  ZZnodes     ZZ_NODES                        nodes        -2  -1   g
+  ZZptr       ZZ_PTR                          ptr          -2  -1   g
+  ZZaddName   ZZ_ADD_NAME                     addname       9  -1   t
+  ZZptrName   ZZ_PTR_NAME                     ptrname       9  -1   t
+  ZZdelName   ZZ_DELETE_NAME                  delname       9  -1   t
+  ZZfwdName   ZZ_FORWARD_NAME                 fwdname       9  -1   t
+  ZZorgName   ZZ_ORG_NAME                     orgname       9  -1   o
+  ZZhypName   ZZ_HYPER_NAME                   hypname       9  -1   h
+  ZZlocName   ZZ_LOCAL_NAME                   hypname       9  -1   L
+  ZZorg1G     ZZ_ORG_SINGLE_GRAPH             orgsgra      10  -1   o
+  ZZhyp1G     ZZ_HYPER_SINGLE_GRAPH           hypsgra      10  -1   h
+  ZZloc1G     ZZ_LOCAL_SINGLE_GRAPH           hypsgra      10  -1   L
+  ZZadd1G     ZZ_ADD_SINGLE_GRAPH             addsgra      10  -1   t
+  ZZdel1G     ZZ_DELETE_SINGLE_GRAPH          delsgra      10  -1   t
+  ZZAtr1G     ZZ_A_TRAVERSE_SINGLE_GRAPH      travsgra     10  -1   t
+  ZZnod1G     ZZ_NODES_SINGLE_GRAPH           nodsgra      10  -1   t
+  ZZorgdG     ZZ_ORG_DIRECT_GRAPH             orgdgra      22  -1   o
+  ZZhypdG     ZZ_HYPER_DIRECT_GRAPH           hypdgra      22  -1   h
+  ZZlocdG     ZZ_LOCAL_DIRECT_GRAPH           hypdgra      22  -1   L
+  ZZadddG     ZZ_ADD_DIRECT_GRAPH             adddgra      22  -1   t
+  ZZdeldG     ZZ_DELETE_DIRECT_GRAPH          deldgra      22  -1   t
+  ZZAtrdG     ZZ_A_TRAVERSE_DIRECT_GRAPH      travdgra     22  -1   t
+  ZZnoddG     ZZ_NODES_DIRECT_GRAPH           noddgra      22  -1   t
+  ZZorgFIFO   ZZ_ORG_FIFO                     orgfifo      11  -1   o
+  ZZhypFIFO   ZZ_HYPER_FIFO                   hypfifo      11  -1   h
+  ZZlocFIFO   ZZ_LOCAL_FIFO                   hypfifo      11  -1   L
+  ZZpopFIFO   ZZ_POP_FIFO                     popfifo      11  -1   t
+  ZZpushFIFO  ZZ_PUSH_FIFO                    pushfifo     11  -1   t
+  ZZorgLIFO   ZZ_ORG_LIFO                     orglifo      12  -1   o
+  ZZhypLIFO   ZZ_HYPER_LIFO                   hyplifo      12  -1   h
+  ZZlocLIFO   ZZ_LOCAL_LIFO                   hyplifo      12  -1   L
+  ZZpopLIFO   ZZ_POP_LIFO                     poplifo      12  -1   t
+  ZZpushLIFO  ZZ_PUSH_LIFO                    pushlifo     12  -1   t
+  ZZorg1T     ZZ_ORG_SINGLE_TREE              orgstree     13  -1   o
+  ZZhyp1T     ZZ_HYPER_SINGLE_TREE            hypstree     13  -1   h
+  ZZloc1T     ZZ_LOCAL_SINGLE_TREE            hypstree     13  -1   L
+  ZZadd1T     ZZ_ADD_SINGLE_TREE              addstree     13  -1   t
+  ZZset1T     ZZ_SET_SINGLE_TREE              setstree     13  -1   t
+  ZZdel1T     ZZ_DELETE_SINGLE_TREE           delstree     13  -1   t
+  ZZAtr1T     ZZ_A_TRAVERSE_SINGLE_TREE       travstre     13  -1   t
+  ZZfwd1T     ZZ_FORWARD_SINGLE_TREE          fwdstree     13  -1   t
+  ZZpar1T     ZZ_PARENT_SINGLE_TREE           parstree     13  -1   t
+  ZZchi1T     ZZ_CHILD_SINGLE_TREE            chistree     13  -1   t
+  ZZapp1T     ZZ_APPEND_SINGLE_TREE           appstree     13  -1   t
+  ZZorg2T     ZZ_ORG_DOUBLE_TREE              orgdtree     15  -1   o
+  ZZhyp2T     ZZ_HYPER_DOUBLE_TREE            hypdtree     15  -1   h
+  ZZloc2T     ZZ_LOCAL_DOUBLE_TREE            hypdtree     15  -1   L
+  ZZadd2T     ZZ_ADD_DOUBLE_TREE              adddtree     15  -1   t
+  ZZset2T     ZZ_SET_DOUBLE_TREE              setdtree     15  -1   t
+  ZZdel2T     ZZ_DELETE_DOUBLE_TREE           deldtree     15  -1   t
+  ZZAtr2T     ZZ_A_TRAVERSE_DOUBLE_TREE       travdtre     15  -1   t
+  ZZfwd2T     ZZ_FORWARD_DOUBLE_TREE          fwddtree     15  -1   t
+  ZZpar2T     ZZ_PARENT_DOUBLE_TREE           pardtree     15  -1   t
+  ZZchi2T     ZZ_CHILD_DOUBLE_TREE            chidtree     15  -1   t
+  ZZbwd2T     ZZ_BACKWARD_DOUBLE_TREE         bwddtree     15  -1   t
+  ZZArt2T     ZZ_A_RETRACE_DOUBLE_TREE        retrdtre     15  -1   t    
+  ZZins2T     ZZ_INSERT_DOUBLE_TREE           insdtree     15  -1   t
+  ZZapp2T     ZZ_APPEND_DOUBLE_TREE           appdtree     15  -1   t
+  ZZorgArr    ZZ_ORG_ARRAY                    orgarray     14   7   o
+  ZZhypArr    ZZ_HYPER_ARRAY                  hyparray     14   7   h
+  ZZlocArr    ZZ_LOCAL_ARRAY                  hyparray     14   7   L
+  ZZheadArr   ZZ_HEAD_ARRAY                   headarra     14   7   t
+  ZZformArr   ZZ_FORM_ARRAY                   formarra     14   7   t
+  ZZfreeArr   ZZ_FREE_ARRAY                   freearra     14   7   t
+  ZZsizeArr   ZZ_SIZE_ARRAY                   sizearra     14   7   t
+  ZZindArr    ZZ_INDEX_ARRAY                  indarray     14   7   t
+  ZZindHeap   ZZ_INDEX_HEAP                   indheap      14   7   t
+  ZZpushArr   ZZ_PUSH_ARRAY                   pusharra     14   7   t
+  ZZpopArr    ZZ_POP_ARRAY                    poparray     14   7   t
+  ZZsortArr   ZZ_SORT_ARRAY                   sortarra     14   7   t
+  ZZresArr    ZZ_RESET_ARRAY                  rstarray     14   7   t
+  ZZinHeap    ZZ_IN_HEAP                      inheap       14   7   t
+  ZZoutHeap   ZZ_OUT_HEAP                     outheap      14   7   t
+  ZZupdHeap   ZZ_UPDATE_HEAP                  updheap      14   7   t
+  ZZdelHeap   ZZ_DELETE_HEAP                  delheap      14   7   t
+  ZZorgHash   ZZ_ORG_HASH                     orghash      16  -1   o
+  ZZhypHash   ZZ_HYPER_HASH                   hyphash      16  -1   h
+  ZZlocHash   ZZ_LOCAL_HASH                   hyphash      16  -1   L
+  ZZformHash  ZZ_FORM_HASH                    formhash     16  -1   t
+  ZZsizeHash  ZZ_SIZE_HASH                    sizehash     16  -1   t
+  ZZslotHash  ZZ_SLOT_HASH                    slothash     16  -1   t
+  ZZAtravHash ZZ_A_TRAVERSE_HASH              travhash     16  -1   t
+  ZZresHash   ZZ_RESIZE_HASH                  rsthash      16  -1   t
+  ZZaddHash   ZZ_ADD_HASH                     addhash      16  -1   t
+  ZZadd2Hash  ZZ_ADD2_HASH                    add2hash     16  -1   t
+  ZZdelHash   ZZ_DELETE_HASH                  delhash      16  -1   t
+  ZZgetHash   ZZ_GET_HASH                     gethash      16  -1   t
+  ZZfreeHash  ZZ_FREE_HASH                    freehash     16  -1   t
+  ZZorg1to1   ZZ_ORG_1_TO_1                   org1to1      17  -1   o 
+  ZZorg1toN   ZZ_ORG_1_TO_N                   org1ton      18  -1   o 
+  ZZorgMto1   ZZ_ORG_M_TO_1                   orgmto1      19  -1   o 
+  ZZorgMtoN   ZZ_ORG_M_TO_N                   orgmton      20  -1   o 
+  ZZhyp1to1   ZZ_HYPER_1_TO_1                 hyp1to1      17  -1   h 
+  ZZloc1to1   ZZ_LOCAL_1_TO_1                 hyp1to1      17  -1   L 
+  ZZhyp1toN   ZZ_HYPER_1_TO_N                 hyp1ton      18  -1   h 
+  ZZloc1toN   ZZ_LOCAL_1_TO_N                 hyp1ton      18  -1   L 
+  ZZhypMto1   ZZ_HYPER_M_TO_1                 hypmto1      19  -1   h 
+  ZZlocMto1   ZZ_LOCAL_M_TO_1                 hypmto1      19  -1   L 
+  ZZhypMtoN   ZZ_HYPER_M_TO_N                 hypmton      20  -1   h 
+  ZZlocMtoN   ZZ_LOCAL_M_TO_N                 hypmton      20  -1   L 
+  ZZtarget    ZZ_TARGET                       target       -2  -1   g
+  ZZsource    ZZ_SOURCE                       source       -2  -1   g
+  ZZaddRel    ZZ_ADD_RELATION                 addrel       -2  -1   g
+  ZZdelRel    ZZ_DELETE_RELATION              delrel       -2  -1   g
+  ZZFaddRel   ZZF_ADD_RELATION                faddrel      -2  -1   G
+  ZZFdelRel   ZZF_DELETE_RELATION             fdelrel      -2  -1   G
+  ZZtarg1to1  ZZ_TARGET_1_TO_1                targ1to1     17  -1   t
+  ZZtarg1toN  ZZ_TARGET_1_TO_N                targ1ton     18  -1   t
+  ZZtargMto1  ZZ_TARGET_M_TO_1                targmto1     19  -1   t
+  ZZtargMtoN  ZZ_TARGET_M_TO_N                targmton     20  -1   t
+  ZZsour1to1  ZZ_SOURCE_1_TO_1                sour1to1     17  -1   t
+  ZZsour1toN  ZZ_SOURCE_1_TO_N                sour1ton     18  -1   t
+  ZZsourMto1  ZZ_SOURCE_M_TO_1                sourmto1     19  -1   t
+  ZZsourMtoN  ZZ_SOURCE_M_TO_N                sourmton     20  -1   t
+  ZZfwd1to1   ZZ_FORWARD_1_TO_1               fwd1to1     17  -1   t
+  ZZfwd1toN   ZZ_FORWARD_1_TO_N               fwd1ton     18  -1   t
+  ZZfwdMto1   ZZ_FORWARD_M_TO_1               fwdmto1     19  -1   t
+  ZZfwdMtoN   ZZ_FORWARD_M_TO_N               fwdmton     20  -1   t
+  ZZbwd1to1   ZZ_BACKWARD_1_TO_1              bwd1to1     17  -1   t
+  ZZbwd1toN   ZZ_BACKWARD_1_TO_N              bwd1ton     18  -1   t
+  ZZbwdMto1   ZZ_BACKWARD_M_TO_1              bwdmto1     19  -1   t
+  ZZbwdMtoN   ZZ_BACKWARD_M_TO_N              bwdmton     20  -1   t
+  ZZAtrav1to1 ZZ_A_TRAVERSE_1_TO_1            trav1to1    17  -1   t
+  ZZAtrav1toN ZZ_A_TRAVERSE_1_TO_N            trav1ton    18  -1   t
+  ZZAtravMto1 ZZ_A_TRAVERSE_M_TO_1            travmto1    19  -1   t
+  ZZAtravMtoN ZZ_A_TRAVERSE_M_TO_N            travmton    20  -1   t
+  ZZAretr1to1 ZZ_A_RETRACE_1_TO_1             retr1to1    17  -1   t
+  ZZAretr1toN ZZ_A_RETRACE_1_TO_N             retr1ton    18  -1   t
+  ZZAretrMto1 ZZ_A_RETRACE_M_TO_1             retrmto1    19  -1   t
+  ZZAretrMtoN ZZ_A_RETRACE_M_TO_N             retrmton    20  -1   t
+  ZZadd1to1   ZZ_ADD_RELATION_1_TO_1          add1to1     17  -1   t
+  ZZadd1toN   ZZ_ADD_RELATION_1_TO_N          add1ton     18  -1   t
+  ZZaddMto1   ZZ_ADD_RELATION_M_TO_1          addmto1     19  -1   t
+  ZZaddMtoN   ZZ_ADD_RELATION_M_TO_N          addmton     20  -1   t
+  ZZdel1to1   ZZ_DELETE_RELATION_1_TO_1       del1to1     17  -1   t
+  ZZdel1toN   ZZ_DELETE_RELATION_1_TO_N       del1ton     18  -1   t
+  ZZdelMto1   ZZ_DELETE_RELATION_M_TO_1       delmto1     19  -1   t
+  ZZdelMtoN   ZZ_DELETE_RELATION_M_TO_N       delmton     20  -1   t
+  ZZFadd1to1  ZZF_ADD_RELATION_1_TO_1         fadd1to1    17  -1   f
+  ZZFadd1toN  ZZF_ADD_RELATION_1_TO_N         fadd1ton    18  -1   f
+  ZZFaddMto1  ZZF_ADD_RELATION_M_TO_1         faddmto1    19  -1   f
+  ZZFaddMtoN  ZZF_ADD_RELATION_M_TO_N         faddmton    20  -1   f
+  ZZFdel1to1  ZZF_DELETE_RELATION_1_TO_1      fdel1to1    17  -1   f
+  ZZFdel1toN  ZZF_DELETE_RELATION_1_TO_N      fdel1ton    18  -1   f
+  ZZFdelMto1  ZZF_DELETE_RELATION_M_TO_1      fdelmto1    19  -1   f
+  ZZFdelMtoN  ZZF_DELETE_RELATION_M_TO_N      fdelmton    20  -1   f
+  ZZadd1C     ZZ_ADD_SINGLE_COLLECT           addscoll    21  -1   t 
+  ZZmer1C     ZZ_MERGE_SINGLE_COLLECT         merscoll    -1  -1   t 
+  ZZfwd1C     ZZ_FORWARD_SINGLE_COLLECT       fwdscoll    21  -1   t 
+  ZZchi1C     ZZ_CHILD_SINGLE_COLLECT         chiscoll    21  -1   t 
+  ZZdel1C     ZZ_DELETE_SINGLE_COLLECT        delscoll    21  -1   t 
+  ZZAtrav1C   ZZ_A_TRAVERSE_SINGLE_COLLECT    travscol    21  -1   t 
+  ZZset1C     ZZ_SET_SINGLE_COLLECT           setscoll    21  -1   t 
+  ZZsrt1C     ZZ_SORT_SINGLE_COLLECT          sortscol    21   2   t 
+  ZZorg1C     ZZ_ORG_SINGLE_COLLECT           orgscoll    21  -1   o 
+  ZZhyp1C     ZZ_HYPER_SINGLE_COLLECT         hypscoll    21  -1   h 
+  ZZloc1C     ZZ_LOCAL_SINGLE_COLLECT         hypscoll    21  -1   L 
+  ZZadd2C     ZZ_ADD_DOUBLE_COLLECT           adddcoll    23  -1   t 
+  ZZins2C     ZZ_INSERT_DOUBLE_COLLECT        insdcoll    23  -1   t 
+  ZZmer2C     ZZ_MERGE_DOUBLE_COLLECT         merdcoll    23  -1   t 
+  ZZfwd2C     ZZ_FORWARD_DOUBLE_COLLECT       fwddcoll    23  -1   t 
+  ZZbwd2C     ZZ_BACKWARD_DOUBLE_COLLECT      bwddcoll    23  -1   t 
+  ZZchi2C     ZZ_CHILD_DOUBLE_COLLECT         chidcoll    23  -1   t 
+  ZZdel2C     ZZ_DELETE_DOUBLE_COLLECT        deldcoll    23  -1   t 
+  ZZAtrav2C   ZZ_A_TRAVERSE_DOUBLE_COLLECT    travdcol    23  -1   t 
+  ZZAretr2C   ZZ_A_RETRACE_DOUBLE_COLLECT     retrdcol    23  -1   t 
+  ZZset2C     ZZ_SET_DOUBLE_COLLECT           setdcoll    23  -1   t 
+  ZZsrt2C     ZZ_SORT_DOUBLE_COLLECT          sortdcol    23   2   t 
+  ZZorg2C     ZZ_ORG_DOUBLE_COLLECT           orgdcoll    23  -1   o 
+  ZZhyp2C     ZZ_HYPER_DOUBLE_COLLECT         hypdcoll    23  -1   h 
+  ZZloc2C     ZZ_LOCAL_DOUBLE_COLLECT         hypdcoll    23  -1   L 
+  ZZ3merD     ZZ_MERGE_DOUBLE_TRIANGLE        merdtria    26  -1   t 
+  ZZ3addD     ZZ_ADD_DOUBLE_TRIANGLE          adddtria    26  -1   t 
+  ZZ3insD     ZZ_INSERT_DOUBLE_TRIANGLE       insdtria    26  -1   t 
+  ZZ3fwdD     ZZ_FORWARD_DOUBLE_TRIANGLE      fwddtria    26  -1   t 
+  ZZ3bwdD     ZZ_BACKWARD_DOUBLE_TRIANGLE     bwddtria    26  -1   t 
+  ZZ3chiD     ZZ_CHILD_DOUBLE_TRIANGLE        chidtria    26  -1   t 
+  ZZ3delD     ZZ_DELETE_DOUBLE_TRIANGLE       deldtria    26  -1   t 
+  ZZA3travD   ZZ_A_TRAVERSE_DOUBLE_TRIANGLE   travdtri    26  -1   t 
+  ZZA3retrD   ZZ_A_RETRACE_DOUBLE_TRIANGLE    travdtri    26  -1   t 
+  ZZ3parD     ZZ_PARENT_DOUBLE_TRIANGLE       pardtria    26  -1   t 
+  ZZ3srtD     ZZ_SORT_DOUBLE_TRIANGLE         sortdtri    26   2   t 
+  ZZ3setD     ZZ_SET_DOUBLE_TRIANGLE          setdtria    26  -1   t 
+  ZZorg2Tri   ZZ_ORG_DOUBLE_TRIANGLE          orgdtria    26  -1   o 
+  ZZhyp2Tri   ZZ_HYPER_DOUBLE_TRIANGLE        hypdtria    26  -1   h 
+  ZZhyp2Agr   ZZ_HYPER_DOUBLE_AGGREGATE       hypdtria    26  -1   h 
+  ZZloc2Tri   ZZ_LOCAL_DOUBLE_TRIANGLE        hypdtria    26  -1   L 
+  ZZloc2Agr   ZZ_LOCAL_DOUBLE_AGGREGATE       hypdtria    26  -1   L 
+  ZZhyp1BT    ZZ_HYPER_BINARY_TREE            hypbtree    27  -1   h
+}
+
+/* hierarchy of ZZ_ORG for hierarchical organizations */
+/*   parent org.               child org.        prefix  parameters */
+
+ZZhierarchy {
+}
+
+/* Each function may depend on several sections of support code */
+/* Support with ind=0 will be used every time */
+
+/* ind next  fileName       */
+
+ZZsupport {
+    0   6  buffer.h      
+    1  -1  property.h    
+    2  -1  offset.h      
+    3  -1  orgctime.h        
+    4  -1  selfid.h
+    5  -1  property.h    
+    6  -1  bind.h
+    7  -1  array.h
+}

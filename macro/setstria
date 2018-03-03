@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* given parent, unused */
+ str2Type *pp;    /* new child to be set */
+.)l
+Description:
+ The 'child' pointer on the parent decides about the order in which
+the bottom elements are returned by ZZ_A_TRAVERSE() or other traversal
+functions. ZZ_SET_SINGLE_TRIANGLE() resets the child pointer to
+a different object.
+.sp
+Warning:
+ This command sets the 'child pointer', not the child. The new first
+child listed by ZZ_A_TRAVERSE() will be the next child to 'pp',
+which can be obtained by ZZ_FORWARD().
+.sp
+Possible errors:
+ The new object must be a member of the same triangle. If it is not,
+an error is detected.
+.(l
+Example:
+
+typedef struct Country Country;
+typedef struct Town Town;
+struct Country{
+    ZZ_EXT_Country
+    int population;
+    float sqMiles;
+    char *name;
+};
+struct Town{
+    ZZ_EXT_Town
+    char river; /* yes or no */
+    char color; /* color people hate most */
+    char *contryName;
+    char *townName;
+};
+/* each contry contains number of towns */
+ZZ_ORG_SINGLE_TRIANGLE(myTriangle,Country,Town);
+
+Country *c;
+Town *t;
+
+    /* using the following 2 lines when loading new object
+       results in objects ordered as loaded */
+    ZZ_ADD(myTriangle,c,t);
+    ZZ_SET(myTriangle,c,t);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SET_SINGLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_SET_SINGLE_TRIANGLE(id,ZZFP(ZZp,id),ZZFP(ZZc,id),pp)
+
+#define ZZZ_SET_SINGLE_TRIANGLE(id,parent,child,pp) {\
+    if((pp)->parent) (pp)->parent->child=(pp); }

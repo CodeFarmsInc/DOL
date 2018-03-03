@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the array */
+ str1Type *obj;  /* object on which the array is */
+ str2Type *elem; /* element popped off the stack */
+.)l
+Description:
+ Using the array as a stack (LIFO queue), pop the next element
+off the stack. Returns NULL if the stack is empty.
+.sp
+Note that generic ZZ_POP() can be used for the ARRAY.
+The current size of the stack can be detected by using ZZ_SIZE_ARRAY().
+.sp
+.(l
+ typedef struct Header Header;
+ typedef struct Record Record;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Record {
+     int time;
+     int cost;
+     char *name;
+ };
+ ZZ_ORG_ARRAY(myStack,Header,Record)
+
+ int i;
+ Header h;
+ Record *a,*s;
+
+ /* form adjustable stack of 20 records, increment 100 */
+ ZZ_FORM_ARRAY(myStack,&h,20,100,a)
+
+    ....
+ ZZ_PUSH_ARRAY(myStack,&h,s)
+    ....
+ ZZ_PUSH_ARRAY(myStack,&h,s)
+    ....
+
+ ZZ_POP_ARRAY(myStack,&h,s)
+    ....
+ ZZ_POP_ARRAY(myStack,&h,s)
+    ....
+.)l
+  ========================================================== */ 
+#define ZZ_POP_ARRAY(id,obj,elem) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_POP_ARRAY(id,ZZFT(2,id),ZZFP(ZZa,id),obj,elem)
+
+#define ZZZ_POP_ARRAY(id,str2Type,aPtr,obj,elem) \
+{ ZZarray *ZZa;\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        if(ZZa->waterM>=0){\
+            (elem)=(str2Type *)(&(ZZa->array[(ZZa->waterM)*(ZZa->size)]));\
+            (ZZa->waterM)--;\
+        }\
+        else (elem)=NULL;\
+    }\
+    else {\
+       ZZerrFLG=04;\
+       ZZmsgS(24,ZZ_STRINGIT(id));\
+    }\
+}

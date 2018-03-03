@@ -1,0 +1,35 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id for the instance of the organization */
+ strType *par;  /* given pointer to a parent */
+ strType *chi;  /* returned pointer to the child */
+.)l
+Description:
+ For a given pointer to the parent of the tree, find the child.
+ If no child, themacro returns NULL.
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee{
+    ZZ_EXT_Employee
+    char *name;
+    char *manager;
+    int salary;
+};
+ZZ_ORG_SINGLE_TREE(myTree,Employee)
+
+Employee *c,*p;
+
+ZZ_CHILD_SINGLE_TREE(myTree,p,c)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_CHILD_SINGLE_TREE(id,par,chi) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_CHILD_SINGLE_TREE(ZZFP(ZZc,id),ZZFP(ZZs,id),par,chi)
+
+#define ZZZ_CHILD_SINGLE_TREE(child,sibl,par,chi) {\
+  (chi)=(par)->child; if(chi)(chi)=(chi)->sibl; }

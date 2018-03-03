@@ -1,0 +1,65 @@
+/* =========================================================
+.(l
+ strType *p1;   /* first object to be compared */
+ strType *p2;   /* second object to be compared */
+ int i;                /* result of the comparision, -1, 0, +1 */
+.)l
+Description:
+ The macro compares time stamps of two objects, and returns
+-1 if the first object is older, +1 if the second object is older,
+and 0 if both objects have the same time stamp.
+.pp
+Note that the time stamp has the accuracy of 1 sec, and that using
+ZZ_CMP_TIME_STAMP() is faster than using ZZ_GET_TIME_STAMP() on the
+two objects and then comparing the bytes. The time stamp is internally
+packed, and ZZ_CMP_TIME_STAMP() does not unpack the bytes.
+.pp
+Also note that all objects either allocated or initialized
+with ZZ.. macros have a time stamp, therefore all objects in your
+data structures should have a meaningful time stamp.
+.(l
+Example:
+
+typedef struct Block Block;
+struct Block {
+    ZZ_EXT_Block
+    char *name;
+    int x1,y1,x2,y2;
+};
+ZZ_ORG_TIME_STAMP(Block)
+
+Block *bp1,*bp2;
+unsigned char ts[6];
+int i;
+
+.... allocate blocks bp1, bp2; use them in your program ....
+
+/* print the older block */
+ZZ_CMP_TIME_STAMP(bp1,bp1,i)
+if(i<0)     printf("%s is older\n",bp1->name);
+else if(i>0)printf("%s is older\n",bp2->name);
+else        printf("both blocks have the same stamp\n");
+
+/* print the timeStamp of bp2 */
+ZZ_GET_TIME_STAMP(bp2,ts)
+for(i=0;i<6;i++)printf("%d ",ts[i]);
+
+.... may print: 88 9 13 15 32 55
+     for Sept.13, 1988 3pm 32 min 55 sec
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_CMP_TIME_STAMP(p1,p2,i) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+ZZint ZZk; unsigned ZZint ZZj1,ZZj2;\
+(i)=0;\
+for(ZZk=0;ZZk<ZZtSize;ZZk++){\
+    ZZj1=(p1)->ZZtimeStamp[ZZk];\
+    ZZj2=(p2)->ZZtimeStamp[ZZk];\
+    if(ZZj1==ZZj2)continue;\
+    if(ZZj1<ZZj2){i= -1; break;}\
+    else     {i=  1; break;}\
+}\
+}

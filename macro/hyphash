@@ -1,0 +1,281 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ TEXT hType;      /* header type */
+ TEXT oType;      /* object type to be stored */
+.)l
+Description:
+ Declaration of a hash table.
+.sp
+A hash table lives always on on object. If you need a plain table,
+declare a object header just for that, with nothing in it except for ZZ_EXT_...
+.sp
+Important: The hash() and cmp() functions are associated with the class that
+represents the organization(!), not with the object itself as done in other
+class libraries. Our solution is more "object-oriented", and provides for
+more flexibilty and separation between objects and relations.
+.(l
+Example:
+
+ class Employee {
+     ZZ_EXT_Employee
+ public:
+     char *name;
+     int birthDate;
+ };
+ class Header {
+     ZZ_EXT_Header
+ };
+ ZZ_HYPER_HASH(byName,Header,Employee)
+ ZZ_HYPER_HASH(byDate,Header,Employee)
+.)l
+.sp
+Internally, a hash table consists of an array of pointers plus a
+list that links together objects that fall under the same hash slot.
+For that reason, dealing with the hash table is somewhat similar to
+dealing with an array. For example, before you start to use a hash
+table, you have to select its initial size and 'form' it. Later, you can
+examine its internal parameters, resize it, or traverse its members.
+Function formed() returns NULL when an array has not been formed.
+.sp
+For each hash table, the user has to provide two functions,
+.(l
+int id_class::hash(oType* p,int size);  // hashing key for object p, table size 
+int id_class::cmp(oType* p1,oType* p2); // compares objects p1 and p2
+                                        // returns 0 for the same key
+.)l
+Conveniente
+ The first function derives a hashing slot index for a given key, the second
+function compares the key on two objects. Unless you have a special
+requirement, use one of the convenient defaults provided with the library:
+.(l
+int ZZhashStr(char *str,int size);
+/* returns hashing index for string 'str' and table size 'size' */
+
+int ZZhashInt(int i,int size);
+/* returns hashing index for positive integer  ' i' and table size 'size' */
+.)l
+In the example above, these two functions may look like this:
+.(l
+int byName_class:cmp(Employee *p1,Employee *p2){
+       return(strcmp(p1->name,p2->name));}
+int byName_class:hash(Employee *ep,int tabSize){
+      int ZZhashStr(char *,int); return(ZZhashStr(ep->name,tabSize); }
+
+int byDate_class:cmp(Employee *p1,Employee *p2){
+      if(p1->birthDate==p2->birthDate)return(0); else return(1); }
+int byDate_class::hash(Employee *ep,int tabSize){
+      int ZZhashInt(int,int); return(ZZhashInt(ep->birthDate,tabSize); }
+.)l
+The following functions allow you to perform all the usual operations:
+ hType *hp;
+ oType *op;
+ int sz; /* size of the table */
+ int num; /* number of objects in the table */
+ int st; /* slot number */
+
+ void add(hp,op) adds a object op to the hash table;
+ int add2(hp,op,sameKey) adds an object op to the hash table, and
+       permits control whether several entries can have the same key;
+       it also returns 1 if each entry must have a unique key and
+       the key of op is already in the table (op not added)
+ void del(hp,op) deletes an object from the hash table;
+ oType *get(hp,op) finds the object using template op;
+ void form(hp,sz) forms a hash table of the given size;
+ void resize(hp,sz) resets the size of the table;
+ int size(hp,&num) reports the current size of the table;
+ oType *slot(hp,st) returns the first object in the given slot;
+ id_iterator allows to traverse objects within one slot.
+ free(hp) frees (deallocates the table)
+.sp
+The whole table can be traversed by getting the size from size(),
+then looping over all slots, for each slot getting one object through slot()
+and then traversing the objects within each slot through the iterator.
+Overloaded operator ++ is used to get the next object through the iterator.
+.(l
+ Header h;
+ Employee *ep,*pp;
+ int i;
+
+   ....
+ /* print all Employees in the table */
+ for(i=0;i<200;i++){
+    ep=byName.slot(h,i);
+    byName_iterator bIter(ep);
+    while(pp=bIter++){
+        printf("slot=%d employee=%s\\n",i,pp->name);
+    }
+ }
+.)l
+.sp
+ For local scope use ZZ_LOCAL_HASH(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+  ========================================================== */ 
+#define ZZ_HYPER_HASH(id,hType,oType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_HASH(id,hType,oType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_HASH(id,hType,oType,where) \
+ZZ_BASIC_HASH(id,hType,oType,static,where :: id)
+
+#ifdef ZZmain
+#define ZZ_BASIC_HASH(id,hType,oType,scope,where) \
+class ZZFP(ZZH,id) { \
+public: \
+    inline ZZint cmp(oType *p1,oType *p2);\
+    inline ZZint hash(oType *p,ZZint size);\
+    void form(hType *hp,ZZint sz);\
+    void *formed(hType *hp){return (void*)(hp->ZZFP(ZZa,id));}\
+    void resize(hType *hp,ZZint sz);\
+    void add(hType *hp,oType *op);\
+    ZZint add2(hType *hp,oType *op,ZZint sameKey);\
+    void del(hType *hp,oType *op);\
+    ZZint size(hType *hp,ZZint *num);\
+    oType *slot(hType *hp,ZZint st);\
+    void free(hType *hp);\
+    oType *fwd(oType *op){ return(op->ZZFP(ZZf,id));}\
+    oType *get(hType *hp,oType *op);\
+    void newFun(hType *hp);\
+};\
+scope ZZFP(ZZH,id) id; \
+ZZint ZZFP(zz_hashCmp_,id)(char *p1,char *p2){ \
+                               return(id.cmp((oType *)p1,(oType *)p2));} \
+ZZint ZZFP(zz_hashInd_,id)(char *p,ZZint size){return(id.hash((oType *)p,size));} \
+class ZZFN(id,iterator){ \
+   oType *beg;\
+   oType *nxt;\
+   ZZint iSlot;\
+   ZZint sz;\
+   hType *hRem;\
+public:\
+   ZZFN(id,iterator)(oType *p){start(p); }\
+   ZZFN(id,iterator)(hType *h){start(h); }\
+   ZZFN(id,iterator)(){}\
+   void start(oType *p){iSlot= -1; if(p)nxt=where.fwd(p); else nxt=NULL; beg=p;}\
+   void start(hType *h){ZZint n; oType *p; hRem=h;\
+       sz=where.size(h,&n);\
+       for(iSlot=0, p=NULL; iSlot<sz; iSlot++){\
+           p=where.slot(h,iSlot);\
+           if(p)break;\
+       }\
+       beg=nxt=p;\
+       if(p)nxt=where.fwd(p); \
+   }\
+   oType* operator++(){oType *p,*s;\
+      if(nxt==NULL)return NULL;\
+      p=nxt;\
+      if(iSlot<0){\
+          if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p); return(p);\
+      }\
+      else {\
+          if(p!=beg){\
+              nxt=where.fwd(p); return(p);\
+          }\
+          for(iSlot++, s=NULL; iSlot<sz; iSlot++){\
+              s=where.slot(hRem,iSlot);\
+              if(s){\
+                  beg=s; nxt=where.fwd(s); return p;\
+              }\
+          }\
+          beg=nxt=NULL; return p;\
+      }\
+   }\
+}
+#else
+#define ZZ_BASIC_HASH(id,hType,oType,scope,where) \
+class ZZFP(ZZH,id) { \
+public: \
+    inline ZZint cmp(oType *p1,oType *p2);\
+    inline ZZint hash(oType *p,ZZint size);\
+    void form(hType *hp,ZZint sz);\
+    void *formed(hType *hp){return (void*)(hp->ZZFP(ZZa,id));}\
+    void resize(hType *hp,ZZint sz);\
+    void add(hType *hp,oType *op);\
+    ZZint add2(hType *hp,oType *op,ZZint sameKey);\
+    void del(hType *hp,oType *op);\
+    ZZint size(hType *hp,ZZint *num);\
+    oType *slot(hType *hp,ZZint st);\
+    void free(hType *hp);\
+    oType *fwd(oType *op){ return(op->ZZFP(ZZf,id));}\
+    oType *get(hType *hp,oType *op);\
+    void newFun(hType *hp);\
+};\
+scope ZZFP(ZZH,id) id; \
+ZZint ZZFP(zz_hashCmp_,id)(char *p1,char *p2); \
+ZZint ZZFP(zz_hashInd_,id)(char *p,ZZint size); \
+class ZZFN(id,iterator){ \
+   oType *beg;\
+   oType *nxt;\
+   ZZint iSlot;\
+   ZZint sz;\
+   hType *hRem;\
+public:\
+   ZZFN(id,iterator)(oType *p){start(p); }\
+   ZZFN(id,iterator)(hType *h){start(h); }\
+   ZZFN(id,iterator)(){}\
+   void start(oType *p){iSlot= -1; if(p)nxt=where.fwd(p); else nxt=NULL; beg=p; }\
+   void start(hType *h){ZZint n,sz; oType *p; hRem=h;\
+       sz=where.size(h,&n);\
+       for(iSlot=0, p=NULL; iSlot<sz; iSlot++){\
+           p=where.slot(h,iSlot);\
+           if(p)break;\
+       }\
+       beg=nxt=p;\
+       if(p)nxt=where.fwd(p); \
+   }\
+   oType* operator++(){oType *p,*s;\
+      if(nxt==NULL)return NULL;\
+      p=nxt;\
+      if(iSlot<0){\
+          if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p); return(p);\
+      }\
+      else {\
+          if(p!=beg){\
+              nxt=where.fwd(p); return(p);\
+          }\
+          for(iSlot++, s=NULL; iSlot<sz; iSlot++){\
+              s=where.slot(hRem,iSlot);\
+              if(s){\
+                  beg=s; nxt=where.fwd(s); return p;\
+              }\
+          }\
+          beg=nxt=NULL; return p;\
+      }\
+   }\
+}
+#endif
+/* _______________________________________________________________________ */
+ZZ2$* ZZV$ ZZH$ :: get(ZZ1$ *h,ZZ2$ *t){ZZ2$ *p;ZZ_GET_HASH($,h,t,p); return(p);}
+void ZZV$ ZZH$ :: add(ZZ1$ *h,ZZ2$ *t){ZZ_ADD_HASH($,h,t);}
+ZZint ZZV$ ZZH$ :: add2(ZZ1$ *h,ZZ2$ *t,ZZint sameKey){
+                    ZZint i; ZZ_ADD2_HASH($,h,t,sameKey,i); return i;}
+void ZZV$ ZZH$ :: del(ZZ1$ *h,ZZ2$ *t){ZZ_DELETE_HASH($,h,t);}
+void ZZV$ ZZH$ :: form(ZZ1$ *h,ZZint sz){ZZ_FORM_HASH($,h,sz);}
+void ZZV$ ZZH$ :: resize(ZZ1$ *h,ZZint sz){ZZ_RESIZE_HASH($,h,sz);}
+ZZint  ZZV$ ZZH$ :: size(ZZ1$ *h,ZZint *n){ZZint s; ZZ_SIZE_HASH($,h,s,*n); return(s);}
+ZZ2$ * ZZV$ ZZH$ :: slot(ZZ1$ *h,ZZint st){ZZ2$ *o; ZZ_SLOT_HASH($,h,st,o); return(o);}
+void ZZV$ ZZH$ :: free(ZZ1$ *h){ZZ_FREE_HASH($,h);}
+// -----------------------------------------------------------------------
+// This function disassembles the hash table, and without allocating
+// new space, it reloads all objects back into it. The function is typically
+// used after switching to a different ..hash() and/or ..cmp() functions.
+// -----------------------------------------------------------------------
+void ZZV$ ZZH$ :: newFun(ZZ1$ *hp){
+    ZZ2$ *head,*s,*p; ZZint i,sz; char **a;
+    $_iterator it;
+    if(!hp || !(hp->ZZa$))return;
+    head=NULL; // move all objects into a single temporary list
+    sz=hp->ZZa$->size;
+    a=(char**)(hp->ZZa$->array);
+    for(i=0; i<sz; i++) { // walk through all buckets
+        s=slot(hp,i);
+        it.start(s);
+        while(p= ++it){
+            p->ZZf$=head; head=p;
+        }
+        a[i]=NULL;
+    }
+    for(p=head; p; p=s){ // walk through the temporary list and reload objects
+        s=p->ZZf$; p->ZZf$=NULL; add(hp,p);
+    }
+}

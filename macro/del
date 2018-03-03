@@ -1,0 +1,52 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry;        /* main entry into this organization */
+ strType *pp;           /* pointer to the object to be deleted */
+.)l
+Description:
+ Generic function that deletes an object from the organization.
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+ Note that some organization require entry to be given (e.g. Ring),
+some organizations do not need it for 'delete' (e.g. triangle).
+Use a dummy entry for those organizations that do not need it.
+.(l
+Example:
+
+typedef struct Net Net;
+typedef struct Block Block;
+typedef struct Pin Pin;
+
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+}*b1,*b2;
+
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+}*n1,*n2;
+
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+}*p1,*p2;
+
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+   .....
+ZZ_DELETE(bChain,b1,b2) /* long form macro */
+ZZdel    (nChain,n1,n2) /* short form macro */
+ZZ_DELETE(byBlock,dum,p1) /* long form macro */
+ZZdel    (byNet,dum,p2) /* short form macro */
+.)l
+Note dummy entry 'dum' when deleting from a triangle.
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_DELETE,id)(id,entry,pp)

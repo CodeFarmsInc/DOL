@@ -1,0 +1,20 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *par;   /* given parent, unused */
+ str2Type *pp;    /* new child to be set */
+.)l
+Description:
+ The 'child' pointer on the parent decides about the order in which
+the bottom elements are returned by ZZ_A_TRAVERSE() or other traversal
+functions. ZZ_SET_DOUBLE_TRIANGLE() resets the child pointer to
+a different object.
+ Note the different syntax from DELETE_DOUBLE_COLLECT which does not know
+about its parent.
+  ========================================================== */ 
+#define ZZ_SET_DOUBLE_TRIANGLE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_SET_DOUBLE_TRIANGLE(ZZFP(ZZp,id),ZZFP(ZZc,id),pp)
+
+#define ZZZ_SET_DOUBLE_TRIANGLE(parent,child,pp) {\
+    if((pp)->parent) (pp)->parent->child=(pp); }

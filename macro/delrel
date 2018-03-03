@@ -1,0 +1,43 @@
+/* =========================================================
+.(l
+ TEXT id;           /* organization id */
+ strType *rel;      /* relation to be deleted */
+.)l
+Description:
+ Generic function that deletes a given relation.
+.(l
+Example of the use:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct Course Course;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Course {
+       ZZ_EXT_Course
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(classes,Teacher,Class,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   Course *c;
+   ...
+   /* delete one relation */
+   ZZ_DELETE_RELATION(classes,c);
+   ...
+   /* delete relations to all Students for a given teacher */
+   ZZ_A_TRAVERSE(classes,t,c)
+       ZZ_DELETE_RELATION(classes,c);
+   ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_RELATION(id,relation) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_DELETE_RELATION,id)(id,relation)

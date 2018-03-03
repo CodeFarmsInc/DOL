@@ -1,0 +1,17 @@
+time stamp from PLAIN_ALLOC=89 2 6 11 25 12
+stamps 0 and 1 are equal
+stamps 1 and 2 are equal
+stamp 2 is older than 3
+stamp 3 is older than 4
+stamp 4 is older than 5
+stamps 5 and 6 are equal
+stamp 6 is older than 7
+stamp 7 is older than 8
+stamp 8 is older than 9
+stamp 2 is older than 8
+time stamp from INITIALIZE=89 2 6 11 25 12
+
+count: 2.300000 1.700000
+owner: B r o w n
+color: G
+apple 9 is older than pear

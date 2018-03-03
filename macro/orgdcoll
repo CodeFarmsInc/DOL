@@ -1,0 +1,57 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure type of the parent */
+ TEXT str2Type;         /* structure type of the children */
+.)l
+Description:
+ Definition of organization DOUBLE_COLLECT (doubly-linked collection).
+Can be use for either un-ordered or ordered collection. 
+This organization provides grouping of one object type under another
+object type in situations, where access from the child to the parent
+is not required.
+.sp
+Compare this organization with a TRIANGLE where, for any child, one
+can find the parent.
+.sp
+Before Organized C Ver.2.0, users had two options to represent this
+type of data: Either to use a TRIANGLE and carry the overhead
+of one unused pointer, or to use a combination of LINK and RING,
+and to use two steps when executing any operation.
+A COLLECT provides a convenient set of commands for this relatively
+frequent organization.
+.sp
+.(l
+ parent
+ .
+ V
+ .
+ A <-> E <-> D <-> C  <-> B <->.
+ .                             .
+ ............ <-> ..............
+
+.)l
+The order of the objects is as if added in this order: A,B,C,D,E.
+When using ZZ_A_TRAVERSE_SINGLE_TRIANGLE(), the objects will be returned
+in the reverse order: E,D,C,B,A.
+.sp
+Note that this organization is quite efficient in using small memory,
+and it is fast when both adding and removing its elements.
+.(l
+Example of the use:
+   typedef struct myStr1 myStr1;
+   typedef struct myStr2 myStr2;
+   struct myStr1 { /* will be parent of myTriangle */
+       ZZ_EXT_myStr1
+       int a,b,c,d;
+   };
+   struct myStr2 { /* will be child of myTriangle */
+       ZZ_EXT_myStr2
+       char *x,*y,*z;
+   };
+   ZZ_ORG_DOUBLE_COLLECT(myGroup,myStr1,myStr2)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_DOUBLE_COLLECT(id,strType1,strType2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_DOUBLE_COLLECT */

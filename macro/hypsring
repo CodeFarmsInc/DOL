@@ -1,0 +1,107 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT link;             /* class of the link */
+.)l
+Description:
+ Generates an instance of the HYPER_CLASS for SINGLE_RING, which
+links together objects type 'link'.
+ For local scope, use ZZ_LOCAL_SINGLE_RING(id,link,where), see the example
+below.
+.pp
+Example of the use:
+.(l
+class Employee {
+    ZZ_EXT_Employee
+    char *name;
+    long int salary;
+public:
+    void setName(char *n){n=new char[strlen(n)+1]; strcpy(name,n);}
+    char *getName(){return(name);}
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+
+ZZ_HYPER_SINGLE_RING(ring1,Employee);
+ZZ_HYPER_SINGLE_RING(ring2,Employee);
+
+Employee *ep,*e1,*e2;
+
+e1=e2=NULL; // entries into the two rings
+ep=new Employee;
+e1=ring1.add(e1,ep);
+e2=ring2.add(e2,ep);
+.)l
+.pp
+Example with local scope: RING myRing is known only inside class A.
+.(l
+#include <stdio.h>
+#define ZZmain
+#include "zzincl.h"
+
+class A {
+    static A *entry;
+    int a;
+    ZZ_EXT_A
+public:
+    int val(void){return a;}
+    A(){ZZ_INIT(A); entry=NULL;}
+    A(int i);
+    A* next(void);
+    ZZ_LOCAL_SINGLE_RING(myRing,A,A);
+};
+ZZ_HYPER_UTILITIES(util);
+
+A* A::next(void){return myRing.fwd(this);}
+A::A(int i){a=i; entry=myRing.add(entry,this);}
+
+int main(void){
+    A aa,*a1,*a2;
+
+    a1=new A(1);
+    a2=new A(2);
+
+    a2=a1->next();
+    printf("%d %d\n",a1->val(),a2->val());
+
+    // a1=myRing.fwd(a2);  causes compiler error, unknown myRing
+}
+#include "zzfunc.c"
+.)l
+The program prints two number: 1 2
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_SINGLE_RING(id,link)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_SINGLE_RING(id,link,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_SINGLE_RING(id,link,where)  \
+ZZ_BASIC_SINGLE_RING(id,link,static,where :: id)
+
+#define ZZ_BASIC_SINGLE_RING(id,link,scope,where)\
+class ZZFP(ZZH,id) { \
+public: \
+    link * fwd(link *s){link *p; ZZ_FORWARD_SINGLE_RING(id,s,p); return(p);} \
+    link * sort(ZZTsortFun cmpF,link *p);\
+    link * add(link *s,link *p);\
+    link * del(link *s,link *p);\
+    link * merge(link *s,link *p);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   link *beg;\
+   link *nxt;\
+public:\
+   ZZFN(id,iterator)(link *p){start(p);}\
+   ZZFN(id,iterator)(){beg=nxt=NULL;}\
+   void start(link *p){if(p)nxt=where.fwd(p); else nxt=NULL; beg=p;}\
+   link* operator++(){link *p;\
+      p=nxt; if(p==beg)nxt=beg=NULL; else nxt=where.fwd(p); return(p);}\
+}
+/* _______________________________________________________________________ */
+ZZ1$* ZZV$ ZZH$ :: add(ZZ1$ *s,ZZ1$ *t){ZZ_ADD_SINGLE_RING($,s,t); return(s);}
+ZZ1$* ZZV$ ZZH$ :: del(ZZ1$ *s,ZZ1$ *t){ZZ_DELETE_SINGLE_RING($,s,t); return(s);}
+ZZ1$* ZZV$ ZZH$ :: merge(ZZ1$ *s,ZZ1$ *t){
+                               ZZ_MERGE_SINGLE_RING($,s,t,NULL); return(s);}
+ZZ1$* ZZV$ ZZH$ :: sort(ZZTsortFun cmpF,ZZ1$ *p){
+                                 ZZ_SORT_SINGLE_RING($,cmpF,p); return(p);}

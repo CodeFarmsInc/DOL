@@ -1,0 +1,450 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11, Available Organizations</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">11. AVAILABLE ORGANIZATIONS</font></h1>
+
+<h4><a href="#11_1"><font size="2" face="Arial">11.1 RING</font></a><font
+size="2" face="Arial"><br>
+</font><a href="ch11b.htm"><font size="2" face="Arial">11.2
+COLLECTION</font></a><font size="2" face="Arial"><br>
+</font><a href="ch11c.htm"><font size="2" face="Arial">11.3
+AGGREGATION (TRIANGLE, hierarchy)</font></a><font size="2"
+face="Arial"><br>
+</font><a href="ch11d.htm"><font size="2" face="Arial">11.4 TREE</font></a><font
+size="2" face="Arial"><br>
+</font><a href="ch11e.htm"><font size="2" face="Arial">11.5 GRAPH</font></a><font
+size="2" face="Arial"><br>
+</font><a href="ch11f.htm"><font size="2" face="Arial">11.6 LINK
+and NAME</font></a><font size="2" face="Arial"><br>
+</font><a href="ch11g.htm"><font size="2" face="Arial">11.7 STACK</font></a><font
+size="2" face="Arial"><br>
+</font><a href="ch11h.htm"><font size="2" face="Arial">11.8
+ENTITY_RELATIONSHIP MODEL</font></a><a
+href="ch11i.htmO%01THK_ThunkData32#11_9"><font size="2"
+face="Arial"> </font></a><font size="2" face="Arial"><br>
+</font><a href="ch11i.htm"><font size="2" face="Arial">11.9
+Run-time Extensibility (PROPERTY)</font></a><font size="2"
+face="Arial"><br>
+</font><a href="ch11j.htm"><font size="2" face="Arial">11.10
+Run-time Detection (SELF_ID)</font></a><font size="2"
+face="Arial"><br>
+</font><a href="ch11k.htm"><font size="2" face="Arial">11.11 Time
+Stamp (TIME_STAMP)</font></a><font size="2" face="Arial"><br>
+</font><a href="ch11l.htm"><font size="2" face="Arial">11.12
+Dynamic Array and Binary Heap (ARRAY)</font></a><font size="2"
+face="Arial"><br>
+</font><a href="ch11m.htm"><font size="2" face="Arial">11.13 Hash
+Tables (HASH)</font></a><font size="2" face="Arial"><br>
+</font><a href="ch11n.htm"><font size="2" face="Arial">11.14
+Pager (PAGER)</font></a><font size="2" face="Arial"><br>
+</font><a href="ch11o.htm"><font size="2" face="Arial">11.15
+Access to Type Tables (TYPE), reflection</font></a></h4>
+
+<p>This chapter describes the data organizations and hardwired
+features currently available from the library.</p>
+
+<p>Only a conceptual introduction to each organization is
+presented. For programming details, including examples, use one
+of the following sources: </p>
+
+<ul>
+    <li>on-line help (<a href="ch12Docn.htm">Chap.12</a>);</li>
+    <li>browse files in the <em>orgC/macro </em>directory;</li>
+    <li>reference guide, <em>orgC/docum/ZZrefer</em> (<a
+        href="ch13memm.htm">Chap.13</a>);</li>
+    <li>the <em>orgC/test</em> directory, use <em>grep ... *.c.</em></li>
+</ul>
+
+<p>Although the library already contains all the essential
+organizations, it is still growing. We provide our active users
+with regular updates.</p>
+
+<p>All OrgC++ organizations are based on a ring-type arrangement,
+not on a NULL-ending list. The two arrangements are similar in
+access and performance, but a RING has several advantages: head
+and tail are represented by the same pointer, handling is more
+uniform, and a NULL pointer cannot occur within a valid
+organization. The last property is the key to run-time protection
+against dangling pointers in OrgC++.</p>
+
+<p>With the exception of the <em>GENERAL_LINK</em>, OrgC++
+structures are strongly typed. This has the advantage of the code
+being thoroughly checked by the compiler, but requires special
+handling of heterogenous objects. For example, if we declare</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(aRing,Apple);<br>
+    ZZ_HYPER_SINGLE_RING(oRing,Orange);</em></p>
+</blockquote>
+
+<p><em>aRing</em> may contain only <em>Apples</em> but no <em>Oranges</em>,
+and<em> oRing</em> may contain only Oranges but no <em>Apples</em>.
+Neither of the two rings may contain <em>Plums</em> or <em>Pears</em>.</p>
+
+<p>Heterogeneous situations can be handled easily either by using
+a virtual function - see the example in <a
+href="ch07exmp.htm#7_3">Chap. 7.3</a>- or by combining <em>GENERAL_LINK</em>
+with other OrgC++ organizations. For example, in addition to <em>Apples</em>
+and <em>Oranges</em>, we can declare a general object called <em>Fruit</em>.
+Then </p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(fRing,Fruit);<br>
+    ZZ_HYPER_GENERAL_LINK(fLink,Fruit);</em></p>
+</blockquote>
+
+<p>describes a RING of Fruits, that may be anything, including <em>Pears
+</em>or <em>Plums</em>. <em>GENERAL_LINK</em> provides the link
+between the general object (<em>Fruit</em>) and the particular
+object (<em>Apple</em>,<em>Orange, Plum</em>, ...).</p>
+
+<p>Most organizations automatically provide an iterator, which
+lets you to walk through the entire data set. Singly linked
+organizations let you walk only head to tail, using either
+function<em> fwd()</em> (short for 'forward') or iterator
+operator ++. For convenience, we recommend you to use macro<em>
+ITERATE(iterator,objPtr){...}</em> which hides a for loop using
+operator ++. For examples, see <em>orgc/test/test50.c</em>.</p>
+
+<p>Doubly linked organizations allow you to traverse the data
+also in the reverse direction, using either function <em>bwd()</em>
+(short for 'backward') or iterator operator--<font
+color="#FF0000">!!TODO - Check with Jiri</font>. Again, we
+recommend you using convenient macro <em>RETRACE</em>, which is
+just like <em>ITERATE</em>, except that it traverses the data
+tail to head.</p>
+
+<p>Macros <em>ITERATE</em> and <em>RETRACE</em> hide normal
+for(..) loops, and therefore can include <em>continue</em>
+statements. These loops can also be nested at any number of
+levels. Note however that operators ++ and -- are designed only
+for straight traversal of the whole set. For example, you cannot
+mix the use of ++ and -- within one loop. If you need to perform
+some complex traversal of the data, going back and forth over it,
+use functions<em> fwd()</em> and <em>bwd()</em> they have no
+limitations.</p>
+
+<h2><a name="11_1"></a><font size="4" face="Arial">11.1 RING</font></h2>
+
+<p align="center"><img src="images/dol11_1.jpg" width="550"
+height="263"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>List - <em>RING</em> can serve the same purpose as a
+NULL-ending list;<br>
+Queue - objects can be retrieved in the same/reverse order as
+they are loaded.</p>
+
+<p><strong>IMPORTANT</strong>: This organization represents a
+ring without the encapsulated entry point, which must be managed
+externally. If you need a fully encapsulated ring, look at <em>COLLECTION</em>
+(<a href="ch11b.htm#11_2">Chap.11.2</a>).</p>
+
+<h3><font size="3" face="Arial">SINGLE_ and DOUBLE_RING:</font></h3>
+
+<p>Both <em>RINGS</em> behave identically, except that the <em>DELETE</em>
+operation is much faster for the <em>DOUBLE_RING</em>. In
+applications where <em>DELETE</em> is not used frequently, <em>SINGLE_RING</em>
+is a better choice (it is faster, and needs less memory).</p>
+
+<h3><font size="3" face="Arial">Sorting:</font></h3>
+
+<p>The<em> sort()</em> function sorts a given ring. You provide
+your own compare function, as you do with <em>qsort()</em>. See
+the example in<em> test 15a.c</em>. Note that <em>sort()</em>
+which is based on the merge algorithm, is generally faster than <em>qsort().</em></p>
+
+<h3><font size="3" face="Arial">Adding and deleting objects:</font></h3>
+
+<p>In our library, a ring (or circular list) is a structure
+existing on a set of objects, without any start/tail pointer
+encapsulated in a special class. If you want a ring with an
+encapsulated entry point, use <em>COLLECTION</em> or <em>AGGREGATE</em>.</p>
+
+<p>Since the entry to the ring is not encapsulated, you have to
+keep it externally yourself, otherwise the ring would be there,
+but you would not know how to get to it. The entry is also
+important if you are concerned about the order of the objects in
+the ring. The entry to the ring will be returned as the last
+element when traversing the ring.</p>
+
+<p>Before you start to use any ring, set <em>entry=NULL. </em>Use
+<em>add() </em>to add an object after <em>start</em>, <em>ins()</em>
+to insert it before<em> entry</em> (you can only do that for a <em>DOUBLE_RING</em>),
+and <em>del()</em> to delete an object.</p>
+
+<h3><font size="3" face="Arial">Order of objects:</font></h3>
+
+<p>If you represent a <em>RING</em> as a sequence of objects,
+starting from the<em> entry</em> object, then the <em>RING</em>
+behaves in the following manner:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>empty RING</td>
+        <td>adding A gives</td>
+        <td>A </td>
+    </tr>
+    <tr>
+        <td>A</td>
+        <td>adding B gives</td>
+        <td>AB</td>
+    </tr>
+    <tr>
+        <td>AB</td>
+        <td>adding C gives</td>
+        <td>ACB </td>
+    </tr>
+    <tr>
+        <td>ACB</td>
+        <td>adding D gives</td>
+        <td>ADCB</td>
+    </tr>
+    <tr>
+        <td>ADCB</td>
+        <td>deleting C gives</td>
+        <td>ADB</td>
+    </tr>
+    <tr>
+        <td>ADB</td>
+        <td>deleting A gives</td>
+        <td>BD</td>
+    </tr>
+</table>
+
+<p>If you want to return objects in the same order as they were
+added to the ring, two methods can be used: Either use a <em>DOUBLE_RING</em>
+and the iterator instead of the ++ iterator (see below on the
+interators), or reset the <em>entry</em> after each object is
+added. The first method works for a <em>DOUBLE</em> ring only,
+the second method works for both <em>SINGLE</em> and <em>DOUBLE</em>
+rings. Here is an example of the second method (resetting the
+entry point):</p>
+
+<blockquote>
+    <p><em>entry=NULL; /* initialize start before using the
+    ring*/<br>
+    ...<br>
+    entry=myRing.add(entry,p1);<br>
+    entry=p1;<br>
+    ...<br>
+    entry=myRing.add(entry,p2);<br>
+    entry=p2;<br>
+    ...</em></p>
+</blockquote>
+
+<p>This method will store objects in the order in which they were
+loaded, because the <em>entry</em> represents the 'tail' of the
+ring.</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>empty RING</td>
+        <td>adding A gives</td>
+        <td>A </td>
+    </tr>
+    <tr>
+        <td>A</td>
+        <td>adding B gives</td>
+        <td>BA </td>
+    </tr>
+    <tr>
+        <td>AB</td>
+        <td>adding C gives</td>
+        <td>CAB</td>
+    </tr>
+    <tr>
+        <td>ACB</td>
+        <td>adding D gives</td>
+        <td>DABC</td>
+    </tr>
+</table>
+
+<p>When running this sequence through the<em> iterator </em>you
+get: A,B,C,D.</p>
+
+<h3><font size="3" face="Arial">Merging or Splitting Rings</font></h3>
+
+<p>It is interesting (see the diagram on the following page) that
+the same operation with pointers provides merge/split operations,
+depending on whether the two given points are in the same ring,
+or in two different rings.</p>
+
+<p><strong>Algorithm</strong>: For given points A and C,
+disconnect pointers to B (which is next to A) and to D (which is
+next to C). Then connect A to D and C to B.</p>
+
+<p align="center"><img src="images/dol11_2.jpg" width="550"
+height="158"></p>
+
+<p>If A and C were originally on the same ring, the operation
+results in splitting the ring; A is on one ring, and C is on the
+other ring. If A and C were originally on different rings, the
+operation merges the two rings into one. One command, <em>merge()</em>,
+serves both operations. If you want to extract a single object
+and make it a new ring, do this:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(myRing,Obj);<br>
+    ...<br>
+    Obj *p1,*p2;<br>
+    p2=myRing.fwd(p1);<br>
+    p1=myRing.merge(p1,p2);<br>
+    // now p2 forms a single object ring,<br>
+    // remaining objects are on the p1 ring</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Moving around the <em>RING</em>:</font></h3>
+
+<p>Use an iterator to move around a <em>RING</em>: </p>
+
+<blockquote>
+    <p><em>myRing_iterator it(p1);<br>
+    while(p2= ++it){<br>
+    ...<br>
+    }</em></p>
+</blockquote>
+
+<p>For example, for ring ADCB, this loop returns D,C,B,A.</p>
+
+<p><em>fwd()</em> returns the next object in the chain (right
+neighbour).<em><br>
+bwd()</em>, which is defined only for the organization <em>DOUBLE_RING</em>,
+returns the previous object, and allows traversal of objects in
+reverse order. <em>del()</em> can be used while traversing the
+set with the <em>iterator.</em></p>
+
+<p>If you call <em>bwd()</em> for a <em>SINGLE_RING</em>, the
+compiler will detect an error.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<p>The syntax is the same for single/double rings:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(id,TYPE);<br>
+    ZZ_HYPER_DOUBLE_RING(id,TYPE);</em></p>
+</blockquote>
+
+<p>declare singly/doubly-linked rings,</p>
+
+<blockquote>
+    <p><em>TYPE* id.add(TYPE *entry,TYPE *newObj);</em></p>
+</blockquote>
+
+<p>Adds new object <em>newObj</em> to the ring with entry point<em>
+entry</em> and returns a new <em>entry</em>. For an empty ring,
+set <em>entry=NULL</em> before this call.</p>
+
+<blockquote>
+    <p><em>TYPE* id.del(TYPE *entry,TYPE *remObj);</em></p>
+</blockquote>
+
+<p>Deletes <em>remObj</em> from the ring, and returns the new
+tail of the ring. If <em>remObj</em> is the tail before the call,
+the new tail will be different. If <em>remObj</em> is the last
+object in the ring, the function returns NULL.</p>
+
+<blockquote>
+    <p><em>TYPE* id.sort(int (*cmpFun)(const void*,const</em> <em>void*),</em>
+    <em>TYPE *entry</em>);</p>
+</blockquote>
+
+<p>Sorts a ring, using <em>cmpFun()</em> to compare objects. In
+most cases, <em>entry</em> will change after this call.</p>
+
+<blockquote>
+    <p><em>TYPE* id.merge(TYPE *obj1,TYPE *obj2);</em></p>
+</blockquote>
+
+<p>If the two objects are on the same ring, this splits the ring
+into two. If the objects are on different rings, it merges the
+rings. Always returns <em>obj1.</em></p>
+
+<blockquote>
+    <p><em>TYPE* id.fwd(TYPE *obj);</em></p>
+</blockquote>
+
+<p>For a given object, it returns the next object on the ring. If
+the object is not connected to any ring, it returns<em> next=NULL</em></p>
+
+<blockquote>
+    <p><em>TYPE *entry,*obj<br>
+    id_iterator it(entry);<br>
+    while(obj= ++it){ ... };</em></p>
+</blockquote>
+
+<p>This traverses the ring with entry point <em>entry.</em></p>
+
+<blockquote>
+    <p><em>it.start(entry); //restarts the same loop</em></p>
+</blockquote>
+
+<p>Commands available only for the <em>DOUBLE_RING</em>:</p>
+
+<blockquote>
+    <p><em>TYPE* id.bwd(TYPE *obj);</em></p>
+</blockquote>
+
+<p>For a given object, the function returns the previous object
+in the ring. If the object is not in any ring, it returns <em>NULL.</em></p>
+
+<blockquote>
+    <p><em>void id.ins(TYPE *obj,TYPE *newObj);</em></p>
+</blockquote>
+
+<p>Inserts <em>newObj</em> before <em>obj.</em></p>
+
+<blockquote>
+    <p><em>TYPE *entry,*obj;<br>
+    id_iterator it(entry);<br>
+    while(obj=it---){ ... };</em></p>
+</blockquote>
+
+<p>This traverses the ring in the opposite direction.</p>
+
+<blockquote>
+    <p><em>it.start(entry); //restarts the same loop</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>List of cell instances and list of signal nets on a VLSI
+        chip (<em>test2.c</em>).</li>
+    <li>Employee records sorted into two rings: one by employee
+        name and one by salary (<em>test15a</em>).</li>
+    <li>Loading Blocks and Nets into netlist without reversing
+        the order (<em>test0a.c</em>).</li>
+</ol>
+
+<p>Warning: The ZORTECH C++ version of OrgC++ does not contain
+the <em>sort()</em> function. Instead, the macro <em>ZZ_SORT()</em>
+must be used, as is used in plain OrgC.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch10Libr.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        10: Org C++ Library</font></a></td>
+        <td align="right" width="50%"><a href="ch11b.htm"><font
+        face="Arial">Next Section: 11.2 COLLECTION <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

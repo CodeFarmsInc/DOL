@@ -1,0 +1,64 @@
+/* =========================================================
+.(l
+ char *str;           /* given text string */
+ char *ptr;           /* pointer to the newly allocated string */
+.)l
+Description:
+ For a given text string, allocates the amount of memory exactly needed,
+and copies the string into it.
+ In case of allocation problem, it prints a warning message and returns NULL.
+.(l
+Example 1 (direct use of the name):
+-----------------------------------
+typedef struct Town Town;
+struct Town{
+    ZZ_EXT_Town
+    int population;
+    char *name;
+};
+ZZ_ORG_SINGLE_RING(towns,Town)
+Town *start,*t;
+char name[40],*nn;
+int i;
+
+start=NULL;
+ ....
+scanf("%s %d\\n",name,&i);
+ZZ_PLAIN_ALLOC(Town,1,t)
+ZZ_STRING_ALLOC(name,nn)
+t->population=i;
+t->name=nn;
+ZZ_ADD_SINGLE_RING(towns,start,t)
+ ....
+
+Example 2 (treating name as an organization):
+---------------------------------------------
+struct Town{
+    ZZ_EXT_Town
+    int population;
+};
+ZZ_ORG_SINGLE_RING(towns,Town)
+ZZ_ORG_NAME(tName,Town)
+struct Town *start,*t;
+char name[40],*nn;
+int i;
+
+start=NULL;
+ ....
+scanf("%s %d\\n",name,&i);
+ZZ_PLAIN_ALLOC(Town,1,t)
+ZZ_STRING_ALLOC(name,nn)
+t->population=i;
+ZZ_ADD_SINGLE_RING(towns,start,t)
+ZZ_ADD_NAME(tName,nn)
+ ....
+.)l
+  ========================================================== */ 
+
+#define ZZ_STRING_ALLOC(str,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{void *ZZFUN_galloc();\
+(ptr)=(char*)ZZgalloc((int)strlen(str)+1);\
+if(ptr)strcpy(ptr,str);\
+else {ZZmsgS(7,"ZZ_STRING_ALLOC()"); ZZerrFLG=ZZerrFLG|01;}\
+}

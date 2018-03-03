@@ -1,0 +1,32 @@
+/* =========================================================
+.(l
+ FILE *file;  /* file to read from */
+ char *arr[]; /* array to store the pointers to the results */
+ int num;     /* number of strings to read */
+.)l
+Description:
+ From the given file, read one record (one line). From this line,
+read first (num)
+character strings. Allocate new space for all these strings,
+copy them into that space, and return pointers in arr[].
+ Errors: arr[0]=NULL for the end of file, arr[k]=NULL if not enough
+strings on the line.
+.(l
+Example
+
+char *r[7],i;
+FILE *inpFile;
+
+/* to read 3 names from the input file and print them, you do this */
+ZZ_INPUT_NAMES(inpFile,r,3);
+for(i=0;i<3;i++)printf("%s ",r[i];
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_INPUT_NAMES(file,arr,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{\
+    void ZZFUN_getNames();\
+    ZZgetNames(file,(char **)arr,num);\
+}

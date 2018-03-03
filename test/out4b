@@ -1,0 +1,7 @@
+warning: non-unique use of property named=grade
+         type=int changed to int, size=3 changed to 2
+grade: 11 21
+owner: lapid
+Type: B
+type: melba mcintosh idared granny
+year: 1978

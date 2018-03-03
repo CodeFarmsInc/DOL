@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14.7 Access to Type Tables</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="14_7"></a>14.7 ACCESS TO TYPE TABLES</h2>
+
+<h4>Purpose:</h4>
+
+<p>Internally, the C++ compiler keeps the information about the
+construction of classes (meta-class information), how classes
+inherit each other, where the virtual function pointers are, and
+about the offset of member objects within their parent class.</p>
+
+<p>There are situations when knowing this information would
+greatly simplify the code. Sometimes, programs have to duplicate
+the analysis which has already been done by the compiler.</p>
+
+<p>For example, if the meta-class information is readily
+available, you do not need an external class browser. You can
+traverse your classes directly in your program. You can also code
+your own graphical display of class relations.</p>
+
+<p>Another situation when this information is useful is in the
+coding of a private version of persistent data. You must provide
+special treatment for inter-object pointers, and also distinguish
+between inter-object pointers and virtual function pointers (and
+virtual class pointers). These pointers can be in different parts
+of the object, depending on the particular compiler you are using
+and, except for the Microsoft 7.0 compiler, no compiler provides
+even the slightest clue to where these pointers are.</p>
+
+<p>The TYPE class provides access to all these features, which
+are normally hidden features. The class does not access the
+tables that the compiler is using internally. It re-generates the
+information by analyzing the syntax of the classes that contain
+the<em> ZZ_EXT_..</em> statement, and then applying a special
+algorithm (see The C++ Journal, two-part article by J.Soukup,
+starting in the fall issue of 1992), which is compiler
+independent. </p>
+
+<p>Access is very fast (essentially just indexing into
+pre-calculated arrays); it does not perform any long searches.</p>
+
+<p>Another useful service provided by this class is that, given a
+pointer to a base object, the class can find the pointer and type
+of the highest object derived from it.</p>
+
+<h4>Examples:</h4>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_TYPE(type);
+class Coord {
+    ZZ_EXT_Coord
+    int x,y;
+    ...
+};
+class Shape {
+    ZZ_EXT_Shape
+    ...
+};
+class Tool {
+    ZZ_EXT_Tool
+    ...
+};
+class Image: public Tool, public Shape {
+    ZZ_EXT_Image
+    ...
+};</em></pre>
+    <pre><em>Shape *sp;
+int tp,tt,t1,t2,n;
+void *vp,**vv;
+char *cp;
+zzTypeInfo inf;
+Image *ip;</em></pre>
+    <pre><em>n=type.num(); // returns total number of types (here 3)
+tp=ZZgetType(Shape); // gets type index
+ip=new Image;
+sp=(Shape *)ip; vp=(void *)sp;
+type.trueType(&amp;vp,&amp;tp);
+    // updates vp and tp to the true values (Image type)
+type.info(tp,&amp;inf); // returns info for type tp
+printf(&quot;class=%s\n&quot;,inf.name);
+type_iterator it(tp);
+    // will iterate through base classes and members of tp
+while(tt= ++it &gt;&gt;= 0){
+    printf(&quot;sub-type=%d %s\n&quot;,tt,it.name()); 
+    // prints: 'inherit','virtual','refer' or member name 
+// print all types and their subtypes/members</em></pre>
+    <pre><em>type_iterator it; 
+n=type.num();
+for(t1=0;t1&lt;n;t1++){ // go through all types
+    type.info(t1,&amp;inf);
+    printf(&quot;\n%s= &quot;,inf.name);
+    it.start(t1);
+    while(t2= ++it &gt;= 0){
+        type.info(t2,&amp;inf);
+        printf(&quot;%s:%s&quot;,it.name(),inf.name);
+    }
+}</em></pre>
+    <pre><em>type_pointers ptrs(sp,tp);
+    // traverse HYPER pointers on sp
+while(vv=ptrs++){
+    printf(&quot;pointer at=%d leading to type=%d\n&quot;,vv,ptrs.nxtType()); }</em></pre>
+    <pre><em>// print virtual function pointers within an Image object
+int i,tp,sz; void **p; char *p,*m; Image *ip; 
+zzTypeInfo inf;</em></pre>
+    <pre><em>ip=new Image;
+tp=ZZgetType(Image);
+type.info(tp,&amp;inf);
+m=inf.mask2;
+sz=inf.size; // sizeof(Image) could be used instead
+for(i=0, p=(char *sp); i&lt;&lt;sz; i++,p++,m++){
+    if(*m='F')v=(virt **)(&amp;p);
+    printf(&quot;virt.fun.pointer at=%d value=%d\n&quot;,v,*v);
+}</em></pre>
+    <pre><em>Structure that keeps the type info:
+struct zzTypeInfo {
+    char *name; // class name
+    int size; // size of this class
+    char *mask1; // 0-filled with correct v.f/v.c.ptrs
+    char *mask2; // 'F' or 'C' for bytes 
+        // that start v.f./v.c. pointers
+    int virt; // bin packed:
+        // 01=abstr.class,02=virt.base class,04=v.f. present
+};</em></pre>
+</blockquote>
+
+<p>Note that the two masks are needed when virtual function
+pointers have size, which is different from regular pointers.
+This happens, for example, when using Borland compilers with the
+large memory model.</p>
+
+<p>For complete running examples, see <em>test39a.c</em>, and<em>
+test39b.c.</em></p>
+
+<h4>Syntax: </h4>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_TYPE(id) 
+int id.num(void); // returns total number of types
+int id.vfCheck(void *ptr); // returns type index, &lt;0 fails
+int tp=ZZgetType(className); // macro gets type index
+void id.virtRange(void**,void**); // returns the range
+    // of all virt.functions
+void id.trueType(void**,int*); // given pointer and type
+    // of a base object, updates them to the top level
+zzTypeInfo* id.info(int); // gets type info
+id_iterator it; // declares general iterator
+id_iterator it(int); // initialized for the given type
+void it.start(int); // start for the given type
+char * it.name(void); // returns:'inherit','virtual',
+    // 'refer', or the member name</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>int t; // traverse sub-types
+id_iterator(tp);
+while(t= ++it){ ...</em></pre>
+</blockquote>
+
+<blockquote>
+    <pre><em>void *v; // traverse HYPER pointers
+id_pointers pt(void*,int); 
+while(v= ++it){...</em></pre>
+</blockquote>
+
+<p>The purpose of function <em>int vfCheck(void *ptr) </em>is to
+detect type for unknown (untyped objects). This situation is
+described in more detail in<a href="ch14prpb.htm%01#14_2">
+Chap.14.2</a><font color="#FF0000">.</font></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch14Prpf.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 14.6 Pager</a></td>
+        <td align="right" width="50%"><a href="ch15Debg.htm">Chapter
+        15: Debugging with OrgC++ <img src="images/next.gif"
+        border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,88 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ General link between the given structure and an other unspecified
+structure(s). This organization is the basis for lists that contain
+objects of several different object types.
+.pp
+This organization does not need much memory, only one pointer.
+However, since the pointer is cast as (void*),
+no type checking is performed. Try to avoid this organization
+by better organizing your code, if possible.
+.pp
+Example: Make one single-linked ring (Fruit) for sets of several
+different objects (Apple, Plum, Pear).
+.(l
+typedef struct Fruit Fruit;
+typedef struct Apple Apple;
+typedef struct Plum Plum;
+typedef struct Pear Pear;
+struct Fruit {
+    ZZ_EXT_Fruit
+    int type; /* 0=apple, 1=plum, 2=pear */ 
+};
+struct Apple {
+    ZZ_EXT_Apple
+    char *name;
+    char color;
+    float weight;
+};
+struct Plum {
+    ZZ_EXT_Plum
+    float pitSize;
+};
+struct Pear {
+    ZZ_EXT_Pear
+    int numSeeds;
+};
+ZZ_ORG_SINGLE_RING(fruits,Fruit)
+ZZ_ORG_GENERAL_LINK(fLink,Fruit)
+
+void *pp;
+Fruit *f,*ff,*fr;
+Apple *apple1,*apple2,*p0;
+Plum  *plum,*p1;
+Pear  *pear1,*pear2,*pear3,*p2;
+  ....
+ZZ_ALLOCATE(Fruit,6,f)
+ff=NULL;
+ZZ_SET(fLink,&(f[0]),apple1)
+ZZ_ADD(fruits,ff,&(f[0]))
+ZZ_SET(fLink,&(f[1]),apple2)
+ZZ_ADD(fruits,ff,&(f[1]))
+ZZ_SET(fLink,&(f[2]),plum)
+ZZ_ADD(fruits,ff,&(f[2]))
+ZZ_SET(fLink,&(f[3]),pear1)
+ZZ_ADD(fruits,ff,&(f[3]))
+ZZ_SET(fLink,&(f[4]),pear2)
+ZZ_ADD(fruits,ff,&(f[4]))
+ZZ_SET(fLink,&(f[5]),pear3)
+ZZ_ADD(fruits,ff,&(f[5]))
+ .....
+ZZ_FORWARD(fLink,fr,pp)
+switch(fr->type){
+    case 0: p0=(Apple*)pp;
+            printf("apple name=%s color=%c weight=%f\n",
+                    p0->name,p0->color,p0->weight);
+            break;
+    case 1: p1=(Plum*)pp;
+            printf("plum pitSize=%f\n",p1->pitSize);
+            break;
+    case 2: p2=(Pear*)pp;
+            printf("plum numSeeds=%d\n",p2->numSeeds);
+            break;
+    default:printf("strange fruit type=%d\n,fr->type);
+            break;
+}
+.)l
+.pp
+See also: ZZ_SET_GENERAL_LINK(), ZZ_GET_GENERAL_LINK(),
+ZZ_DELETE_GENERAL_LINK(), and
+also similar functions for typed single/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_GENERAL_LINK(id,strType) /* ZZ_ORG_GENERAL_LINK */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

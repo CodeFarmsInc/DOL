@@ -1,0 +1,13 @@
+/* =========================================================
+Description:
+ Free the internal record of the SWEEP operation. This does not
+have to be done after ZZ_SAVE, which clears the record automatically.
+.sp
+Example:
+ ZZ_SWEEP_FREE
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SWEEP_FREE \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_swpFree(); ZZswpFree();}

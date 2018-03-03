@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT id;              /* array id */
+ str1Type *obj; /* object on which the array lives */
+.)l
+Description:
+ Removes the array from the given object, and deallocates the array
+including its header.
+.sp
+Note that if the objects in the array use ZZ_EXT_, all objects
+must be disconnected (deleted) from their organizations prior to
+freeing the array.
+.sp
+In case of some objects not disconnected, you will get errror messages,
+and array will not be freed.
+.(l
+Example: Salary by month over the entire employement history.
+
+ typedef struct Employee Employee;
+ typedef struct Salary Salary;
+ struct Employee {
+     ZZ_EXT_Header
+     char *name;
+ };
+ struct Salary {
+     int wage;
+     int tax;
+ };
+ ZZ_ORG_ARRAY(byMonth,Employee,Salary)
+
+ Employee a,b;
+ Salary *sa,*sb;
+
+ ZZ_FORM_ARRAY(byMonth,&a,26,sa) /* 26 month for employee 'a' */
+ ZZ_FORM_ARRAY(byMonth,&b,14,sb) /* 26 month for employee 'b' */
+   ....
+ /* employee b left the company, his records may be cancelled */
+ ZZ_FREE_ARRAY(byMonth,&b)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_FREE_ARRAY(id,obj) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FREE_ARRAY(id,ZZFP(ZZa,id),ZZFT(X2,id),obj)
+
+#define ZZZ_FREE_ARRAY(id,aPtr,objType,obj) \
+{ ZZarray *ZZFUN_frArr(); \
+    (obj)->aPtr=ZZfrArr((obj)->aPtr,(char*)objType,ZZstrList);\
+    if((obj)->aPtr){\
+        ZZmsgSS(11,ZZ_STRINGIT(id),objType);\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+}

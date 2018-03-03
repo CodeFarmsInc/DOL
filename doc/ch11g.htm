@@ -1,0 +1,95 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.7 Stack</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.7 STACK</font></h2>
+
+<p align="center"><img src="images/dol11_8.jpg" width="275"
+height="204"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>The <em>STACK </em>organization provides fast <em>LIFO</em>
+(last-in first-out) and <em>FIFO</em> (first-in first-out)
+stacks.</p>
+
+<p>There are three ways of implementing a stack in OrgC++:</p>
+
+<ol>
+    <li>As described previously, <em>RINGS</em> can be used as <em>LIFO/FIFO</em>
+        queues.</li>
+    <li>Special organizations called<em> LIFO</em> and <em>FIFO</em>
+        are internally based on <em>RINGS</em>, but have
+        convenient <em>push() </em>and<em> pop() </em>functions.</li>
+    <li>The <em>DYNAMIC_ARRAY</em> can be used as a<em> LIFO</em>
+        stack. <em>push() </em>and <em>pop()</em> operations
+        add/delete the top object from the array, and enlarge the
+        array automatically if the array is full.</li>
+</ol>
+
+<h3><font size="3" face="Arial">POP and PUSH operations:</font></h3>
+
+<p><em>push()</em> pushes a new object onto the stack;<br>
+<em>pop()</em> returns the next object and disconnects it from
+the stack.<br>
+When <em>pop()</em> returns NULL, the stack is empty.</p>
+
+<h3><font size="3" face="Arial">Initialization:</font></h3>
+
+<p>When using the<em> RING</em>, <em>LIFO</em>, or <em>FIFO</em>
+organizations, <em>start</em>=NULL must be set before using the
+stack. When using the array-style stack, the array must be
+declared by <em>ZZ_HYPER_ARRAY()</em>, and formed by <em>form()</em>
+(See <a href="ch11o.htm">Chap.11.15</a>)</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_LIFO(id,TYPE);<br>
+        ZZ_HYPER_FIFO(id,TYPE);</em></td>
+        <td>Declare the two types of the queue.</td>
+    </tr>
+    <tr>
+        <td><em>void id.push(TYPE *obj);</em></td>
+        <td>Pushes the given object into the queue.</td>
+    </tr>
+    <tr>
+        <td><em>TYPE* id.pop();</em></td>
+        <td>Pops another object from the queue. When returning
+        NULL, the queue is empty.</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>See the files <em>macro/hyplifo </em>and <em>macro/hypfifo.</em></li>
+    <li><em>test9.c</em> contains a comprehensive test of all <em>ARRAY</em>
+        features.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11f.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.6 LINK and NAME</font></a></td>
+        <td align="right" width="50%"><a href="ch11h.htm"><font
+        face="Arial">Next Section 11.8 ENTITY_RELATIONSHIP MODEL <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

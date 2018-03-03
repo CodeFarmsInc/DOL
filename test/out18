@@ -1,0 +1,19 @@
+faculty=: ssn=0 sal=0 office=(null) phone=0
+faculty=: ssn=0 sal=0 office=(null) phone=0
+faculty=: ssn=0 sal=0 office=(null) phone=0
+faculty=: ssn=0 sal=0 office=(null) phone=0
+
+student=: id=0 addr=(null) phone=9062 bDay=0
+student=: id=0 addr=(null) phone=9016 bDay=0
+student=: id=0 addr=(null) phone=8970 bDay=0
+student=: id=0 addr=(null) phone=8924 bDay=0
+
+course=: crhrs=0
+course=: crhrs=0
+course=: crhrs=0
+course=: crhrs=0
+course=: crhrs=0
+
+department: Mathematics phone=0 office=0
+department:  phone=0 office=0
+department:  phone=0 office=0

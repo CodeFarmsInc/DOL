@@ -1,0 +1,42 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *par;   /* parent of this tree level */
+ strType *pp;    /* returned child while traversing */
+.)l
+Description:
+ Traverse one level of the tree.
+ Children that are being traversed may be deleted while traversing,
+see ZZ_DELETE_DOUBLE_TREE().
+.sp
+.(l
+Example:
+Print name and salary of all employees under a given manager.
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_DOUBLE_TREE(gTree,Employee)
+
+Employee *pp,*manager;
+
+ZZ_A_TRAVERSE_DOUBLE_TREE(Tree,manager,pp)
+    printf("%s %d\n",pp->name,pp->salary);
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_DOUBLE_TREE(id,par,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_A_TRAVERSE_DOUBLE_TREE(ZZFT(1,id),ZZFP(ZZs,id),ZZFP(ZZc,id),par,pp)
+
+#define ZZZ_A_TRAVERSE_DOUBLE_TREE(strType,sibling,child,par,pp) \
+{strType *ZZt,*ZZc;\
+if(par)ZZc=(par)->child; else ZZc=NULL;\
+if(ZZc)(pp)=ZZc->sibling; else (pp)=NULL;\
+for(;pp;(pp)=ZZt){\
+    if((pp)==ZZc)ZZt=NULL; else ZZt=(pp)->sibling;

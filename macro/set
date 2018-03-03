@@ -1,0 +1,50 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry;        /* entry to the given organization */
+ strType *pp;           /* object to add to it */
+.)l
+Description:
+ Generic SET function.
+The program detects the type of the organization from its id
+and automatically calls the appropriate function.
+
+Warning:
+ Can be used only for 3 parameter SET() functions, such as
+ZZ_SET_SINGLE_TRIANGLE() or ZZ_SET_SINGLE_TREE(). It cannot be
+used for ZZ_SET_PROPERTY(), ZZ_SET_TIME_STAMP(), and ZZ_SET_SELF_ID().
+.(l
+Example:
+
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+}*b1,*b2;
+
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+}*n1,*n2;
+
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+}*p1,*p2;
+
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+   .....
+ZZ_ADD(byBlock,b1,p1)
+ZZ_SET(byBlock,b1,p1)
+ZZ_ADD(byNet,n1,p2)
+ZZ_SET(byNet,n1,p2)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SET(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_SET,id)(id,entry,pp)

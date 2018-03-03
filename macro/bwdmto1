@@ -1,0 +1,46 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *targ; /* given target entity */
+ strType *rel;  /* relation to be returned */
+.)l
+Description:
+ For a given target entity, return the last relation recorded for
+the M_TO_1 entity.
+.sp
+Warning: This macro should be used rather as an exception, because normal
+access to the relations is through ZZ_A_TRAVERSE().
+.(l
+Example:
+   typedef struct River River;
+   typedef struct Ocean Ocean;
+   typedef struct FlowsInto FlowsInto;
+   struct River {
+       ZZ_EXT_River
+       int length;
+       char *name;
+   };
+   struct Ocean {
+       ZZ_EXT_Ocean
+       char *name;
+   };
+   struct FlowsInto {
+       ZZ_EXT_FlowsInto
+       char *mouth;
+   };
+   ZZ_ORG_M_TO_1(intoOcean,River,FlowsInto,Ocean)
+   ....
+   River *r;
+   Ocean *o;
+   FlowsInto *f;
+   ....
+   ZZ_BACKWARD(intoOcean,o,f);
+   ZZ_SOURCE(intoOcean,f,r);
+   printf("last riover recorded for ocean=%s was %s\n",o->name,r->name);
+.)l
+  ========================================================== */ 
+#define ZZ_BACKWARD_M_TO_1(id,targ,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_BACKWARD_M_TO_1(ZZFP(ZZb,id),targ,rel)
+
+#define ZZZ_BACKWARD_M_TO_1(nxt,targ,rel) {(rel)=(targ)->nxt;}

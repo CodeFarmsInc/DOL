@@ -1,0 +1,172 @@
+echo "test0a"
+diff res0a out0a
+echo "test0b"
+diff res0b out0b
+echo "test0c"
+diff res0c out0a
+echo "test0d"
+diff res0d out0a
+echo "test0e"
+diff res0e out0e
+echo "test0f"
+diff res0f out0a
+echo "test0i"
+diff res0i out0i
+echo "test0j"
+diff res0j out0i
+echo "test0g"
+diff res0g out0g
+echo "test0h"
+diff res0h out0h
+echo "test0k"
+diff res0k out0ku
+echo "test0m"
+diff res0m out0mu
+echo "test0n"
+diff res0n out0nu
+echo "test1"
+diff res1 out1
+echo "test2"
+diff res2 out2
+echo "test3a"
+diff res3a out3a
+echo "test3b"
+diff res3b out3b
+echo "test4a"
+diff res4a out4a
+echo "test4b"
+diff res4b out4b
+echo "test4d"
+diff res4d out4d
+echo "test7a,7b"
+diff res7a res7b
+echo "test7c,7d"
+diff res7c res7d
+echo "test7e"
+diff res7e out7e
+echo "test7f"
+diff res7f res7aa
+echo "test7g"
+diff res7e res7g
+echo "test7h"
+diff res7h res7cc
+echo "test7i"
+diff res7i out7i
+echo "test8"
+diff res8 out8
+echo "test9"
+diff res9 out9
+echo "test9a"
+diff res9a out9
+echo "test9b"
+diff res9b out9b
+echo "multi"
+diff multi/main/res multi/main/out
+echo "test10a"
+diff res10a out10a
+echo "test10b"
+diff res10b out10b
+echo "test10c"
+diff res10c out10a
+echo "test10d"
+diff res10d out10b
+echo "test11a"
+diff res11a out11
+echo "test11b"
+diff res11b out11
+echo "test12a"
+diff res12a out12
+echo "test12b"
+diff res12b out12
+echo "test12c"
+diff res12c out12
+echo "test14a"
+diff res14a out14a
+echo "test14b"
+diff res14b out14b
+echo "test15a"
+diff res15a out15
+echo "test15b"
+diff res15b out15
+echo "test15c"
+diff res15c out15
+echo "test15d"
+diff res15d out15
+echo "test15e"
+diff res15e out15
+echo "test16a"
+diff res16a out16a
+echo "test16b"
+diff res16b out16b
+echo "test16c"
+diff res16c out16b
+echo "test17a"
+diff res17a out17
+echo "test17b"
+diff res17b out17
+echo "test17c"
+diff res17c out17
+echo "test17d"
+diff res17d out17
+echo "test17e"
+diff res17e out17e
+echo "test18a"
+diff res18a out18a
+echo "test18b"
+diff res18b out18a
+echo "test18d"
+diff res18d out18a
+echo "test18e"
+diff res18e out18a
+echo "test19b"
+diff res19b out19b
+echo "test20a"
+diff res20a out20a
+echo "test20b"
+diff res20c out20c
+echo "test21"
+diff res21 out21
+echo "test22a"
+diff res22a out22a
+echo "test22b"
+diff res22b out22b
+echo "test23a"
+diff res23a out23a
+echo "test23b"
+diff res23b out23a
+echo "test23h"
+diff res23h out23h
+echo "test23i"
+diff res23i out23i 
+echo "test23j"
+diff res23j out23i
+echo "test23k"
+diff res23k out23k
+echo "test25b"
+diff res25b out25
+echo "test25c"
+diff res25c out25
+echo "test26a"
+diff res26a out26
+echo "test27"
+diff res27 out27
+echo "test28"
+diff res28 out28
+echo "test29c"
+diff res29c out29a
+echo "test29d"
+diff res29d out29b
+echo "test30"
+diff res30 out30
+echo "test31"
+diff res31 out31
+echo "test32a"
+diff res32a out32
+echo "test32b"
+diff res32b out32
+echo "test35"
+diff res35 out35
+echo "test37"
+diff res37 out37
+echo "test39a"
+diff res39a out39a

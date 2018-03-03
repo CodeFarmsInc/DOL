@@ -1,0 +1,46 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure type used in this tree */
+.)l
+Description:
+ Explicit definition of the organization of the single tree
+.pp
+Single tree is a hierarchical organization, where
+at each level, we have parent and a set of children.
+The parent points to one of its children, children are linked
+into a single linked ring, each child points up to the parent.
+The root of the tree has NULL parent.
+.(l
+ parent
+ .
+ V
+ .
+ A -> B -> C -> D ... -> X ->.
+ .                           .
+ ............ <- .............
+
+ in this diagram, links from all children to the parent
+ are not shown.
+.)l
+Note that this organization is quite efficient in using small memory,
+and it is fast when adding new members. But it is slow when deleting
+a child.
+.sp
+Order of children in one level of the tree:
+ When repeated ZZ_ADD() is used, the children on the ring have the same order
+as for SINGLE_RING. ZZ_A_TRAVERSE() returns them in the reverse order they
+were added.
+.(l
+Example of the use:
+   typedef struct myStr myStr;
+   struct myStr {
+       ZZ_EXT_myStr
+       int a,b,c,d;
+   };
+   ZZ_ORG_SINGLE_TREE(myTree,myStr)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_SINGLE_TREE(id,strType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_SINGLE_TREE */

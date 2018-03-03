@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType1 *source; /* source entity */
+ strType2 *rel;    /* relation to add */
+ strType3 *target; /* target entity */
+.)l
+Description:
+ Add the new 1_TO_N relation between two entities.
+Exactly the same as ZZ_ADD_RELATION_1_TO_N(), but implemented as a compiled
+function.
+.sp 1
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZF_ADD_RELATION_1_TO_N(id,source,rel,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+{void ZZFP(ZZF_ADD_RELATION_1_TO_N,id)();\
+      ZZFP(ZZF_ADD_RELATION_1_TO_N,id)(source,rel,target);}
+#endif
+#ifdef ZZ_ANSI
+#define ZZF_ADD_RELATION_1_TO_N(id,source,rel,target) \
+{void ZZFP(ZZF_ADD_RELATION_1_TO_N,id)(ZZFT(1,id) *s,ZZFT(2,id) *r,ZZFT(3,id) *t);\
+      ZZFP(ZZF_ADD_RELATION_1_TO_N,id)(source,rel,target);}
+#endif
+
+/* _________________________________________________________ */
+#ifdef ZZ_ANSI
+void ZZF_ADD_RELATION_1_TO_N$(ZZ1$ *source,ZZ2$ *rel,ZZ3$ *target)
+#else
+void ZZF_ADD_RELATION_1_TO_N$(source,rel,target)
+ZZ1$ *source; ZZ2$ *rel; ZZ3$ *target;
+#endif
+{   ZZ2$ *E;
+
+    if(rel->ZZx$ || rel->ZZy$ || rel->ZZs$){
+        ZZmsgSS(19,"$",(char *)rel); /* cannot add .., relation not free */
+        ZZerrFLG=ZZerrFLG|010;
+    }
+    else if(target->ZZb$){
+        ZZmsgSS(18,"$",(char *)rel); /* cannot add ..,relation already exists */
+        ZZerrFLG=ZZerrFLG|010;
+    }
+    else {
+        E=source->ZZf$;
+        target->ZZb$=rel;
+        if(E){
+            E->ZZs$->ZZr$=rel; rel->ZZr$=E;
+            rel->ZZs$=E->ZZs$; E->ZZs$=rel;
+        }
+        else {(source->ZZf$)=rel->ZZs$=rel->ZZr$=rel;}
+        rel->ZZx$=source; rel->ZZy$=target;
+    }
+}

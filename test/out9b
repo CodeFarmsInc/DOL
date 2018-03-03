@@ -1,0 +1,29 @@
+Object display: sz=4 wm=1 inc=3
+i=0 Head1
+    Node2
+    Node1
+i=1 Head2
+    Node3
+Pointer display: sz=5 wm=1 inc=-2
+i=0 Node1
+i=1 Node3
+open returned: Root Koren
+Object display: sz=4 wm=1 inc=3
+i=0 Head1
+    Node2
+    Node1
+i=1 Head2
+    Node3
+Pointer display: sz=5 wm=1 inc=-2
+i=0 Node1
+i=1 Node3
+open returned: Root Koren
+Object display: sz=4 wm=1 inc=3
+i=0 Head1
+    Node2
+    Node1
+i=1 Head2
+    Node3
+Pointer display: sz=5 wm=1 inc=-2
+i=0 Node1
+i=1 Node3

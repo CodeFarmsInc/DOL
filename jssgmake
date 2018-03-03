@@ -1,0 +1,16 @@
+cp lib/env3sg.h environ.h
+cd lib
+cp env3sg.h environ.h
+cc -c util.c msgs.c time.c
+cd ..
+cc zzprep.c zzutil.c lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+cc zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+cc zzhelp.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzhelp
+cc zzsplit.c
+mv a.out zzsplit
+cc zzroff.c
+mv a.out zzroff
+zzcomb

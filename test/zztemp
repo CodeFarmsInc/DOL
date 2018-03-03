@@ -1,0 +1,43 @@
+0 #define DOS
+0 #define MICROSOFT8
+0 #define LARGE_POINTER
+0 #define ZZansi
+0 #define ZZcplus
+0 #define ZZ_INHERIT
+0 #define NT
+0 #define ZZmultiProj
+1 ZZ_HYPER_UTILITIES(util);
+2 #ifdef TURBOC
+3 #include <iostream.h>
+4 #define STREAM_DEFINED
+5 #endif
+7 #ifdef UNIX
+8 #include <iostream.h>
+9 #define STREAM_DEFINED
+10 #endif
+13 #ifdef MICROSOFT
+14 #define STREAM_DEFINED
+15 #endif
+17 #ifndef STREAM_DEFINED
+18 #include <stream.h>
+19 #endif
+21 class A2;
+23 class A1 {
+24   ZZ_EXT_A1
+25   int slot1;
+26 public:
+27   A1(void);
+28   void Save(const char* file);
+29   void SetLink(A2*);
+30   A2* GetLink(void);
+31   void Dump(void);
+32 };
+34 class A2 {
+35   ZZ_EXT_A2
+36   int slot2;
+37 public:
+38   A2(void);
+39   void Save(const char* file);
+40   void Dump();
+41 };
+43 ZZ_HYPER_SINGLE_LINK(A1_A2_links, A1, A2);

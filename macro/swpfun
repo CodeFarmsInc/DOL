@@ -1,0 +1,76 @@
+/* =========================================================
+.(l
+ void fun();   /* function to execute on all objects */
+ char *priv;   /* pointer to private information function may need */
+.)l
+Description:
+ Assuming that the internal list of all objects was established
+(for example by calling ZZ_SWEEP_SET()), execute the given function
+on all objects.
+.sp
+The given function must have 4 arguments:
+  char *ptr;   /* pointer to the object */
+  int typeInd; /* internal type index */
+  int size;    /* size of the object in bytes */
+  char *priv;  /* pointer to private information the function
+               may use (fileName, spec.structure, etc.)
+.sp
+If you want to convert internal type index into the type name,
+use macro ZZ_TYPE_NAME().
+.sp
+Example:
+.(l
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+};
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+};
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+};
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+
+char *v[2],*t[2];
+FILE *outFile; /* file on which to print */
+Block *bStart; /* start of all blocks */
+Net *nStart;   /* start of all nets */
+void myFun(); /* function to execute */
+
+v[0]=(char*)bStart; v[1]=(char*)nStart;
+t[0]="Block";       t[1]="Net";
+ZZ_SWEEP_SET(2,v,t)
+ZZ_SWEEP_FUNCTION(myFun,(char*)outFile)
+  ....
+/* ------------------------------------------- */
+/* function to print the object */
+void myFun(obj,type,size,priv)
+char *obj;
+int typeInd;
+int size;
+char *priv;
+{
+    FILE *fp;
+    char *type;
+
+    fp=(FILE *)priv;
+    type=ZZ_TYPE_NAME(typeInd);
+    fprintf(fp,"object=%d type=%s %d bytes\n",obj,type,size);
+}
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SWEEP_FUNCTION(fun,priv) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{void ZZFUN_swpFun(); ZZswpFun(fun,priv); }

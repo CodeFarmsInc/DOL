@@ -1,0 +1,115 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the hash table */
+ str1Type *obj1; /* object on which the hash table lives */
+ str2Type *key;  /* dummy object with the key to search on it */
+ str2Type *obj2; /* returned object, NULL if not found */
+.)l
+Description:
+ If you want to search for an object with a given key,
+you create a dummy object with the given key, and pass it to
+ZZ_GET_HASH(). The command returns a pointer to the object found,
+or NULL if not found.
+.sp
+The advantage of this setup, compared to passing only the key itself,
+is more generality. A key can be not only string, but also integer,
+long, float, or even a whole structure, and all these cases can
+be handled by only one function you provide,
+.i "zz_hashCmp_...()"
+.sp
+This operation is quite fast, unless the table is overloaded.
+The speed of this operation is the main reason for introducing
+hash tables. The command returns NULL, if the object is not found.
+.sp
+See ZZ_A_TRAVERSE_HASH(), ZZ_SIZE_HASH(), and ZZ_RESIZE_HASH()
+for the examples and explanation on how to control the loading
+of the table.
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+
+ Header h;
+ Employee *ep,es,*en;
+
+ ZZ_FORM_HASH(byName,&h,200)
+  ....
+ es.name="White C.";
+ ep= &es;
+ ZZ_GET_HASH(byName,&h,ep,en)
+ /* now, en is the found object or NULL */
+.)l
+  ========================================================== */ 
+#ifndef ZZ_ANSI
+#define ZZ_GET_HASH(id,obj1,key,obj2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_GET_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashCmp_,id),ZZFP(zz_hashInd_,id),obj1,key,obj2)
+
+#define ZZZ_GET_HASH(id,type2,fwp,aPtr,cmpF,indF,obj1,key,obj2) \
+{ int ZZi,indF(),cmpF(); char **ZZs; type2 *ZZp;\
+  if((obj1)->aPtr){\
+      ZZs=(char**)((obj1)->aPtr->array);\
+      ZZi=indF(key,(obj1)->aPtr->num);\
+      ZZp=(type2 *)(ZZs[ZZi]);\
+      for((obj2)=ZZp;(obj2);){\
+        if(!cmpF((obj2),key))break;\
+        if((obj2)->fwp==ZZp)(obj2)=NULL; else (obj2)=(obj2)->fwp;\
+      }\
+  } \
+  else {ZZmsgS(46,ZZ_STRINGIT(id)); (obj2)=NULL;}\
+}
+#endif
+
+#ifdef ZZ_ANSI
+#ifndef ZZcplus
+#define ZZ_GET_HASH(id,obj1,key,obj2) \
+ZZZ_GET_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashCmp_,id),ZZFP(zz_hashInd_,id),obj1,key,obj2)
+
+#define ZZZ_GET_HASH(id,type2,fwp,aPtr,cmpF,indF,obj1,key,obj2) \
+{int ZZi,indF(char *w,int s),cmpF(char *p1,char *p2);\
+char **ZZs; type2 *ZZp;\
+  if((obj1)->aPtr){\
+      ZZs=(char**)((obj1)->aPtr->array);\
+      ZZi=indF((char *)(key),(obj1)->aPtr->num);\
+      ZZp=(type2 *)(ZZs[ZZi]);\
+      for((obj2)=ZZp;(obj2);){\
+        if(!cmpF((char *)(obj2),(char *)(key)))break;\
+        if((obj2)->fwp==ZZp)(obj2)=NULL; else (obj2)=(obj2)->fwp;\
+      }\
+  } \
+  else {ZZmsgS(46,ZZ_STRINGIT(id)); (obj2)=NULL;}\
+}
+#endif
+#endif
+
+#ifdef ZZcplus
+#define ZZ_GET_HASH(id,obj1,key,obj2) \
+ZZZ_GET_HASH(id,ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZa,id),\
+ZZFP(zz_hashCmp_,id),ZZFP(zz_hashInd_,id),obj1,key,obj2)
+
+#define ZZZ_GET_HASH(id,type2,fwp,aPtr,cmpF,indF,obj1,key,obj2) \
+{ZZint ZZi;\
+char **ZZs; type2 *ZZp;\
+  if((obj1)->aPtr){\
+      ZZs=(char**)((obj1)->aPtr->array);\
+      ZZi=indF((char *)(key),(obj1)->aPtr->num);\
+      ZZp=(type2 *)(ZZs[ZZi]);\
+      for((obj2)=ZZp;(obj2);){\
+        if(!cmpF((char *)(obj2),(char *)(key)))break;\
+        if((obj2)->fwp==ZZp)(obj2)=NULL; else (obj2)=(obj2)->fwp;\
+      }\
+  } \
+  else {ZZmsgS(46,ZZ_STRINGIT(id)); (obj2)=NULL;}\
+}
+#endif

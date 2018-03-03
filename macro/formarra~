@@ -1,0 +1,95 @@
+/* =========================================================
+.(l
+ TEXT id;              /* array id */
+ str1Type *obj; /* object to which to add the array */
+ int size;             /* given(starting) size of the array */
+ int incr;             /* increment if array not large enough */
+ str2Type *arr; /* returned array, for fast access */
+.)l
+Description:
+ Form a new array on objects, and initialize all pointers to 
+NULL, which means "unused" for pointers.
+.sp
+If the array is not large enough, the size will automatically adjust:
+ incr=0 or -1: fixed size, no adjustment, error message printed;
+ incr>0:       size=size+incr;
+ incr<-1:      size=size*(-incr);
+.sp
+The size adjustment tries the given increment first, but if there is not
+enough memory available, it tries smaller size by gradual halving.
+For example:
+ Index=1770 is requested, while the current size of the array is 300.
+Increment specified for this array is incr=400. The algorithm tries first
+to allocate 300+400+400+400+400=1900. If not enough memory is available,
+it tries the following sizes:
+.(l
+ 1770+(1900-1770)/2=1835
+ 1770+(1835-1770)/2=1802
+ 1770+(1802-1770)/2=1786
+   ... and so on
+.)l
+until a sufficient block of memory is available. If 1770 is reached without
+finding the memory, an error message is issued and ZZerrFLG set on.
+.sp
+IMPORTANT:
+ If any object will point to the array, you must not use the flexible
+size. When increasing the size automatically, the array is re-allocated
+and copied into the new space; the old pointers would be invalid.
+.sp
+WARNING:
+ The proper (protected) way of indexing array is using ZZ_INDEX_ARRAY().
+Using both direct- and protected access in the same program is potentially
+dangerous, because
+ZZ_INDEX_ARRAY() may re-allocate the array and make the current array
+pointer invalid. However, if you adhere to following rules, you are
+save even when using the mixed mode:
+ - no problem on fixed array (size not adjustable);
+ - update the pointer array before each section of code (or in the
+   beginning of each subroutine) by calling ZZ_INDEX_ARRAY() for ind=0.
+.(l
+Example: Salary by month over the entire employement history.
+
+ typedef struct Employee Employee;
+ typdef struct Salary Salary;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+ };
+ struct Salary {
+     int wage;
+     int tax;
+ };
+ ZZ_ORG_ARRAY(byMonth,Employee,Salary)
+
+ Employee a,b;
+ Salary *sa,*sb;
+
+ ZZ_FORM_ARRAY(byMonth,&a,26,0,sa) /* 26 months for employee 'a' */
+ ZZ_FORM_ARRAY(byMonth,&b,14,-2,sb) /* 14 months for employee 'b' */
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORM_ARRAY(id,obj,size,incr,arr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_FORM_ARRAY(id,ZZFP(ZZa,id),ZZFT(2,id),ZZFT(W2,id),ZZFT(H2,id),obj,size,incr,arr)
+
+#define ZZZ_FORM_ARRAY(id,aPtr,objType,XobjType,hType,obj,size,incr,arr) \
+{ ZZarray *ZZFUN_foArr();\
+  ZZarray *ZZa; ZZint ZZn;\
+    ZZ_GENERAL_EXT(); static objType* sample=NULL;\
+    if(!sample)sample=new objType;\
+    ZZn=size;\
+    ZZa=(obj)->aPtr;\
+    if(ZZa){\
+        ZZmsgS(23,ZZ_STRINGIT(id));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(ZZn<=0)ZZmsgD(21,size);\
+    else {\
+        ZZn=(incr); if(ZZn== -1)ZZn=0;\
+        (obj)->aPtr=ZZfoArr((ZZint)size,(ZZint)ZZn,(ZZint)sizeof(objType),\
+                        (char*)XobjType,(char*)hType,ZZstrList,(char*)sample);\
+        if((obj)->aPtr)(arr)=(objType *)((obj)->aPtr->array);\
+        (arr)=(arr);\
+    }\
+}

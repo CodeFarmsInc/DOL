@@ -1,0 +1,27 @@
+/* =========================================================
+.(l
+ TEXT id;        /* organization id */
+ str2Type *obj1; /* first child object */
+ str2Type *obj2; /* second child object */
+ str1Type *par;  /* for split: new parent, for merge: parent of obj2 */
+.)l
+Description:
+ Merges or splits triangles. This is exactly the same as MERGE_SINGLE_TRIANGLE()
+ (file merscoll), but for a doubly-linked organization.
+ If, originally, obj1 and obj2 are in different collections, the collections
+will merge. If they are originally in the same collection, the collection will split into two. Generic ZZ_MERGE() can be used.
+.sp
+The command needs two children pointers, and one parent.
+In case of merging, the given parent must be the parent of the second child.
+In case of splitting, en empty parent must be given to recieve the second
+part of the set.
+.(l
+  ========================================================== */ 
+#define ZZ_MERGE_DOUBLE_TRIANGLE(id,obj1,obj2,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_MERGE_SINGLE_TRIANGLE\
+(id,ZZFT(1,id),ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZp,id),ZZFP(ZZc,id),obj1,obj2,par)\
+(obj2)->ZZFP(ZZb,id)=NULL;\
+ZZ_UPD_DOUBLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),obj1);\
+if((obj2)->ZZFP(ZZb,id)==NULL)\
+ZZ_UPD_DOUBLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),obj2);

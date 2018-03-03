@@ -1,0 +1,13 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *start; /* any member of the ring, NULL when new ring */
+ strType *pp;    /* element to add to the ring */
+.)l
+Description:
+ From the given file, read one record (one line). From this line,
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_ADD_SINGLE_RING(id,start,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\

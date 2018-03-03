@@ -1,0 +1,7 @@
+u1-* SINGLE_COLLECT Library Publication publications ;
+u1-* HASH Library Book allBooks ;
+u1-* SINGLE_COLLECT Library Author authors ;
+u1-1 SINGLE_LINK Book Author toAuthor ;
+u1-0 NAME Book bookName ;
+u1-0 NAME Author authName ;
+Inherits Book Publication ;

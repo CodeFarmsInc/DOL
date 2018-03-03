@@ -1,0 +1,164 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure where to install the array */
+ TEXT str2Type;         /* structure to form the array */
+.)l
+Description:
+ Declaration of an array.
+.sp
+When you use ARRAY, you can use either a direct fast access (no overhead),
+or a protected access that avoids indeces out of range or, depending
+on your choice, automatically increases the size of the array if needed.
+.sp
+There is a very small memory overhead for allocating the array this way
+(6 integer values or pointers for the whole array),
+but even in normal C you usually keep variables with the size of the array etc.
+.sp
+Using ARRAY has number of advantages:
+ - it knows its own size and current high watermark;
+ - it never overflows, it allocates more space when needed;
+ - all
+.i "sweap"
+type commands treat it as an object,
+ - the array and all its objects can be saved by a single command.
+.sp
+Note that some special functions such as
+.i "heap"
+or
+.i "stack"
+are treated as manipulations of an ARRAY and not as separate organizations.
+.sp
+IMPORTANT:
+ If any object will point to the array, you must not use the flexible
+size. When increasing the size automatically, the array is re-allocated
+and copied into the new space; the old pointers would be invalid.
+.sp
+WARNING:
+ The proper (protected) way of indexing array is using ZZ_INDEX_ARRAY().
+Using both direct- and protected access in the same program is potentially
+dangerous, because
+ZZ_INDEX_ARRAY() may re-allocate the array and make the current array
+pointer invalid. However, if you adhere to following rules, you are
+save even when using the mixed mode:
+ - no problem on fixed array (size not adjustable);
+ - update the pointer array before each section of code (or in the
+   beginning of each subroutine) by calling ZZ_INDEX_ARRAY() for ind=0.
+.(l
+Example of the use: List of headers, each leading to 2 arrays
+
+ typedef struct Header Header;
+ typedef struct Animal Animal;
+ typedef struct Plant Plant;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Animal {
+     ZZ_EXT_Animal
+     int numLegs;
+ };
+ struct Plant {  /* note has no ZZ_EXT.. */
+     char annual; /* 'A=annual, 'P'=perenial */
+     int regNumber;
+ };
+ ZZ_ORG_SINGLE_RING(myList,Header);
+ ZZ_ORG_ARRAY(animals,Header,Animal);
+ ZZ_ORG_ARRAY(plants,Header,Plant);
+ ZZ_ORG_ARRAY(crop,Header,int);
+ ZZ_ORG_NAME(aName,Animal);
+
+ int i,size,waterM,incr,*k,c[];
+ Header h;
+ Animal *a,*ar;
+ Plant *p,*pr;
+
+ ZZ_FORM_ARRAY(animals,&h,40,0,a); /* forms array of 40 animals on h */
+ ZZ_FORM_ARRAY(plants,&h,15,0,p); /* forms array of 15 plants on h */
+ ZZ_FORM_ARRAY(crop,&h,100,50,c); /* forms array of 100 integers on h */
+
+ /* fast access */
+ a[20].numLegs=6;
+ printf("%c plant regNum=%d\\n",p[8].annual,p[8].regNumber;
+ c[88]=583; /* crop in year 88 */
+   
+ /* protected access: */
+ ZZ_INDEX_ARRAY(animals,&h,20,ar); 
+ ar->numLegs=6;
+ ZZ_INDEX_ARRAY(plants,&h,8,pr); 
+ printf("%c plant regNum=%d\\n",pr->annual,pr->regNumber;
+ ZZ_INDEX_ARRAY(crop,&h,88,k); 
+ *k=583;   /* crop in year 88 */
+
+ ZZ_INDEX_ARRAY(plants,&h,17,pr); /* detects index out of range */
+ ZZ_INDEX_ARRAY(crop,&h,124,k);   /* increases the size of the crop array */
+
+ /* display current size */
+ ZZ_SIZE_ARRAY(animals,&h,size,waterM,incr);
+               /* returns size=40, waterM=20, incr=0 */
+.)l
+Partially sorted binary heap (priority queue) must be also
+declared and formed as an array. Access to the queue is through
+ZZ_IN_HEAP(), ZZ_OUT_HEAP(), ZZ_DELETE_HEAP(), and ZZ_UPDATE_HEAP().
+For more details, see the description of these functions.
+.sp
+Binary heap commands require that a special call-back function
+is given. This function is needed only when ZZ_DELETE_HEAP()
+or ZZ_UPDATE_HEAP() is used. If you use only ZZ_IN_HEAP() and
+ZZ_OUT_HEAP(), this can be just a dummy function:
+   void anyName(void* p, int i){}
+The purpose of this function is to provide a continuous and automatic
+update of the information for each element in the queue. It is
+used in situations like this:
+.(l
+typedef struct Head Head;
+typedef struct Employee Employee;
+typedef struct PtrEmpl PtrEmpl;
+struct Head {
+    ZZ_EXT_Head
+};
+struct Employee {
+    ZZ_EXT_Employee
+    int heapIndex;
+    int salary;
+    ...
+};
+struct PtrEmpl {
+    ZZ_EXT_PtrEmpl
+};
+ZZ_ORG_ARRAY(heap,Head,PtrEmpl);
+ZZ_ORG_SINGLE_LINK(link,PtrEmpl,Employee);
+
+void bck(void *p,int i){ /* call-back function to record position */
+    Employee *e;
+    ZZ_FORWARD(link,(PtrEmpl *)p,e);
+    e->heapIndex=i;
+}
+
+int sortFun(const void *v1,const void *v2){
+    Employee *e1,*e2;
+    e1=(Employee *)v1; e2=(Employee *)v2;
+    return(e2->salary - e1->salary);
+}
+
+Head *h;
+PtrEmpl *p;
+Employee *e;
+int i;
+...
+/* assume Employee e is given and should enter the heap */
+ZZ_PLAIN_ALLOC(PtrEmpl,1,p);
+ZZ_ADD(link,p,e);
+ZZ_IN_HEAP(heap,sortFun,h,p,bck); /* automatically updates heapIndex */
+...
+/* now we can update any Employee object */
+e->salary=4600; /* new value */
+i=e->heapIndex;
+if(i>=0)ZZ_UPDATE_HEAP(heap,sortFun,h,i,bck);
+
+.)l
+Objects that are in the heap have index >=0. Objects ejected from 
+the heap have index -1.
+  ========================================================== */ 
+#define ZZ_ORG_ARRAY(id,strType1,strType2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+/* ZZ_ORG_ARRAY */

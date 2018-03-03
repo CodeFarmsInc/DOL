@@ -1,0 +1,55 @@
+/* =========================================================
+.(l
+ TEXT id;        /* organization id */
+ str2Type *obj1; /* first child object */
+ str2Type *obj2; /* second child object */
+ str1Type *par;  /* for split: new parent, for merge: parent of obj2 */
+.)l
+Description:
+ Merges or splits collections. This is exactly the same as MERGE_SINGLE_COLLECTION() (file merscoll), but for a coubly-linked collection.
+ If, originally, obj1 and obj2 are in different collections, the collections
+will merge. If they are originally in the same collection, the collection will split into two. Generic ZZ_MERGE() can be used.
+.sp
+The command needs two children pointers, and one parent.
+In case of merging, the given parent must be the parent of the second child.
+In case of splitting, en empty parent must be given to recieve the second
+part of the set.
+.(l
+ZZ_ORG_DOUBLE_COLLECT(myCol,parType,chiType);
+
+parType *p1,*p2;
+chiType *c1,*c2;
+       ....
+ZZ_PARENT(myCol,c1,p1);
+ZZ_PARENT(myCol,c2,p2);
+
+if(p1==p2){ /* case of splitting */
+    ZZ_PLAIN_ALLOC(parType,1,p2);
+    ZZ_MERGE(myCol,c1,c2,p2);
+    /* p1 and p2 now hold the two collections */
+}
+else { /* case of merging, nothing to do */
+    ZZ_MERGE(myCol,c1,c2,p2);
+    /* p1 contains the result, p2 is empty */
+}
+.)l
+.sp
+When obj1==obj1, no action is taken.
+.sp
+If you want to extract a single object, call ZZ_MERGE(id,p1,p2,par), where
+p2 is the next object to p1, and p2 will form a single-object collection
+nder the given new parent par.
+.sp
+Error situations:
+ obj1 or obj2 equal to NULL, or not connected to any COLLECTION or,
+in case of splitting, given parent which is not empty.
+In all these cases, an error message is issued, and no action is taken.
+  ========================================================== */ 
+#define ZZ_MERGE_DOUBLE_COLLECT(id,obj1,obj2,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_MERGE_SINGLE_COLLECT\
+(id,ZZFT(1,id),ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZp,id),ZZFP(ZZc,id),obj1,obj2,par)\
+(obj2)->ZZFP(ZZb,id)=NULL;\
+ZZ_UPD_DOUBLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),obj1);\
+if((obj2)->ZZFP(ZZb,id)==NULL)\
+ZZ_UPD_DOUBLE(ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),obj2);

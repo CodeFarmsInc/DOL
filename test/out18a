@@ -1,0 +1,60 @@
+faculty=F.Green: ssn=2413 sal=1010 office=403B phone=422
+  is advisor of: S.Fourth
+  works for: English
+  is teaching: 200E
+faculty=F.Black: ssn=7323 sal=2850 office=401B phone=401
+  is advisor of: S.Second
+  works for: English
+faculty=F.White: ssn=2313 sal=4050 office=401A phone=491
+  is advisor of: S.First
+  works for: Mathematics
+  is teaching: 103M
+  is teaching: 102M
+
+student=S.Fourth: id=205 addr=7_Spruce phone=733 bDay=1089
+  has advisor: F.Green
+  has major in: Mathematics
+  has taken: 200E grade=2 sem=881
+  is taking: 102M
+student=S.Second: id=109 addr=20_Poplar phone=155 bDay=987
+  has advisor: F.Black
+  has taken: 201E grade=1 sem=871
+  has taken: 103M grade=2 sem=871
+  is taking: 103M
+student=S.First: id=106 addr=40_Maple phone=124 bDay=987
+  has advisor: F.White
+  has major in: Mathematics
+  is taking: 201E
+
+course=104M: crhrs=7.000000
+  is offered by department: Mathematics
+course=201E: crhrs=8.000000
+  S.Second has taken it in sem=871 grade=1
+  S.First is taking it in sem=891
+  is offered by department: English
+course=200E: crhrs=4.500000
+  S.Fourth has taken it in sem=881 grade=2
+  is offered by department: English
+  is taught by: F.Green
+course=103M: crhrs=6.000000
+  S.Second has taken it in sem=871 grade=2
+  S.Second is taking it in sem=891
+  is offered by department: Mathematics
+  is taught by: F.White
+course=102M: crhrs=5.500000
+  S.Fourth is taking it in sem=892
+  is offered by department: Mathematics
+  is taught by: F.White
+
+department: Mathematics phone=107 office=888
+  employs: F.White
+  S.Fourth has major there
+  S.First has major there
+  offers course: 103M
+  offers course: 102M
+  offers course: 104M
+department: English phone=302 office=900
+  employs: F.Black
+  employs: F.Green
+  offers course: 201E
+  offers course: 200E

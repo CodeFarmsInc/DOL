@@ -1,0 +1,41 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ strType1 *given; /* given object */
+ strType2 *ret;   /* returned object, other side of the link */
+.)l
+Description:
+ Returns the backward part of the given link.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_DOUBLE_LINK() and ZZ_ORG_SINGLE_LINK().
+.(l
+Example:
+
+typedef struct Rectangle Rectangle;
+typedef struct tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+     ...
+};
+struct tempRect {
+     ...
+};
+ZZ_ORG_DOUBLE_LINK(rLink,Rectangle,tempRect)
+
+Rectangle *r;
+tempRect *tr;
+
+ ....
+ZZ_BACKWARD_DOUBLE_LINK(rLink,tr,r)
+.)l
+.pp
+See also: ZZ_ORG_DOUBLE_LINK(), ZZ_ADD_DOUBLE_LINK(),
+ZZ_DELETE_DOUBLE_LINK(), and ZZ_FORWARD_DOUBLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_BACKWARD_DOUBLE_LINK(id,given,ret) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_BACKWARD_DOUBLE_LINK(ZZFP(ZZb,id),given,ret)
+
+#define ZZZ_BACKWARD_DOUBLE_LINK(bwp,given,ret) (ret)=(given)->bwp;

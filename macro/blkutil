@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ char *blkName; /* name of the memory block to be used, or an address */
+ void **hook;   /* utility hook maintained by the user for each mem.block */
+int mode; /* 0=assign given hook to a block given by the name,
+	     1=assign given hook to a block given by its internal address,
+	     2=retrieve hook for a block given by its name,
+	     3=retrieve hook for a block identified by an internal address. */
+char *name;  /* name of the identified block */
+.)l
+Description:
+ When working with several memory blocks (some passive, one active),
+it is useeful to keep some user data associated with each block.
+For example, when storing different design views, each as one block,
+it may be useful to know the first key entry of the view. The user is
+allowed to store one 'hook' pointer for this purpose.
+ This command allows to load/retrieve this information, without changing
+the block status (active/passive). It always returns the name of the block.
+ When using the fast memory blasting (ZZ_BLOCK_ALLOC with bits>0),
+
+Important:
+ The 'hook' can be assigned only after the block is recorded in the internal
+list, in other words, the block must have been passive at one time or another.
+The best practice is to assign the hook immediately after you make the block
+passive.
+.sp
+Example:
+ void *hook;
+ char *name,*addr;
+ ZZ_BLOCK_ALLOC(6000000,17); /* opens new active block */
+ ZZ_PLAIN_ALLOC(...); 
+   ...
+ ZZ_PLAIN_ALLOC(...); 
+ ZZ_BLOCK_ACTIVE("A",0)); /* makes block A passive */
+ hook=...
+ ZZ_BLOCK_UTIL("A",&hook,0,name)); /* assignes hook to block A */
+ ZZ_BLOCK_ALLOC(3000000,20); /* opens another block */
+ ZZ_PLAIN_ALLOC(...); 
+   ...
+ ZZ_PLAIN_ALLOC(...); 
+ ZZ_BLOCK_ACTIVE("B",0); /* makes block B passive*/
+ hook=...
+ ZZ_BLOCK_UTIL("A",hook,0,name)); /* assignes hook to block A */
+   ...
+ ZZ_BLOCK_UTIL("A",hook,2,name)); /* assignes hook to block A */
+ addr=...
+ ZZ_BLOCK_UTIL(addr,hook,2,name)); /* returns hook and name for given address */
+.sp
+  ========================================================== */ 
+
+#define ZZ_BLOCK_UTIL(blkName,hook,mode,name) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{char* ZZFUN_blkUtil(); name=ZZblkUtil(blkName,&hook,mode);}

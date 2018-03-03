@@ -1,0 +1,61 @@
+no selfID on Instance
+
+netlist by instance:
+inst=INST3
+   fTerm=OUT net=ground
+   fTerm=SP1 net=NET4
+   fTerm=99II net=NET2
+inst=INST4
+   fTerm=clock net=NET2
+   fTerm=1iPi net=VDD
+inst=block
+   fTerm=TERM1 net=NET1
+   fTerm=TERM2 net=VDD
+inst=MYINST1
+   fTerm=TERM3 net=ground
+   fTerm=INP net=NET1
+   fTerm=OLD_TERM net=NET2
+
+netlist by net:
+net=ground
+   fTerm=TERM3 inst=MYINST1
+   fTerm=OUT inst=INST3
+net=NET4
+   fTerm=SP1 inst=INST3
+net=NET1
+   fTerm=INP inst=MYINST1
+   fTerm=TERM1 inst=block
+net=VDD
+   fTerm=1iPi inst=INST4
+   fTerm=TERM2 inst=block
+net=NET2
+   fTerm=clock inst=INST4
+   fTerm=99II inst=INST3
+   fTerm=OLD_TERM inst=MYINST1
+
+properties on all nets:
+
+net=ground
+selfID=Net
+timeStamp=89 6 15  15 15 3
+
+net=NET4
+selfID=Net
+timeStamp=89 6 15  15 15 3
+property=signal: ioBus
+property=type: A B C
+property=wire: BUS1 BUS2 BUS3
+property=width: 20
+
+net=NET1
+selfID=Net
+timeStamp=89 6 15  15 15 3
+
+net=VDD
+selfID=Net
+timeStamp=89 6 15  15 15 3
+
+net=NET2
+selfID=Net
+timeStamp=89 6 15  15 15 3
+property=current: 2.540000

@@ -1,0 +1,41 @@
+/* =========================================================
+.(l
+ TEXT id;            /* organization id */
+ strType1 *relation; /* given relation */
+ strType2 *source;   /* source entity */
+.)l
+Description:
+ Generic function that, for a given relation, returns the source entity.
+.(l
+Example of the use:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct Course Course;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Course {
+       ZZ_EXT_Course
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(classes,Teacher,Class,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   Course *c;
+   /* for a given student, print all his/her teachers */
+   ZZ_A_RETRACE(classes,s,c)
+       ZZ_SOURCE(classes,c,t)
+       printf("class=%d teacher=%s\n",c->courseNum,t->name);
+   ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SOURCE(id,relation,source) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_SOURCE,id)(id,relation,source)

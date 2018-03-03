@@ -1,0 +1,123 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14.2 Self_Id</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="14_2"></a>14.2 SELF_ID</h2>
+
+<h4>Purpose:</h4>
+
+<p>In some projects, you may need a pointer that can point to
+several different object types (<em>GENERAL_LINK</em>). When you
+arrive at an object via such a pointer, you usually want to know
+the type of that object. In C, our library provided the <em>SELF_ID</em>
+organization for this purpose.</p>
+
+<p>Using a typeless pointer is not a good strategy in C++ and
+should generally be avoided except for special situations. If you
+want to detect the object type, the standard method is to derive
+all of the classes (or at least those that you want to detect)
+from the same base class, and use virtual functions. For example:
+</p>
+
+<blockquote>
+    <pre><em>class Obj {
+    ... 
+    virtual char *Iam(void){return &quot;Obj&quot;;}
+};
+class Automobil : public Obj {
+    ...
+    virtual char *Iam(void){return &quot;Automobil&quot;;}
+};
+class Airplane : Obj {
+    ... 
+    virtual char *Iam(void){return &quot;Airplane&quot;;}
+};</em></pre>
+</blockquote>
+
+<p>In tests <em>test4d.c</em> and <em>test7a.c</em>, the original
+<em>SELF_ID</em> organization has been replaced with this more
+elegant technique.</p>
+
+<p>However, this method has a serious disadvantage. If you
+attempt to call function <em>Iam()</em> on an object which is not
+derived from class <em>Obj</em>, your program will crash. The
+technique is not useful for sorting out incorrect (garbage)
+objects from correct types.</p>
+
+<p><a href="ch14Prpg.htm">Chap.14.7<font color="#FF0000"> </font></a>describes
+how OrgC++ gives you access to internal type tables, normally
+hidden by the compiler. This information can be also used for a
+safer type detection. In order to make this simple for you, the <em>TYPE</em>
+organization provides function <em>vfCheck(void *p) </em>which,
+for a pointer to any memory location, can tell you whether the
+object is of the type registered with <em>ZZ_EXT_..,</em> and
+what the type is.</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_TYPE(type);<br>
+    int tp; // type index <br>
+    void *p;<br>
+    ...<br>
+    tp=type.vfCheck(p); </em></p>
+</blockquote>
+
+<p>Function <em>vfCheck()</em> provides a smart check, because it
+does not require the existence of the common root object, and it
+does not crash when inquiring about an unregistered object. I
+just returns -1 as the signal that the type does not match any
+registered type.</p>
+
+<p>Function <em>vfCheck()</em> does not use virtual function, it
+compares internal vf pointers used by the compiler, and derives
+the type from their values.</p>
+
+<p>In order to detect the type, the following conditions must be
+met: </p>
+
+<ol>
+    <li>Each detectable type must have at least one virtual
+        function (perhaps just a dummy virtual function).</li>
+    <li>No virtual classes must be used for detectable types.</li>
+    <li>The virtual function pointer must be located at the
+        beginning of the object (this is true for most existing
+        compilers such as Borland 4.0+, Microsoft 8.0+, or SUN
+        3.0+, but not for SUN 2.1 or Watcom 10.0).</li>
+</ol>
+
+<p>When condition (1) is not met, <em>vfCheck()</em> returns -1
+(no known type). When conditions (2) or (3) are not met, <em>vfCheck()</em>
+returns -2 (compiler not suitable for type detection). <em>vfCheck()</em>
+never crashes, even when given a pointer to a location which does
+not represent a valid object.</p>
+
+<p>The probability of not detecting a correct type, or of
+detecting a wrong type is 0. The probability of not detecting an
+invalid type is very small n/(2**32), where n is the number of
+valid types.</p>
+
+<p>For an example of <em>vfCheck()</em>, see <em>test39a.</em></p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch14Prop.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 14.1 Run Time Extensibility</a></td>
+        <td align="right" width="50%"><a href="ch14Prpc.htm">Next
+        Section 14.3 Time Stamp <img src="images/next.gif"
+        border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

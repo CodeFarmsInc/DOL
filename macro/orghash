@@ -1,0 +1,121 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT str1Type;         /* structure where to install the hash table */
+ TEXT str2Type;         /* object type to be stored */
+.)l
+Description:
+ Declaration of a hash table.
+.sp
+A hash table lives always on on object. If you need a plain table,
+declare an object just for this, like a header, with nothing in it
+except for ZZ_EXT_... For example:
+.(l
+Example:
+
+ typedef struct Employee Employee;
+ typdef struct Header Header;
+ struct Employee {
+     ZZ_EXT_Employee
+     char *name;
+     int birthDate;
+ };
+ struct Header {
+     ZZ_EXT_Header
+ };
+ ZZ_ORG_HASH(byName,Header,Employee)
+ ZZ_ORG_HASH(byDate,Header,Employee)
+.)l
+.sp
+Internally, a hash table consists of an array of pointers plus a
+list that links together objects that fall under the same hash slot.
+For that reason, dealing with the hash table is somewhat similar to
+dealing with an array. For example, before you start to use a hash
+table, you have to decide on its size and 'form' it. You can resize
+the table, examine its internal parameters, or traverse its members.
+.sp
+For each hash table, the user has to provide two functions,
+.i "zz_hashInd..."
+and
+.i "zz_hashCmp_..."
+ The first function derives a hashing slot index for a given key, the second
+function compares the key on two objects.
+If you don't have any special requirements, use
+.i "ZZhashStr()"
+or
+.i "ZZhashInt()"
+provided with the system.
+.(l
+int ZZhashStr(str,size)
+char *str; int size;
+/* returns hashing index for string 'str' and table size 'size' */
+
+int ZZhashInt(i,size)
+int i; int size;
+/* returns hashing index for positive integer  ' i' and table size 'size' */
+.)l
+In the example above, these two functions may look like this:
+.(l
+int zz_hashCmp_byName(p1,p2) char *p1,*p2;
+{   Employee *e1,*e2;
+    e1=(Employee *)p1; e2=(Employee *)p2;
+    return(strcmp(e1->name,e2->name));
+}
+int zz_hashInd_byName(ep,tabSize) char *ep; int tabSize;
+{ int ZZhashStr(); Employee *ee;
+  ee=(Employee *)ep;
+  return(ZZhashStr(ee->name,tabSize));
+}
+
+int zz_hashCmp_byDate(p1,p2) char *p1,*p2;
+{ Employee *e1,*e2;
+  e1=(Employee *)p1; e2=(Employee *)p2;
+  if(e1->birthDate==e2->birthDate)return(0); else return(1);
+}
+int zz_hashInd_byDate(ep,tabSize) char *ep; int tabSize;
+{ int ZZhashInt(); Employee *ee;
+  ee=(Employee *)ep;
+  return(ZZhashInt(ee->birthDate,tabSize));
+}
+.)l
+The following functions allow you to perform all the usual operations:
+ ZZ_ADD_HASH() adds a new object to the hash table;
+ ZZ_DELETE_HASH() deletes an object from the hash table;
+ ZZ_GET_HASH() finds the object by the key;
+ ZZ_FORM_HASH() forms a hash table of the given size;
+ ZZ_RESIZE_HASH() to reset the size of the table;
+ ZZ_SIZE_HASH() reports the current size of the table;
+ ZZ_SLOT_HASH() returns the first object in the given slot;
+ ZZ_A_TRAVERSE_HASH() traverses objects within one slot.
+ ZZ_FREE_HASH() frees (deallocates the table)
+.sp
+The whole table can be traversed by getting the size from ZZ_SIZE_HASH(),
+then looping over all slots, for each slot getting one object through
+ZZ_SLOT_HASH(), and then traversing the slot by ZZ_A_TRAVERSE_HASH():
+.(l
+ Header h;
+ Employee *ep,*pp;
+ int i;
+
+   ....
+ /* print all Employees in the table */
+ for(i=0;i<200;i++){
+    ZZ_SLOT_HASH(byName,h,i,ep)
+    ZZ_A_TRAVERSE(byName,ep,pp)
+        printf("slot=%d employee=%s\\n",i,pp->name);
+    ZZ_A_END
+ }
+.)l
+.sp
+  ========================================================== */ 
+#ifdef ZZ_ANSI
+#define ZZ_ORG_HASH(id,strType1,strType2) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+int ZZFP(zz_hashInd_,id)(char *, int);\
+int ZZFP(zz_hashCmp_,id)(char *,char *);
+#else
+#define ZZ_ORG_HASH(id,strType1,strType2) \
+int ZZFP(zz_hashInd_,id)();\
+int ZZFP(zz_hashCmp_,id)();
+#endif
+

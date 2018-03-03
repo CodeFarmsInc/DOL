@@ -1,0 +1,9 @@
+from (30,50) to (30,40) cur=48.000000 width=6 volt=0.040000
+from (30,40) to (40,30) cur=8.000000 width=3 volt=0.066667
+from (30,40) to (30,30) cur=40.000000 width=5 volt=0.080000
+from (30,30) to (30,20) cur=20.000000 width=3 volt=0.113333
+from (30,20) to (20,10) cur=10.000000 width=3 volt=0.146667
+from (30,20) to (40,10) cur=10.000000 width=3 volt=0.146667
+from (30,50) to (10,40) cur=60.000000 width=7 volt=0.128571
+from (10,40) to (0,30) cur=40.000000 width=5 volt=0.208571
+from (10,40) to (20,30) cur=20.000000 width=3 volt=0.195238

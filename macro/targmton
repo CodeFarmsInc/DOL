@@ -1,0 +1,20 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id of the organization */
+ strType *rel;  /* given relation */
+ strType *targ; /* target entity to be returned */
+.)l
+Description:
+ For a given relation, return the target of the M_TO_N entity.
+.sp
+This is a special case of general ZZ_TARGET() for the M_TO_N relation.
+For more details, look at the description of ZZ_TARGET().
+.sp
+Advice to users: 
+ When working with ER data, use generic ZZ_TARGET(). It makes the code simpler.
+  ========================================================== */ 
+#define ZZ_TARGET_M_TO_N(id,rel,targ) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_TARGET_M_TO_N(ZZFP(ZZy,id),rel,targ)
+
+#define ZZZ_TARGET_M_TO_N(trg,rel,targ) {(targ)=(rel)->trg;}

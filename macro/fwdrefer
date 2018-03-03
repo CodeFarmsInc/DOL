@@ -1,0 +1,21 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ strType1 *given; /* given object */
+ strType2 *ret;   /* returned target object */
+.)l
+Description:
+ Returns the other side of the reference; there is no change in the
+ reference count. This is exactly like ZZ_FORWARD_SINGLE_LINK().
+ Internally, the operation is implemented as a macro hiding one
+ pointer jump.
+.pp
+For an example and other commands, see the description of
+ZZ_ORG_REFERENCE() and ZZ_HYPER_REFERENCE().
+.sp
+  ========================================================== */ 
+#define ZZ_FORWARD_REFERENCE(id,given,ret) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FORWARD_REFERENCE(ZZFP(ZZf,id),given,ret)
+
+#define ZZZ_FORWARD_REFERENCE(fwd,given,ret) {(ret)=(given)->fwd;}

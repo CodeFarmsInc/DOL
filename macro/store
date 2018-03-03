@@ -1,0 +1,23 @@
+/* =========================================================
+.(l
+ TEXT strType;       /* structure type */
+ char *fileName;     /* file name for output */
+.)l
+Description:
+ Write out one object in a C++ class.
+.sp
+.(l
+Example:
+
+class Employee {
+    ZZ_EXT_Employee
+public:
+    ...
+    void save(char *file){ZZ_STORE(Employee,file);}
+};
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_STORE(strType,fileName) ZZ_OBJECT_SAVE(strType,fileName,this,1)
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+

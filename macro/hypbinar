@@ -1,0 +1,119 @@
+/* =========================================================
+Binary array is similar to the general array, but has only a few
+methods. The main access to the array is not through
+the ind() function, but through getBit() and setBit().
+
+The array is always allocated in bytes, which are multiples of 8 bits.
+If you ask for the size which is not a multiple of 8, next higher multiple
+of 8 will be selected. 
+  ========================================================== */ 
+#define ZZ_HYPER_BINARY_ARRAY(id,hType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_ARRAY(id,hType,char,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_BINARY_ARRAY(id,hType,where) \
+ZZ_BASIC_ARRAY(id,hType,static,where :: id)
+
+#define ZZ_BASIC_BINARY_ARRAY(id,hType,scope,where) \
+class ZZFP(ZZH,id) { \
+    ZZint ind(hType *hp,ZZint i);\
+public: \
+    void form(hType *hp,ZZint sz,ZZint incr);\
+    void *formed(hType *hp){return (void*)(hp->ZZFP(ZZa,id));}\
+    void free(hType *hp){ZZ_FREE_ARRAY(id,hp);}\
+    ZZint size(hType *hp,ZZint *wMark,ZZint *incr){ZZint sz; ZZarray *ZZa; \
+        ZZa=(obj)->aPtr; \
+        if(ZZa){\
+            sz=8*(ZZa->num); *wMark=zza->waterM; *incr=ZZa->incr; \
+            if(*incr>0)*incr=8*(*incr);\
+        }\
+        else {sz=0; *wMark= -1; *incr=0;}\
+        return sz;\
+    }\
+    void reset(hType *hp,ZZint wMark,ZZint incr);\
+             ZZ_RESET_ARRAY(id,hp,wMark,incr);}\
+    ZZint getBit(hType *hp,ZZint i);\
+    ZZint setBit(hType *hp,ZZint i,ZZint val);\
+};\
+scope ZZFP(ZZH,id) id
+
+/* _______________________________________________________________________ */
+
+// -----------------------------------------------------------------------
+// Returns the value of the bin No.i (0 or 1).
+// Returns -1 in case of error.
+// -----------------------------------------------------------------------
+ZZint ZZV$ ZZH$ :: getBit(ZZ1$ *hp,ZZint i){
+    ZZarray *a; ZZint iChar,iBit,sz,k,newBytes; ZZ2$* ap; char *p,b;
+
+    a=hp->ZZFP(ZZa,$);
+    sz=sizeof(ZZ2$) * a->size; // sz is size in bytes
+    if(i>=sz*8){ // sz*8 is the size in bits
+        ap=ind(hp,i/(8*sizeof($2)));
+        if(!ap){
+            printf("BINARRAY error: cannot realocate for %d bits\n",i);
+            return -1;
+        }
+
+        // initialize the new part of the array to 0
+        newBytes=sizeof($2)*a->size;
+        p=a->array;
+        for(k=sz; k<newBytes; k++) p[k]=0;
+    }
+    else if(a->waterM<0){ // first call, initialize all bits to 0
+        p=a->array;
+        for(k=0; k<sz; k++) p[k]=0;
+    }
+
+    k=i/(8*sizeof(ZZ2$)); // object index in which bit i is
+    if(a->waterM < k)a->waterM=k;
+
+    p=a->array;
+    iChar=i/8;             // character index where the bit is
+    iBit=i-iChar*8;        // bit within that character
+    p=p+iChar;
+    b=1 << iBit;
+    if(*p & b){
+        return 1;
+    }
+    return 0;
+}
+
+// -----------------------------------------------------------------------
+// Set bit No.i to val, where val=0 or 1.
+// Return 0=everything OK, -1 when error.
+// -----------------------------------------------------------------------
+ZZint ZZV$ ZZH$ :: setBit(ZZ1$ *hp,ZZint i,ZZint val){
+    ZZarray *a; ZZint iChar,iBit,sz,k,newBytes; ZZ2$* ap; char *p,b;
+
+    a=hp->ZZFP(ZZa,$);
+    sz=sizeof(ZZ2$) * a->size; // sz is size in bytes
+    if(i>=sz*8){ // sz*8 is the size in bits
+        ap=ind(hp,i/(8*sizeof($2)));
+        if(!ap){
+            printf("BINARRAY error: cannot realocate for %d bits\n",i);
+            return -1;
+        }
+
+        // initialize the new part of the array to 0
+        newBytes=sizeof($2)*a->size;
+        p=a->array;
+        for(k=sz; k<newBytes; k++) p[k]=0;
+    }
+    else if(a->waterM<0){ // first call, initialize all bits to 0
+        p=a->array;
+        for(k=0; k<sz; k++) p[k]=0;
+    }
+
+    k=i/(8*sizeof(ZZ2$)); // object index in which bit i is
+    if(a->waterM < k)a->waterM=k;
+
+    p=a->array;
+    iChar=i/8;             // character index where the bit is
+    iBit=i-iChar*8;        // bit within that character
+    p=p+iChar;
+    b=1 << iBit;
+    if(val)*p=*p | b;
+    else   *p=*p & ~b;
+    return 0;
+}

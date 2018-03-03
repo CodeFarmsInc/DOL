@@ -1,0 +1,47 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the instance of the organization */
+ str2Type *pp;   /* given pointer to a child */
+ str2Type *fwd;  /* next object under the same parent */
+.)l
+Description:
+ For a given pointer to the bottom element of a collection,
+it returns next object on the bottom ring.
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+
+typedef struct Country Country;
+typedef struct Town Town;
+struct Country{
+    ZZ_EXT_Country
+    int population;
+    float sqMiles;
+    char *name;
+};
+struct Town{
+    ZZ_EXT_Town
+    char river; /* yes or no */
+    char color; /* color people hate most */
+    char *contryName;
+    char *townName;
+};
+ZZ_ORG_DOUBLE_COLLECT(myCol,Country,Town);
+
+Country *c;
+Town *t1,*t2;
+
+/* let us assume that towns have been organized into collections,
+ * all towns under its country name. For a given town 't'
+ * to find the next town under the same country, we do: */
+
+    ZZ_FORWARD(myTriangle,t1,t2)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_FORWARD_DOUBLE_COLLECT(id,pp,fwd) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_FORWARD_DOUBLE_COLLECT(ZZFP(ZZf,id),pp,fwd)
+
+#define ZZZ_FORWARD_DOUBLE_COLLECT(sibling,pp,fwd) {(fwd)=(pp)->sibling;}

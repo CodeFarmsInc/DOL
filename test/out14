@@ -1,0 +1,15 @@
+hwy: T8 T9 T10 T5 T3 T2 T4  cost=40.000000
+air: T8 T3 T4  cost=20.000000
+hwy: T9 T8 T7 T6  cost=22.799999
+air: no connection
+hwy: T10 T5 T3 T2 T1  cost=33.500000
+air: no connection
+..are you joking?
+hwy: T3 T2 T1  cost=22.500000
+air: T3 T1  cost=8.000000
+hwy: T4 T2 T3 T6 T1  cost=59.000000
+air: no connection
+hwy: T8 T5 T3 T2 T4  cost=23.000000
+air: T8 T3 T4  cost=20.000000
+hwy: T8 T9 T10 T5 T3 T2 T4  cost=40.000000
+air: T8 T3 T4  cost=20.000000

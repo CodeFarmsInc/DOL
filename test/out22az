@@ -1,0 +1,16 @@
+Orders that cannot be accepted:
+A (10.000000 10.000000 10.000000) tons=7000.000000
+D (0.100000 0.100000 5.000000) tons=0.350000
+
+Assignments:
+WarmBand=WB2 tons=400.200012 waste=400.200012 qualities: C
+WarmBand=WB1 tons=100.500000 waste=16.500000 qualities: B A
+    B (2.000000 0.500000 0.500000) tons=3.500000
+    A (1.000000 0.500000 2.200000) tons=7.700000
+    B (4.000000 0.500000 1.000000) tons=14.000000
+    A (1.500000 0.500000 3.200000) tons=16.800001
+    A (2.000000 1.000000 3.000000) tons=42.000000
+WarmBand=WB3 tons=150.199997 waste=3.199997 qualities: C A
+    C (10.000000 0.100000 3.000000) tons=21.000000
+    C (2.000000 3.000000 3.000000) tons=126.000000
+WarmBand=WB5 tons=120.000000 waste=120.000000 qualities: A

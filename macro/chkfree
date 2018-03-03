@@ -1,0 +1,63 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* structure to free */
+ int num;             /* number of structures to free */
+ strType *ptr; /* pointer to the beginning of the area to be freed */
+.)l
+Description:
+ Can be used to check whether a single data structure (num=1), or an array
+of structures can be freed. The function checks that the object
+is properly disconnected from all organizations (all pointers NULL).
+If the object is a part of any organization, a warning
+message is issued, and the error flag is set: ZZerror=010.
+  There is no need to use this function in C programs, where PLAIN_FREE
+takes care of checking together with the deallocation. The main purpose
+of CHECK_FREE is to check objects in C++ destructors.
+.sp
+The current implementation is NOT protected against giving a wrong
+number of objects. If you give less objects than were originally allocated,
+not all objects are checked fro being disconnected from the organization.
+If you give more objects, you may get false error message and the
+no objects may be freed.
+.sp
+For a simplified form of this macro, see ZZ_CHECK().
+.(l
+Example:
+
+class Insect{
+private:
+    short numLegs;
+    char color;
+    char category;
+public:
+    ZZ_EXT_Insect
+    Insect(){ ... };
+    ~Insect(){ZZ_CHECK_FREE(Insect,1,this);}
+};
+.)l
+Usually, this macro is used for checking one object in a destructor,
+which means always repeating the last two parameters '1,this'.
+For this purpose, ZZ_CHECK() provides a simplified use:
+.(l
+class Insect{
+private:
+    short numLegs;
+    char color;
+    char category;
+public:
+    ZZ_EXT_Insect
+    Insect(){ZZ_INIT(Insect);}
+    ~Insect(){ZZ_CHECK(Insect);}
+};
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_CHECK_FREE(strType,num,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{\
+strType *P; ZZint ZZFUN_deal();\
+ ZZFN(ZZS,strType) \
+ P=(ptr);\
+ ZZdeal((char *)P,ZZstrList,ZZ_STRINGIT(strType),num,(ZZint)sizeof(strType),1);\
+}

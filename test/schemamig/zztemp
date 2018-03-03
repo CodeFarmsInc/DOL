@@ -1,0 +1,95 @@
+0 #define DOS
+0 #define MICROSOFT8
+0 #define LARGE_POINTER
+0 #define ZZansi
+0 #define ZZcplus
+0 #define ZZ_INHERIT
+0 #define NT
+7 #include <stdio.h>
+8 #define ZZmain
+9 #define ZZascii
+10 #include "zzincl.h"
+12 class Library {
+13     ZZ_EXT_Library
+14 public:
+15     Library(){};
+16     
+17     void prt2(); 
+18 };
+19 ZZ_FORMAT(Library,""); 
+21 class Publication { 
+22     ZZ_EXT_Publication
+23 public:
+24     int year;
+25 };
+26 ZZ_FORMAT(Publication,"%d,year"); 
+28 class Book : public Publication { 
+29     ZZ_EXT_Book
+30 public:
+31     
+32     float cost;
+33     Book(){};
+34     Book(char *title);
+35 };
+36 ZZ_FORMAT(Book,"%f,cost"); 
+38 class Author {
+39      ZZ_EXT_Author
+40 public:
+41     int phone; 
+42     Author(){};
+43     Author(char *name);
+44 };
+45 ZZ_FORMAT(Author,"%d,phone"); 
+48 ZZ_HYPER_SINGLE_COLLECT(publications,Library,Publication); 
+49 ZZ_HYPER_HASH(allBooks,Library,Book); 
+50 ZZ_HYPER_SINGLE_COLLECT(authors,Library,Author);
+51 ZZ_HYPER_SINGLE_LINK(toAuthor,Book,Author);
+52 ZZ_HYPER_NAME(bookName,Book);
+53 ZZ_HYPER_NAME(authName,Author);
+54 ZZ_HYPER_UTILITIES(util);
+56 Book::Book(char *title){char* p=util.strAlloc(title); bookName.add(this,p);}
+57 Author::Author(char *name){char* p=util.strAlloc(name); authName.add(this,p);}
+58 void Library::prt2(){
+59     Author *at; Book *bk,*bk1; int i,k,sz,numUsed;
+60     authors_iterator ait;
+61     allBooks_iterator hit;
+63     printf("Authors: \n");
+64     ait.start(this);
+65     ITERATE(ait,at){printf("%s\n",authName.fwd(at));}
+67     printf("Books: \n");
+68     
+69     i=0;
+70     sz=allBooks.size(this,&numUsed);
+71     for(k=0; k<sz; k++){
+72  bk1=allBooks.slot(this,k);
+73  hit.start(bk1);
+74  while(bk= ++hit){
+75             at=toAuthor.fwd(bk);
+76             if(i<6)printf("%s: %s,  $%5.2f\n",
+77        authName.fwd(at),bookName.fwd(bk),bk->cost);
+78      i++;
+79  }
+80     }
+81     printf("total of %d books\n",i);
+82 }
+85 inline int allBooks_class::cmp(Book *b1,Book *b2){
+86     return strcmp(bookName.fwd(b1), bookName.fwd(b2));
+87 }
+88 inline int allBooks_class::hash(Book *bk,int sz){
+89     int ZZhashStr(char*,int i);
+90     return ZZhashStr(bookName.fwd(bk),sz);
+91 }
+93 #define numPairs 4
+95 int main(){
+96     Library *lib; Book *bk; Author *a1,*a2; int i; char buff[80];
+97     char *v[1],*t[1];
+99     util.mode(1,0,0,0); 
+100     util.open("file3",1,v,t);
+101     lib=(Library*)(v[0]);
+103     lib->prt2();
+105     v[0]=(char*)lib; 
+106     t[0]="Library";
+107     util.save("file4",1,v,t);
+109     return 0;
+110 }
+111 #include "zzfunc.c"

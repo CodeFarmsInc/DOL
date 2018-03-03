@@ -1,0 +1,10 @@
+O myFile
+D 1
+A 0 The
+A 1 red
+D 5
+A 4 a
+A 5 grey
+A -1 .
+G fox wiesel
+P

@@ -1,0 +1,58 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *from;  /* object from which the link should be cancelled */
+ void *targ;     /* returns the disconnected target object */
+.)l
+Description:
+ Cancel the link from the given object
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+typedef struct Apple Apple;
+typedef struct Plum Plum;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+struct Apple {
+     ...
+};
+struct Plum {
+     ...
+};
+ZZ_ORG_GENERAL_LINK(fLink,Fruit)
+
+Fruit *f1,*f2;
+Apple *a;
+Plum  *p;
+void *rp;
+
+ ....
+ZZ_SET_GENERAL_LINK(fLink,f1,a)
+ZZ_SET_GENERAL_LINK(fLink,f2,p)
+ ....
+ZZ_DELETE_GENERAL_LINK(fLink,f1,rp)
+ZZ_DELETE_GENERAL_LINK(fLink,f2,rp)
+.)l
+.pp
+Note that prior to using ZZ_PLAIN_FREE(), the object must
+be disconnected from any organization.
+.pp
+See also: ZZ_ORG_GENERAL_LINK(), ZZ_GET_GENERAL_LINK(),
+ZZ_SET_GENERAL_LINK(), and
+also similar functions for typed single/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_DELETE_GENERAL_LINK(id,from,targ) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_GENERAL_LINK(ZZFP(ZZg,id),from,targ)
+
+#ifdef ZZcplus
+#define ZZZ_DELETE_GENERAL_LINK(ptr,from,targ) \
+{ char **ZZp=(char**)(&(targ)); *ZZp=(from)->ptr; (from)->ptr=NULL;}
+#else
+#define ZZZ_DELETE_GENERAL_LINK(ptr,from,targ) \
+{ (targ)=(void *)((from)->ptr); (from)->ptr=NULL;}
+#endif

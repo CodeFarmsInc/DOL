@@ -1,0 +1,61 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers for 2 nodes */
+ edgeType *ge;   /* traversing edge */
+.)l
+Description:
+ Traverse edges of the graph adjacent to node nd[0].
+In each pass, return next edge ge and the associated node, nd[1].
+.(l
+Example:
+ Assume that a network of highways and towns is
+ represented as a graph, with towns as nodes and
+ highways as edges. For a given town, print all
+ directly connected towns and the highway numbers
+ to use.
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Hwy {      /* graph edge */
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_ORG_SINGLE_GRAPH(myGraph,Town,Hwy)
+
+Town *t[2],*tt;
+Hwy *h; 
+
+....
+/* tt is the given town */
+t[0]=tt;
+printf("From town %s\n",tt->name);
+ZZ_A_TRAVERSE(myGraph,tt,h){
+    printf("    use highway %d to town %s\n",h->number,t[1]->name);
+}ZZ_A_END;
+....
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_SINGLE_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_A_TRAVERSE_SINGLE_GRAPH\
+(ZZFT(1,id),ZZFT(2,id),ZZFP(ZZe,id),ZZFP(ZZx,id),ZZFP(ZZy,id),ZZFP(ZZr,id),ZZFP(ZZs,id),nd,ge)
+
+#define ZZZ_A_TRAVERSE_SINGLE_GRAPH(nStr,eStr,edge,node1,node2,next1,next2,nd,ge) \
+{eStr *ZZtmp;\
+if((nd) && (nd)[0])(ge)=(nd)[0]->edge; else (ge)=NULL;\
+if(ge){\
+    if     ((ge)->node1==(nd)[0])(ge)=(ge)->next1;\
+    else if((ge)->node2==(nd)[0])(ge)=(ge)->next2;\
+}\
+for( ;(ge);(ge)=ZZtmp){\
+    if     ((ge)->node1==(nd)[0]){ZZtmp=(ge)->next1; (nd)[1]=(ge)->node2;}\
+    else if((ge)->node2==(nd)[0]){ZZtmp=(ge)->next2; (nd)[1]=(ge)->node1;}\
+    else ZZtmp=(eStr *)NULL;\
+    if((ge)==(nd)[0]->edge)ZZtmp=(eStr *)NULL;\
+    if((nd)[1]==(nStr *)NULL)(nd)[1]=(nd)[0];

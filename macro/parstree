@@ -1,0 +1,34 @@
+/* =========================================================
+.(l
+ TEXT id;              /* id for the instance of the organization */
+ strType *pp;   /* given pointer to a child */
+ strType *par;  /* returned pointer to the parent */
+.)l
+Description:
+ For a given pointer to the child of the tree, find the parent.
+ For the root of the tree, the macro returns NULL.
+ Internally this is a simple one pointer operation, but since the
+pointers are transparent to the programmer, a special macro is needed.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee{
+    ZZ_EXT_Employee
+    char *name;
+    char *manager;
+    int salary;
+};
+ZZ_ORG_SINGLE_TREE(myTree,Employee)
+
+Employee *c,*p;
+
+ZZ_PARENT_SINGLE_TREE(myTree,c,p)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_PARENT_SINGLE_TREE(id,pp,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_PARENT_SINGLE_TREE(ZZFP(ZZp,id),pp,par)
+
+#define ZZZ_PARENT_SINGLE_TREE(parent,pp,par) {(par)=(pp)->parent;}

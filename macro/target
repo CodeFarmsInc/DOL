@@ -1,0 +1,41 @@
+/* =========================================================
+.(l
+ TEXT id;            /* organization id */
+ strType1 *relation; /* given relation */
+ strType2 *target;   /* target entity */
+.)l
+Description:
+ Generic function that, for a given relation, returns the target entity.
+.(l
+Example of the use:
+   typedef struct Teacher Teacher;
+   typedef struct Student Student;
+   typedef struct Course Course;
+   struct Teacher {
+       ZZ_EXT_Teacher
+       char *name;
+   };
+   struct Student {
+       ZZ_EXT_Student
+       char *name;
+   };
+   struct Course {
+       ZZ_EXT_Course
+       int courseNum;
+   };
+   ZZ_ORG_M_TO_N(classes,Teacher,Class,Student)
+   ....
+   Teacher *t;
+   Student *s;
+   Course *c;
+   /* for a given teacher, print all students */
+   ZZ_A_TRAVERSE(classes,t,c)
+       ZZ_TARGET(classes,c,s)
+       printf("class=%d student=%s\n",c->courseNum,s->name);
+   ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_TARGET(id,relation,target) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_TARGET,id)(id,relation,target)

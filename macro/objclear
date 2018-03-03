@@ -1,0 +1,20 @@
+/* =========================================================
+Description:
+ Frees the entire pool of objects, and initializes it as empty.
+.sp
+Typically this command is used when leaving your programming
+environment, or when resetting the whole memory setup. You don't
+have to call this when starting your program. The pool is automatically
+initialized as empty by an internal static variable.
+.sp
+There are no error messages or conditions.
+.(l
+Example:
+  ZZ_OBJECT_CLEAR();
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_OBJECT_CLEAR() \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ char *ZZp; void ZZFUN_objMem(); ZZobjMem(2,&ZZp,0,ZZstrList); }

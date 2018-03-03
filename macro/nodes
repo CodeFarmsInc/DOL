@@ -1,0 +1,38 @@
+/* =========================================================
+.(l
+ TEXT id;     /* organization id */
+ vType **v; /* result, two end vertices, *v[2] assumed */
+ eType *e;    /* given edge */
+.)l
+Description:
+ Generic command which, for a graph organization, finds the
+endpoints of the given edge. For the directed graph, only the target node
+is returned (v[0] is unused).
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Hwy Hwy;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Flight {      /* graph edge */
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Flight)
+
+Town *t[2];
+Flight *f; 
+
+f=...;
+ZZ_NODES(myGraph,t,f)
+printf("flight no.%d connects town=%s and %s\n",
+	       f->number,t[0]->name,t[1]->name);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_NODES(id,v,e) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_NODES,id)(id,v,e)

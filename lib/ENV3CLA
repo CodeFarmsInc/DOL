@@ -1,0 +1,6 @@
+#define DOS
+#define TURBOC
+#define ZZcplus
+#define ZZansi
+#define ZZ_INHERIT
+#define LARGE_POINTER

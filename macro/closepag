@@ -1,0 +1,62 @@
+/* =========================================================
+.(l
+ TEXT id;    /* id for the instance of the organization */
+ type *hp;   /* header object that encapsulates the pager */
+.)l
+Description:
+ Closes the pager and releases the memory. This consists of the
+the following actions: All pages move from memory to disk, the
+paging file is closed, and all the memory is released.
+.pp
+After closing a pager, the information remains stored on file,
+and can be open again by invoking a pager on the file. This can
+be done within the same program run, or much later in an independent
+run. The new pager can be opened with different parameters (page size,
+and number of pages). If you want to release the information completely,
+delete the file before the next ZZ_FORM_PAGER() call.
+.pp
+WARNING:
+ If you forget to close the file before exiting your program, the file
+will be there, but not completely up-to-date. The last set of pages
+(those in memory at the time of exiting your program) will not
+moved to disk.
+.(l
+Example of the use:
+   typedef struct Head Head;
+   struct Head {
+       ZZ_EXT_Head
+   };
+   ZZ_ORG_PAGER(page,Head); /* Head will encapsulate the pager */
+   typedef struct myObj myObj;
+   struct myObj {
+      ...   /* with ZZ_EXT or not */
+   };
+
+    main(){
+        long i;
+        Head *hp;
+        char buff[80],*ptr;
+        myObj *mp;
+
+        ZZ_PLAIN_ALLOC(Head,1,hp);
+        ZZ_FORM_PAGER(page,hp,"myFile",512,6,2); /* 6 pages, 512 bytes each */
+        ...
+        /* write object mp starting form index i */
+        ZZ_IO_PAGER(page,hp,i,mp,sizeof(myObj),1); 
+        ...
+        /* retrieve 15 characters starting from index 14033 into buff */
+        ZZ_IO_PAGER(page,hp,14033L,buff,15,0); 
+        ...
+        ZZ_CLOSE_PAGER(page,hp); /* closes the pager and its file */
+.)l
+.sp
+  ========================================================== */ 
+#define ZZ_CLOSE_PAGER(id,obj)\
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_CLOSE_PAGER(ZZFP(ZZh,id),obj)
+
+#define ZZZ_CLOSE_PAGER(hPtr,obj)\
+{ void ZZFUN_closePager();\
+    if((obj)->hPtr)ZZclosePager((obj)->hPtr);\
+    (obj)->hPtr=NULL;\
+}

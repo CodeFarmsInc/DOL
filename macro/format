@@ -1,0 +1,86 @@
+/* =========================================================
+.(l
+ TEXT type;     /* type of the object, for which the format will be used */
+ TEXT formDef;  /* format definition for all public members */
+.)l
+Description:
+ Format specification for public structure members (public class attributes)
+when saving in the ASCII format. To see how to use this command,
+look at the examples below.
+.sp
+ The format must be enclosed in double quotes (it is treated as a text
+string), and is similar to the format used for printf() or scanf(),
+except that even the variable names are inside the quotes.
+Examples:
+    "%d %d %f,i,j,x"
+    "%lu %lu %e,i,j,x"
+ see also test16b.c
+.sp
+Text strings should not be passed in this manner, since they require
+special allocation. Organization of NAME should be used for saving
+strings, or you must include the allocation in hand coded function
+zz_inp_..().
+.sp
+Programmers often store small integers in single bytes declared as char.
+For such integers, neither C nor C++ provides a simple, unified
+format. We provide this missing piece, use %a for an ASCII chracter
+which is being treated as a number.
+.sp
+ZZ_FORMAT() generates functions zz_inp_..() and zz_out_..()
+which are required by Organized C for SAVE/OPEN on disk, when using
+the ASCII format.
+The functions are deposited into file zzfunc.c, which you can either 
+include at the end of your code with
+  #include "zzfunc.c"
+or you can compile and link it as a separate file. Normally, you don't
+have to worry about what is in that file. Simply remember, that when
+using the ASCII format, ZZ_FORMAT() statements are required.
+.sp
+The reason for this format statement is to give you the full flexibility
+of dealing with structure members, their accuracy, etc.
+.sp
+The order of attributes in the format is arbitrary, you can even leave some
+attributes out if they are not important. However, for each object type
+(structure or class) that has the ZZ_EXT_.. statement, you must have
+either ZZ_FORMAT() or hand coded functions zz_inp_..() and zz_out_..().
+You can mix both styles in one program, however, for each structure
+only one definition (which also means no more than one ZZ_FORMAT() statement)
+is permitted.
+.(l
+Example of the use:
+
+   typedef struct Obj1 Obj1;
+   typedef struct Obj2 Obj2;
+   typedef struct Obj3 Obj3;
+   struct Obj1 {
+       ZZ_EXT_Obj1
+       int a,b;
+       char c,d;
+       float x;
+   };
+   ZZ_FORMAT(Obj1,"%d %d %a %a %f,a,b,x");
+
+   struct Obj2 {
+       double int a;
+       ZZ_EXT_Obj1
+       char *temp;
+       float x;
+   };
+   ZZ_FORMAT(Obj2,"%d %e,a,x");
+
+   struct Obj3 {
+       ZZ_EXT_Obj3
+   };
+   ZZ_FORMAT(Obj2,"");
+
+   ZZ_ORG_SINGLE_RING(ring1,Obj1);
+   ZZ_ORG_SINGLE_TRIANGLE(ring1,Obj1,Obj2);
+   ZZ_ORG_SINGLE_LINK(ring1,Obj1,Obj3);
+.)l
+  ========================================================== */ 
+#ifdef VMS
+#define ZZ_FORMAT(type,format) unsigned char ZZFORMAT##type
+#else
+#define ZZ_FORMAT(type,format) /* ZZ_FORMAT */
+#endif
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

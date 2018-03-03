@@ -1,0 +1,834 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 6, Examples</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">6. EXAMPLES</font></h1>
+
+<h4><a href="#6_1"><font size="2" face="Arial">6.1 Complete
+Program With OrgC++</font></a><font size="2" face="Arial"><br>
+</font><a href="#6_2"><font size="2" face="Arial">6.2 Converting
+Real Data into OrgC++ Organization</font></a><font size="2"
+face="Arial"><br>
+</font><a href="#6_3"><font size="2" face="Arial">6.3 Saving With
+Virtual Functions</font></a><font size="2" face="Arial"><br>
+</font><a href="#6_4"><font size="2" face="Arial">6.4 Advanced
+Example: DLL Under WindowsNT</font></a></h4>
+
+<h2><a name="6_1"></a><font size="4" face="Arial">6.1 COMPLETE
+PROGRAM WITH ORGC++ </font></h2>
+
+<p>This chapter contains a simple but complete program with
+OrgC++. Comments have been included to explain each step. If you
+are a new user, read this program carefully. You may also type it
+into a computer and try to modify it (if you type every
+statement, you'll notice things that you may miss if you just
+read the existing code). This program is a C++ version of the
+program <em>test15a.c</em>, available on the distribution disk.
+If you understand this example, you understand the essence of
+OrgC++.</p>
+
+<p>The task is to read a list of employee records, link the
+records into two lists, sort one alphabetically and the other by
+salary, and then print both lists. Input format: <em>emplName
+salary</em>. </p>
+
+<p>In OrgC++, rings are always used instead of NULL ending lists.
+Operations on both organizations are very similar, but rings
+allow better protection against run-time errors. </p>
+
+<p>The OrgC++ library provides two types of rings: </p>
+
+<ul>
+    <li>RING is just a plain ring with an outside pointer, which
+        is equivalent to the head/tail of the list, and which
+        must be externally managed;</li>
+    <li>COLLECTION is a ring with its entry point encapsulated in
+        another object. </li>
+</ul>
+
+<p>In the following program, the COLLECTION is used. The <em>Header</em>
+object encapsulates the entry points for both lists.</p>
+
+<blockquote>
+    <pre><em>#include &lt;stdio.h&gt; // usual io include 
+#define ZZmain // main file for OrgC++ global variables 
+#include &quot;zzincl.h&quot; // OrgC++ will generate this file 
+class Header { // header for both lists 
+    ZZ_EXT_Header // automat.controlled pointers
+public:
+}; 
+class Employee { // employee record 
+    ZZ_EXT_Employee // automat.controlled pointers 
+public:
+    static int sfun(const void*,const void*); 
+    static int nfun(const void*,const void*); 
+    char *name; 
+    int salary; 
+}; </em></pre>
+    <pre><em>ZZ_HYPER_SINGLE_COLLECT(bySalary,Header,Employee); 
+ZZ_HYPER_SINGLE_COLLECT(byName,Header,Employee); 
+ZZ_HYPER_UTILITIES(util); </em></pre>
+    <pre><em>#define BSIZE 80 
+int main(int argc, char **argv){ 
+    char name[BSIZE],buff[BSIZE],*nn; 
+    FILE *file1,*file2; 
+    Header *hp; // header for both lists 
+    Employee *ep; //just a pointerT 
+    int sal; </em></pre>
+    <pre><em>    if(argc&lt;=1)file1=stdin; else file1=fopen(argv[1],&quot;r&quot;); 
+        if(argc&lt;=2)file2=stdout; else file2=fopen(argv[2],&quot;w&quot;); </em></pre>
+    <pre><em>    hp=new Header; // automatically empty lists 
+    while(fgets(buff,BSIZE,file1)){ 
+        sscanf(buff,&quot;%s %d&quot;,name,&amp;sal); 
+        ep=new Employee; // get new Employee object 
+        nn=util.strAlloc(name); // allocate and copy name 
+        ep-&gt;name=nn; 
+        ep-&gt;salary=sal; 
+        bySalary.add(hp,ep); // add to one list 
+        byName.add(hp,ep); // add to the second list 
+    } // all input loaded in </em></pre>
+    <pre><em>    bySalary.sort(Employee::sfun,hp); // sort one list 
+    byName.sort(Employee::nfun,hp); // sort the second list 
+    bySalary_iterator sIter(hp); 
+    while(ep= ++sIter){ // traverse list bySalary 
+        fprintf(file2,&quot;%s %d\n&quot;,ep-&gt;name,ep-&gt;salary); 
+    } </em></pre>
+    <pre><em>    fprintf(file2,&quot;\n&quot;); 
+    byName_iterator nIter(hp); 
+    while(ep= ++nIter){ // traverse list byName </em>
+<em>        fprintf(file2,&quot;%s %d\n&quot;,ep-&gt;name,ep-&gt;salary); 
+    } 
+    return 0;
+} </em></pre>
+    <pre><em>// Compare functions are similar to qsort(). 
+// Return: -1 for p1&lt;p2,0 for p1==p2,+1 for p1&gt;p2
+int Employee::sfun(const void *p1, const void *p2){ 
+    Employee *e1,*e2; 
+    e1=(Employee *)p1; e2=(Employee *)p2; 
+    if(e1-&gt;salary&lt;e2-&gt;salary)return(-1); 
+    if(e1-&gt;salary&gt;e2-&gt;salary)return(1); 
+    return(0); 
+} </em></pre>
+    <pre><em>int Employee::nfun(const void *p1, const void *p2){ 
+    Employee *e1,*e2; 
+    e1=(Employee *)p1; e2=(Employee *)p2; 
+    return(strcmp(e1-&gt;name,e2-&gt;name)); 
+} 
+#include &quot;zzfunc.c&quot; // class generator creates this file.</em></pre>
+</blockquote>
+
+<p>We assume that we are running on PC DOS with BorlandC++ 3.0,
+Organized C++ has been installed in the file <em>c:\orgC</em> ,
+and the program and input file are both in the directory <em>c:\test\myDir</em>,
+called<em> test.cpp</em> and <em>inp</em>. BorlandC++ has been
+installed in <em>c:\bc</em>, and we are using the medium memory
+model. </p>
+
+<p>First we run the class generator: <em>try1 test</em><br>
+Then we compile and link: <em>btry2 test</em><br>
+And then we execute the program: <em>test inp out</em></p>
+
+<h3><font size="3" face="Arial">Input (file <em>inp</em>)</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>White, J.</td>
+        <td>1100</td>
+    </tr>
+    <tr>
+        <td>Brown,G.</td>
+        <td>850</td>
+    </tr>
+    <tr>
+        <td>Jones,C.</td>
+        <td>200</td>
+    </tr>
+    <tr>
+        <td>Green,F. </td>
+        <td>900 </td>
+    </tr>
+    <tr>
+        <td>Jones,S.</td>
+        <td>450 </td>
+    </tr>
+    <tr>
+        <td>Black,R.</td>
+        <td>790</td>
+    </tr>
+    <tr>
+        <td>Moody,S</td>
+        <td>950 </td>
+    </tr>
+</table>
+
+<p>Result of the run (file <em>out</em>):</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>Jones, C.</td>
+        <td>200</td>
+    </tr>
+    <tr>
+        <td>Jones, S.</td>
+        <td>450</td>
+    </tr>
+    <tr>
+        <td>Black, R.</td>
+        <td>790</td>
+    </tr>
+    <tr>
+        <td>Brown, G.</td>
+        <td>850</td>
+    </tr>
+    <tr>
+        <td>Green, F.</td>
+        <td>900</td>
+    </tr>
+    <tr>
+        <td>Moody, S.</td>
+        <td>950</td>
+    </tr>
+    <tr>
+        <td>White, J.</td>
+        <td>1100</td>
+    </tr>
+    <tr>
+        <td>Black, R.</td>
+        <td>790</td>
+    </tr>
+    <tr>
+        <td>Brown, G.</td>
+        <td>850</td>
+    </tr>
+    <tr>
+        <td>Green, F.</td>
+        <td>900</td>
+    </tr>
+    <tr>
+        <td>Jones, C.</td>
+        <td>200</td>
+    </tr>
+    <tr>
+        <td>Jones, S</td>
+        <td>450</td>
+    </tr>
+    <tr>
+        <td>Moody, S.</td>
+        <td>950</td>
+    </tr>
+    <tr>
+        <td>White, J.</td>
+        <td>1100</td>
+    </tr>
+</table>
+
+<p>Comment: </p>
+
+<p>Files: <em>try1.bat</em> and <em>btry2.bat</em> below show how
+to invoke the class generator, and how to compile and link.</p>
+
+<blockquote>
+    <p><em>try1.bat:</em> <em>c:\orgC\zzprep %1.cpp</em><br>
+    <em>try2.bat: bcc -mm -Vt -Lc:\bc\lib -Ic:\bc\include %1.cpp
+    c:\orgC\lib\bmlib.lib</em></p>
+</blockquote>
+
+<h2><a name="6_2"></a><font size="4" face="Arial">6.2 CONVERTING
+REAL DATA INTO ORGC++ ORGANIZATIONS</font></h2>
+
+<p>Programming with OrgC++ enforces the object oriented style of
+programming. Before you start to code, you have to plan not only
+the logic of the program, but also the organization of the data.</p>
+
+<p>The relations between data, usually represented as a network
+of pointers, must be reduced to standard data sets such as linked
+lists, trees, or hash tables. </p>
+
+<p>Depending on your personal background, this can be done in
+three different ways:</p>
+
+<ul>
+    <li>If your background is purely object-oriented, you may
+        want to describe your data as associations and
+        aggregations, and then map these relations into the
+        OrgC++ library. Note that the same association may be
+        implemented in a number of different ways. For example,
+        an aggregation can be implemented as COLLECT, AGGREGATE,
+        or HASH in OrgC++. </li>
+    <li>If you have some experience with pointer implementation
+        in data structures such as linked lists, you may want to
+        draw the pointer network, and derive the organization
+        from the picture. You have to decompose the general
+        network into simple subsets available from the library,
+        which is usually quite simple. </li>
+    <li>If you are not an experienced programmer, and you know
+        very little about data structures, the whole notion of
+        data representation may be confusing to you. Simply start
+        to code as if there are no data structures and no OrgC++
+        library, but when you reach the situation that you need
+        to add a pointer to one of the classes, stop and think
+        why you need that pointer. That will naturally lead you
+        to one of the diagrams shown in <a href="ch11aorg.htm">Chap.11</a>.
+        The rule is simply that your classes must not contain any
+        pointers.</li>
+</ul>
+
+<p>Our experience is that most users of OrgC++ libraries fall
+into the second (middle) category. For that reason, we will start
+from pointer diagrams in the two examples below.</p>
+
+<p>Example 1:</p>
+
+<p>An electrical netlist (VLSI chip or printed board layout)
+involves the following entities. A library contains masters of
+cells; each cell has formal terminals; each formal terminal is a
+logical entity; connections to a formal terminal may enter the
+cell through one or more physical pins. The whole chip, and each
+block of the layout is composed of instances of cells connected
+by signal nets. A cell has actual terminals (which are instances
+of formal terminals), and actual pins (which are instances of
+formal pins). A signal net connects one or more actual terminals.</p>
+
+<p>The following diagram not only describes the data relations;
+it also contains the decision about which traversals require fast
+access. For example, if you plan to build the layout and
+gradually add new cells, a singly-linked list of cells is the
+best solution. If you plan to delete cells often, a doubly-linked
+list works better.</p>
+
+<p align="center"><img src="images/dol7_1.jpg" width="500"
+height="275"></p>
+
+<p>The two-sided relation between cell and aTerm, and between net
+and aTerm is sometimes called a netlist, and is the logical
+skeleton of the whole organization.</p>
+
+<p>Pins are the most abundant object here, and if not handled
+carefully, they can consume a lot of memory. For this reason,
+actual pins are usually not stored, and are only derived. For a
+given aTerm, the program can quickly get its corresponding fTerm,
+and from there all its formal pins. The position of the pins is
+derived on-the-fly by combining the position and rotation of the
+cell with the coordinates of the pin within the master cell.</p>
+
+<p>Usually, when deciding on an OrgC++ organization, we try to
+extract the largest organizations first. In this example, there
+are no trees or graphs, only several aggregates (formerly called
+triangles, see <a href="ch11c.htm#11_3">Chap.11.3</a>). These
+aggregates are: aTerms under Instance, aTerms under Net, and
+fTerms under Master. The paths from a fPin to the fTerm and from
+a net to the block are usually not required; we use a collection,
+which is less memory expensive than an aggregate, because it does
+not require the parent pointer.</p>
+
+<p>The whole organization can be declared in several lines:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_COLLECT(inst,Chip,Instance);<br>
+    ZZ_HYPER_SINGLE_COLLECT(nets,Chip,Net);<br>
+    ZZ_HYPER_SINGLE_COLLECT(lib,Library,Master);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(terms,Master,fTerm);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byInst,Instance,aTerm);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byNet,Net,aTerm);<br>
+    ZZ_HYPER_SINGLE_COLLECT(pins,fTerm,fPin);<br>
+    ZZ_HYPER_SINGLE_LINK(iLink,Instance,Master);<br>
+    ZZ_HYPER_SINGLE_LINK(tLink,aTerm,fTerm); </em></p>
+</blockquote>
+
+<p>Example 2:</p>
+
+<p>This example involves a collection of real-time data of the
+eye positions of people watching a television program.</p>
+
+<p>The data relates to several video tapes and several people.
+One experiment consists of recording a sequence of x,y
+coordinates from one viewing, and should provide easy comparison
+of recordings for the same subject and a different person.</p>
+
+<p>There are many xy coordinates in each sequence, and storing
+them in an array saves memory. Each sequence has a different
+number of recorded positions (the length of observation is
+somewhat random), therefore a dynamic array is required. The
+diagram below shows a sketch, such as one encounters when
+discussing a new project.</p>
+
+<p>When designing the data organization, we have to consider
+which relations are most frequently accessed:</p>
+
+<ul>
+    <li>for each sequence, access to subject and person;</li>
+    <li>for each person, access to all sequences;</li>
+    <li>for each subject, access to all sequences;</li>
+    <li>each sequence contains an array of eye positions;</li>
+    <li>persons and subjects require linear access (a linked list
+        or a ring);</li>
+    <li>person and subject have a name.</li>
+</ul>
+
+<p align="center"><img src="images/dol7_2.jpg" width="500"
+height="349"></p>
+
+<p>This description translates into the following OrgC++
+declaration:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_RING(pRing,Person);<br>
+    ZZ_HYPER_SINGLE_RING(sRing,Subject);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(byPerson,Person,Sequence);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(bySubject,Subject,Sequence);<br>
+    ZZ_HYPER_ARRAY(positions,Sequence,Eye);<br>
+    ZZ_HYPER_NAME(pName,Person);<br>
+    ZZ_HYPER_NAME(sName,Subject); </em></p>
+</blockquote>
+
+<h2><a name="6_3"></a><font size="4" face="Arial">6.3 SAVING TO
+DISK AND VIRTUAL FUNCTIONS</font></h2>
+
+<p>Naturally, when programming in C++, one of the most important
+questions is how to save objects when virtual functions are used
+(persistency). With virtual functions, pointers forming the data
+organization often connect only to the object from which other
+objects are derived. When traversing or saving the data the
+programmer does not have direct access to the derived objects.
+The following program is a typical example. If you want to try or
+modify this example, the source code is in <em>orgC/test/test23a.c</em>.</p>
+
+<p>In this example, instead of using the global <em>util.save()</em>
+function, which collects all objects and saves them, we traverse
+all base objects and save the derived objects using the virtual
+function <em>save()</em>.</p>
+
+<p>The program forms a ring of Shapes, where each Shape can be
+either a Square or a Rectangle. The whole organization is saved
+on disk using ASCII format, then brought back into memory, saved
+again for testing purposes, this time in the binary format, then
+retrieved again, and the result is printed. In both input/output
+a Square is described by one side, a Rectangle with two sides.</p>
+
+<blockquote>
+    <p><em>#include &lt;stdio.h&gt;<br>
+    #define ZZ_INHERIT<br>
+    #define ZZmain<br>
+    #define ZZasci<br>
+    #include &quot;zzincl.h&quot;</em></p>
+</blockquote>
+
+<blockquote>
+    <pre><em>class Root
+{ 
+    ZZ_EXT_Root // OrgC++ pointers are private
+public: 
+    void save(char *); 
+}; 
+ZZ_FORMAT(Root,&quot;&quot;); // needed for ASCII save only</em></pre>
+    <pre><em>class Shape {
+    ZZ_EXT_Shape
+public
+    virtual void prt(void){};
+    virtual void save(char *){}; 
+}; 
+ZZ_FORMAT(Shape,&quot;&quot;); </em></pre>
+    <pre><em>class Square : public Shape{ 
+    int x; 
+    ZZ_EXT_Square
+public: 
+    void prt(void){printf(R Square %d\nR ,x);}; 
+    void set(int a){x=a;};
+    virtual void save(char *file);
+}; 
+ZZ_FORMAT(Square,&quot;%d,x&quot;); // all classes with ZZ_EXT_..</em></pre>
+    <pre><em>class Rectangle : public Shape{
+    int x,y; 
+    ZZ_EXT_Rectangle
+public:
+    void prt(void){printf(&quot;Rectangle %dx%d\n&quot;,x,y);};
+    void set(int a,int b){x=a; y=b;};
+    virtual void save(char *file); 
+}; 
+ZZ_FORMAT(Rectangle,&quot;%d %d,x,y&quot;);
+void Root::save(char *file){ZZ_STORE(Root,file);};
+void Square::save(char *file){ZZ_STORE(Square,file);}; 
+void Rectangle::save(char *file){ZZ_STORE(Rectangle,file);};</em></pre>
+    <pre><em>ZZ_HYPER_SINGLE_COLLECT(all,Root,Shape); // Root contains Shapes
+ZZ_HYPER_UTILITIES(util); // needed for save() and open()</em></pre>
+    <pre><em>#define BF 80
+char buff[BF];</em></pre>
+    <pre><em>int main(void)
+{ 
+    char c[20],*v[1],*t[1];; 
+    int x,y;
+    Root *rt;
+    Square *sp; 
+    Rectangle *rp;
+    Shape *pp;
+    void prtData(Root *);</em></pre>
+    <pre><em>    rt=new Root; // all data under one root 
+    while(gets(buff)){ // read until the EOF 
+        sscanf(buff,&quot;%c&quot;,c); 
+        switch(c[0]) { 
+            case 'S': 
+                sp=new(Square); 
+                sscanf(buff,&quot;%c %d&quot;,&amp;c,&amp;x); 
+                sp-&gt;set(x); 
+                all.add(rt,(Shape *)sp);
+                break; 
+            case 'R': 
+                rp=new(Rectangle); 
+                sscanf(buff,&quot;%c %d %d&quot;,&amp;c,&amp;x,&amp;y); 
+                rp-&gt;set(x,y);
+                all.add(rt,(Shape *)rp); 
+                break;
+            default: printf(&quot;wrong input code\n&quot;); 
+            } 
+        } </em></pre>
+    <pre><em>        prtData(rt); // print all data as loaded
+        rt-&gt;save(&quot;afile&quot;); // save the root 
+        all_iterator it(rt); // initialize iterator 
+        while(pp= ++it){ // traverse the collection
+            pp-&gt;save(R ); // save each object 
+        } 
+        util.close(&quot;afile&quot;); // close the file 
+        util.open(&quot;afile&quot;,1,v,t); // retrieve data from &quot;afile&quot;
+        rt=(Root *)v[0]; // recover key entry 
+        prtData(rt); // prints the second copy now in memory </em></pre>
+    <pre><em>        util.mode(0,1,0,0); // switch to binary format
+        rt-&gt;save(&quot;bfile&quot;); // save the root 
+        it.start(rt); // re-start the iterator 
+        while(pp= ++it){ // traverse the collection
+            pp-&gt;save(&quot;bfile&quot;); // save each object
+        }
+        util.close(&quot;bfile&quot;); // close the file
+        util.open(&quot;bfile&quot;,1,v,t); // retrieve data from bfile
+        rt=(Root *)v[0];
+        prtData(rt); // prints the third copy now in memory 
+        return(0); 
+    }
+    //____________________________________________________________ 
+    void prtData(Root *rt) //print out all data 
+    { 
+        Shape *pp; </em></pre>
+    <pre><em>        all_iterator it(rt); 
+        while(pp= ++it){ pp-&gt;prt(); }
+    } 
+    #include &quot;zzfunc.c&quot;</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">INPUT DATA:</font></h3>
+
+<blockquote>
+    <p>S 5<br>
+    S 8 <br>
+    R 2 6<br>
+    R 3 1<br>
+    S 7 </p>
+</blockquote>
+
+<h3><font size="3" face="Arial">COMMENT:</font></h3>
+
+<p>Instead of saving individual objects, as shown above, the
+entire data can be saved in one command:</p>
+
+<blockquote>
+    <p><em>v[0] = (char*)rt; t[0] =&quot;Root&quot;;<br>
+    util.save(&quot;afile&quot;,1,v,t);</em></p>
+</blockquote>
+
+<p>OrgC++ saving utility is intelligent enough to traverse the
+collection of shapes, to detect the type of each shape, and to
+invoke the appropriate saving function automatically. </p>
+
+<h3><font size="3" face="Arial">IMPORTANT:</font></h3>
+
+<p>Read the comment about initialization of objects and the use
+of <em>ZZ_INIT()</em> on <a href="ch13mmmb.htm#13_2">Chap 13.2</a><font
+color="#FF0000">. </font>This macro must be in all constructors,
+if you use automatically allocated objects.</p>
+
+<h2><a name="6_4"></a><font size="4" face="Arial">6.4 ADVANCED
+EXAMPLE: DLL under WindowsNT </font></h2>
+
+<p>The purpose of this example is to demonstrate the overall
+organization and settings needed for the VisualC++ environment,
+without going into details of the actual coding. This is not an
+introductory example - it assumes you already know quite a bit
+about OrgC++, and you are using the Microsoft Development Studio
+with the Visual C++ under Windows NT.</p>
+
+<p>We have the problem as shown in the following diagram. The
+program module with classes A,B,..,G uses the OrgC++ library, and
+should be implemented as DLL (dynamic link library). Class A
+provides the external interface through functions <em>A::a1(),
+A::a2(), A::a3()</em>. For each of the library classes, we will
+have two usual files, <em>*.h</em> and <em>*.cpp</em>. The
+outside world does not know about classes B,C,...,G; it knows
+only A.h. This DLL (we will call it <em>mylib </em>) uses its
+own, local copy of OrgC++, which must not interfere with other
+parts of the system that may also use OrgC++. </p>
+
+<p align="center"><img src="images/dol7_3.jpg" width="550"
+height="302"></p>
+
+<p>Also, in this case, the library must call some external
+functions, for example when reporting errors or special events.
+Let us assume that these external functions are methods of class
+X:</p>
+
+<p>Classes A,B,...,G form the organization shown in the next
+figure. This diagram matches the <em>ZZ_HYPER_..</em> statements
+recorded in file <em>hyper.h</em> which is a part of the <em>mylib
+</em>project.</p>
+
+<p>To make this example more realistic, let us assume that <em>mylib</em>
+may need to save/restore its internal data from disk, and let us
+place this functionality into <em>A::a1() </em>and <em>A::a2().</em>
+Note that we will not save the<font color="#FF0000"> </font>instance
+of A which is not an OrgC++ registered class. It does not have
+the <em>ZZ_EXT_A </em>statement because class X does not know
+about OrgC++ and file <em>zzincl.h</em> . The pointer between A
+and D is just a regular pointer, not a <em>ZZ_SINGLE_LINK</em>.</p>
+
+<p align="center"><img src="images/dol7_4.jpg" width="550"
+height="433"></p>
+
+<p>Here is the file <em>hyper.h </em>, which also includes the
+functions required for the hashing:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_HASH(cHash,D,C);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(bAggr,D,B);<br>
+    ZZ_HYPER_SINGLE_AGGREGATE(fAggr,B,F);<br>
+    ZZ_HYPER_DOUBLE_COLLECT(cColl,F,C);<br>
+    ZZ_HYPER_SINGLE_TREE(gTree,D,G);<br>
+    ZZ_HYPER_SINGLE_LINK(eLink,G,E); <br>
+    ZZ_HYPER_NAME(cName,C); <br>
+    ZZ_HYPER_NAME(eName,E);<br>
+    ZZ_HYPER_UTILITIES(util);</em></p>
+    <pre>//----------------------------------------------------
+//		A
+//		|ptr
+//		v  gTree	eLink	eName
+//	+-----o D o-----x G ----- &gt;E ----- &gt;string
+//	|	o
+//	|	|bAggr
+//	|	|
+//	|	x  fAggr	cColl	cName
+//	|	B o-----x F o---- x C ----- &gt;string
+//	|			    x
+//	|		cHash	    |
+//	+---------------------------+
+//
+//----------------------------------------------------- </pre>
+</blockquote>
+
+<blockquote>
+    <p><em>inline int cHash_class::cmp(C *c1,C *c2){...}<br>
+    inline int cHash_class::hash(C *c, int size){...}</em></p>
+</blockquote>
+
+<p>In addition to files <em>A.cpp, B.cpp, ... , G.cpp</em>, you
+also need file <em>func.cpp</em>, which represents the 'main'
+file for OrgC++, and includes file <em>zzfunc.c</em> generated by
+the OrgC++ code generator. </p>
+
+<p>File<em> func.cpp</em>:</p>
+
+<blockquote>
+    <p><em>#include &lt;stdio.h&gt;<br>
+    #include &lt;string.h&gt;<br>
+    #define ZZmain<br>
+    #include &quot;zzincl.h&quot;<br>
+    #include &quot;A.h&quot;<br>
+    #include &quot;B.h&quot;<br>
+    #include &quot;C.h&quot;<br>
+    #include &quot;D.h&quot;<br>
+    #include &quot;E.h&quot;<br>
+    #include &quot;F.h&quot;<br>
+    #include &quot;G.h&quot;<br>
+    #include &quot;zzfunc.c&quot;</em></p>
+</blockquote>
+
+<p>Implementation of each class depends only on the classes and <em>ZZ_HYPER_..</em>
+statements that relate directly to each class. For example, for
+class G, we have file <em>G.h</em>: </p>
+
+<blockquote>
+    <pre><em>class G { 
+    ZZ_EXT_G 
+public:
+    G(); 
+    int fun(char *c); 
+    ... 
+}; 
+ZZ_FORMAT(G,&quot;...&quot;); // only when ASCII saving to disk</em></pre>
+</blockquote>
+
+<p>File <em>G.cpp</em> depends on files <em>D.h, E.h</em>, and<em>
+G.h</em>: </p>
+
+<blockquote>
+    <p><em>#include &lt;stdio.h&gt; <br>
+    #include &lt;string.h&gt;<br>
+    #include &quot;zzincl.h&quot;<br>
+    #include &quot;D.h&quot;<br>
+    #include &quot;E.h&quot;<br>
+    #include &quot;F.h&quot;<br>
+    ZZ_HYPER_SINGLE_TREE(gTree,D,G);<br>
+    ZZ_HYPER_SINGLE_LINK(eLink,G,E); <br>
+    G::G(){ ... } <br>
+    int G::fun(char *c){ ... }</em></p>
+</blockquote>
+
+<p>In order to invoke the OrgC++ code generator, you will need a
+special batch file which we will call <em>generate.bat</em> : </p>
+
+<blockquote>
+    <p><em>copy c:\orgc\lib\envmsft.h environ.h <br>
+    copy A.h all.inc<br>
+    type B.h &gt; all.inc <br>
+    type C.h &gt; all.inc <br>
+    type D.h &gt; all.inc<br>
+    type E.h &gt; all.inc <br>
+    type F.h &gt; all.inc <br>
+    type G.h &gt; all.inc <br>
+    type hyper.h &gt; all.inc <br>
+    c:\orgc\zzprep all.inc </em></p>
+</blockquote>
+
+<p>The definition of classes A and X requires an intricate
+definition of how to communicate with the other part of the
+project. Class A keeps a pointer to each of the external
+functions: </p>
+
+<p>File A.h: </p>
+
+<blockquote>
+    <p><em>#ifdef A_SIDE<br>
+    #define A_EXPORT __declspec(dllexport) <br>
+    #else <br>
+    #define A_EXPORT <br>
+    #endif </em></p>
+</blockquote>
+
+<blockquote>
+    <p><em>class A_EXPORT A {<br>
+    typedef void (X::*x1Type)();<br>
+    typedef int (X::*x2Type)(int); </em></p>
+    <p><em>x1Type x1Fun; <br>
+    x2Type x2Fun; <br>
+    D *dPtr; <br>
+    X *xPtr; <br>
+    public: <br>
+    A(X *xp, x1Type x1f,x2Type x2f); <br>
+    void a1(char *fileName); // save data <br>
+    void a2(char *fileName); // restore data <br>
+    int a3(); // whatever <br>
+    ...<br>
+    }; </em></p>
+</blockquote>
+
+<p>File A.cpp: </p>
+
+<blockquote>
+    <pre><em>#define A_SIDE 
+#include &lt;stdio.h&gt;
+#include &lt;string.h&gt; 
+#include &quot;zzincl.h&quot;
+#include &quot;A.h&quot;
+#include &quot;X.h&quot;</em></pre>
+    <pre><em>ZZ_HYPER_UTILITIES(util);</em></pre>
+    <pre><em>A::A(X *xp, x1Type x1f, x2Type x2f){
+    xPtr=x; 
+    x1Fun=x1f; 
+    x2Fun=x2f; 
+    ... 
+} 
+void a1(char *fileName){
+    void *v[1]; char *t[1]; 
+    v[0]=dPtr; t[0]=&quot;D&quot;; 
+    util.save(fileName,1,v,t); 
+}
+void a2(char *fileName){ 
+    void *v[1]; char *t[1]; 
+    util.open(fileName,1,v,t); 
+    if(!util.error() &amp;&amp;
+    !strcmp(&quot;D&quot;,t[0]))dPtr=(D*)(v[0]); 
+    else (xPtr-*x1Fun)();
+} </em></pre>
+</blockquote>
+
+<p>Note the use of <em>X::x1()</em> in the last statement of the
+implementation of <em>A::a2()</em>!!</p>
+
+<p>Since X.h is needed for class A, its definition also has to
+reflect the arrangements about the interface. Here is file <em>X.h</em>:
+</p>
+
+<blockquote>
+    <pre><em>#ifdef A_SIDE 
+#define X_EXPORT __declspec(dllimport)
+#else
+#define X_EXPORT
+#endif 
+class X_EXPORT X { 
+    ... 
+public
+    void x1(); 
+    int x2(int i); 
+    ... 
+}; </em></pre>
+</blockquote>
+
+<p>And file <em>X.cpp</em>: </p>
+
+<blockquote>
+    <p><em>#include &quot;X.h&quot;<br>
+    #include &quot;A.h&quot;</em></p>
+    <p><em>void X::x1(){ ... } <br>
+    int X::x2(int i){ ... }</em></p>
+</blockquote>
+
+<p>Here are the suggested Build/Settings values for this
+situation. Don't forget that for Debug/Release options, you have
+to link to a different version <em>mllib</em> (see <a
+href="ch02inst.htm#2_4">Chap.2.4</a>).</p>
+
+<pre><strong>General</strong>: Nothing special
+<strong>Debug</strong>: Nothing special
+<strong>Custom Build</strong>: Nothing special (see below)
+<strong>C/C++</strong>: Precompiled headers, not using them
+<strong>Link</strong>: Object/library modules: include <em>c:\orgc\lib\mllib.lib</em>
+    Input: ignore libraries: <em>libcd.lib</em></pre>
+
+<p>Microsoft Developer Studio offers `Custom Build' and
+`Preprocessor' options, but these options seem to fit only
+primitive preprocessors. We have not succeeded to apply them to
+the OrgC++ code generator, <em>zzprep</em>. We found that it does
+not cause much difficulties to call <em>generate.bat</em>
+manually (either from `run' or from the DOS window) when
+modifying any<em> ZZ_HYPER_..</em> statement or class members in
+any of the <em>*.h</em> files. &nbsp; </p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch05What.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Chapter 5: What is OrgC++?</font></a></td>
+        <td align="right" width="50%"><a href="ch07uml.htm"><font
+        face="Arial">Chapter 7: UML <img src="images/next.gif"
+        border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

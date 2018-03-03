@@ -1,0 +1,51 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers for 2 nodes */
+ edgeType *ge;   /* traversing edge */
+.)l
+Description:
+ Traverse edges of the direct graph starting at node nd[0].
+In each pass, return next edge ge and the target node, nd[1].
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Flight Flight;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Flight {      /* graph edge */
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Flight)
+
+Town *t[2],*tt;
+Hwy *f; 
+
+....
+/* tt is the given town */
+t[0]=tt;
+printf("From town %s\n",tt->name);
+ZZ_A_TRAVERSE(myGraph,tt,f){
+    printf("    use Flight %d to town %s\n",f->number,t[1]->name);
+}ZZ_A_END;
+....
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_A_TRAVERSE_DIRECT_GRAPH(id,nd,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_A_TRAVERSE_DIRECT_GRAPH\
+(ZZFT(2,id),ZZFP(ZZe,id),ZZFP(ZZy,id),ZZFP(ZZr,id),nd,ge)
+
+#define ZZZ_A_TRAVERSE_DIRECT_GRAPH(eStr,edge,node2,next1,nd,ge) \
+{eStr *ZZtmp;\
+if((nd) && (nd)[0])(ge)=(nd)[0]->edge; else (ge)=NULL;\
+if(ge)(ge)=(ge)->next1;\
+for( ;(ge);(ge)=ZZtmp){\
+    (nd)[1]=(ge)->node2;\
+    if((ge)==(nd)[0]->edge)ZZtmp=NULL; else ZZtmp=(ge)->next1;\
+    if((nd)[1]==NULL)(nd)[1]=(nd)[0];

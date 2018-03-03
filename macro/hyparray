@@ -1,0 +1,366 @@
+/* =========================================================
+.(l
+ TEXT id;       /* id (instance) of the hyper-object */
+ TEXT hType;    /* type of the object on which the array lives (header) */
+ TEXT aType;    /* type of the objects that form the array */
+.)l
+Description:
+ Declaration of the hyper-object for a dynamic array or heap */
+.sp
+When you use ARRAY, you can use either a direct fast access (no overhead),
+or a protected access that avoids indeces out of range or, depending
+on your choice, automatically increases the size of the array if needed.
+.sp
+There is a very small memory overhead for using this type of the array:
+6 integers or pointers for each array.
+.sp
+Using ARRAY has number of advantages:
+ - it knows its own size and current high watermark;
+ - it never overflows, it allocates more space when needed;
+ - all
+.i "sweap"
+type commands treat it as an object,
+ - the array and all its objects can be saved by a single command.
+.sp
+Note that some special functions such as
+.i "heap"
+or
+.i "stack"
+are treated as manipulations of an ARRAY and not as separate organizations.
+.sp
+IMPORTANT:
+ If any object points to the array, you must not use the flexible
+size. When increasing the size automatically, the array is re-allocated
+and copied into the new space, and the pointers would become invalid.
+.sp
+WARNING:
+ The proper (protected) way of indexing array is using id.ind() function.
+Using both direct- and protected access in the same program is potentially
+dangerous, because
+id.ind() may re-allocate the array and make the current array
+pointer invalid. However, if you adhere to following rules, you can
+save even when using the mixed mode:
+ Update the pointer to the beginning of the array before each section of code
+(or in the beginning of each subroutine) by calling id.ind() for index=0.
+ Note that a fixed array never re-allocates itself.
+.sp
+WARNING: TimeStamp and selfID is not initialized on a freshly formed
+array. Function form() allocates an array which has nothing in it
+(waterMark= -1).
+Function formed() returns NULL when an array has not been formed.
+.sp
+ For local scope use ZZ_LOCAL_ARRAY(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.sp
+WARNING: Due to limitations in C linkage, the ZORTECH version cannot use
+the encapsulated sort. (id.sort() is internally based on qsort()).
+If you use ZORTECH, move ZZ_EXT_ into the public part of the class, and use
+ZZ_SORT() instead of the encapsulated form.
+.(l
+Example of the use: List of headers, each leading to 2 arrays
+
+ class Header {
+     ZZ_EXT_Header
+     Header(){ZZ_INITIAL(Header,0,1,this);}
+     ~Header(){ZZ_CHECK_FREE(Header,1,this);}
+ };
+ class Animal {
+     ZZ_EXT_Animal
+ public:
+     int numLegs;
+     Animal(){ZZ_INITIAL(Animal,0,1,this);}
+     ~Animal(){ZZ_CHECK_FREE(Animal,1,this);}
+ };
+ struct Plant {  /* note has no ZZ_EXT.. */
+     char annual; /* 'A=annual, 'P'=perenial */
+     int regNumber;
+ };
+ ZZ_HYPER_SINGLE_RING(myList,Header)
+ ZZ_HYPER_ARRAY(animals,Header,Animal)
+ ZZ_HYPER_ARRAY(plants,Header,Plant)
+ ZZ_HYPER_ARRAY(crop,Header,int)
+ ZZ_HYPER_NAME(aName,Animal)
+
+ int i,size,waterM,incr,*k,c[];
+ Header *h;
+ Animal *a,*ar;
+ Plant *p,*pr;
+
+ h=new Header;
+ a=animals.form(h,40,0); /* forms array of 40 animals on h */
+ p=plants.form(h,15,0); /* forms array of 15 plants on h */
+ c=crop.form(h,100,50); /* forms array of 100 integers on h */
+
+ /* fast access */
+ a[20].numLegs=6;
+ printf("%c plant regNum=%d\\n",p[8].annual,p[8].regNumber;
+ c[88]=583; /* crop in year 88 */
+   
+ /* protected access: */
+ ar=animals.ind(h,20) ;
+ ar->numLegs=6;
+ pr=plants.ind(h,8) ;
+ printf("%c plant regNum=%d\\n",pr->annual,pr->regNumber;
+ k=crop.ind(h,88); 
+ *k=583;   /* crop in year 88 */
+
+ pr=plants.ind(h,17) /* detects index out of range */
+ k=crop.ind(h,124)   /* increases the size of the crop array */
+
+ /* display current size */
+ size=animals.size(h,&waterM,&incr) /* returns size=40, waterM=20, incr=0 */
+.)l
+Partially sorted binary heap (priority queue) must be also
+declared and formed as an array. Access to the queue is through
+id.inHeap(), id.outHeap(), id.delHeap(), and id.updHeap().
+For more details, see the description of these functions.
+.sp
+Binary heap commands require that a special call-back function
+is given. This function is needed only when id.delHeap()
+or id.updHeap() is used. If you use only id.inHeap() and
+id.outHeap(), this can be just a dummy function:
+   void anyName(void* p, int i){}
+The purpose of this function is to provide a continuous and automatic
+update of the information for each element in the queue. It is
+used in situations like this:
+.(l
+class Head {
+    ZZ_EXT_Head
+};
+class Employee {
+    ZZ_EXT_Employee
+public:
+    int heapIndex;  /* everything public just for demonstration */
+    int salary;
+    ...
+};
+class PtrEmpl {
+    ZZ_EXT_PtrEmpl
+};
+ZZ_HYPER_ARRAY(heap,Head,PtrEmpl);
+ZZ_HYPER_SINGLE_LINK(link,PtrEmpl,Employee);
+
+void bck(void *p,int i){ /* call-back function to record position */
+    Employee *e;
+    e=link.fwd((PtrEmpl *)p);
+    e->heapIndex=i;
+}
+
+int sortFun(const void *v1,const void *v2){
+    Employee *e1,*e2;
+    e1=(Employee *)v1; e2=(Employee *)v2;
+    return(e2->salary - e1->salary);
+}
+
+Head *h;
+PtrEmpl *p;
+Employee *e;
+int i;
+...
+/* assume Employee e is given and should enter the heap */
+p=new PtrEmpl;
+link.add(p,e);
+heap.inHeap(sortFun,h,p,bck); /* automatically updates heapIndex */
+...
+/* now we can update any Employee object */
+e->salary=4600; /* new value */
+i=e->heapIndex;
+if(i>=0)heap.updHeap(sortFun,h,i,bck);
+
+.)l
+Objects that are in the heap have index >=0. Objects ejected from 
+the heap have index -1.
+  ========================================================== */ 
+#ifndef ZORTECH
+#define ZZ_HYPER_ARRAY(id,hType,aType) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_ARRAY(id,hType,aType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_ARRAY(id,hType,aType,where) \
+ZZ_BASIC_ARRAY(id,hType,aType,static,where :: id)
+
+#define ZZ_BASIC_ARRAY(id,hType,aType,scope,where) \
+class ZZFP(ZZH,id) { \
+    ZZint binSearch(ZZTsortFun cmpF,hType *hp,aType *op);\
+public: \
+    aType *form(hType *hp,ZZint sz,ZZint incr){aType *p;\
+             ZZ_FORM_ARRAY(id,hp,sz,incr,p); return(p);}\
+    void *formed(hType *hp){return (void*)(hp->ZZFP(ZZa,id));}\
+    void free(hType *hp){ZZ_FREE_ARRAY(id,hp);}\
+    ZZint size(hType *hp,ZZint *wMark,ZZint *incr){ZZint sz;\
+             ZZ_SIZE_ARRAY(id,hp,sz,*wMark,*incr); return(sz);}\
+    aType *ind(hType *hp,ZZint i){aType *p;\
+             ZZ_INDEX_ARRAY(id,hp,i,p); return(p);}\
+    void reset(hType *hp,ZZint wMark,ZZint incr){\
+             ZZ_RESET_ARRAY(id,hp,wMark,incr);}\
+    void push(hType *hp,aType *p);\
+    aType *pop(hType *hp);\
+    void sort(ZZTsortArr cmpF,hType *hp);\
+    void inHeap(ZZTsortFun cmpF,hType *hp,aType *p,ZZTheapBck bck);\
+    void outHeap(ZZTsortFun cmpF,hType *hp,aType *p,ZZTheapBck bck);\
+    void updHeap(ZZTsortFun cmpF,hType *hp,ZZint i,ZZTheapBck bck);\
+    void delHeap(ZZTsortFun cmpF,hType *hp,ZZint i,ZZTheapBck bck);\
+    aType *head(hType *hp){ aType *p; ZZ_HEAD_ARRAY(id,hp,p); return(p);}\
+    void addOrd(ZZTsortFun cmpF,hType *hp,aType *op);\
+    void delOrd(ZZTsortFun cmpF,hType *hp,aType *op);\
+    void delOrd(hType *hp,ZZint ind);\
+    ZZint getOrd(ZZTsortFun cmpF,hType *hp,aType *op,ZZint *found);\
+    void ins(hType *hp,ZZint i,aType *op);\
+    ZZint getBit(hType *hp,ZZint i);\
+    void setBit(hType *hp,ZZint i,ZZint val);\
+};\
+scope ZZFP(ZZH,id) id
+
+
+#else
+#define ZZ_HYPER_ARRAY(id,hType,aType) \
+ZZ_BASIC_ARRAY(id,hType,aType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_ARRAY(id,hType,aType) \
+ZZ_BASIC_ARRAY(id,hType,aType,static,where :: id)
+
+#define ZZ_BASIC_ARRAY(id,hType,aType,scope,where) \
+class ZZFP(ZZH,id) { \
+    ZZint binSearch(ZZTsortFun cmpF,hType *hp,aType *op);\
+public: \
+    aType *form(hType *hp,ZZint sz,ZZint incr){aType *p;\
+             ZZ_FORM_ARRAY(id,hp,sz,incr,p); return(p);}\
+    void *formed(hType *hp){return (void*)(hp->ZZFP(ZZa,id));}\
+    void free(hType *hp){ZZ_FREE_ARRAY(id,hp);}\
+    ZZint size(hType *hp,ZZint *wMark,ZZint *incr){ZZint sz;\
+             ZZ_SIZE_ARRAY(id,hp,sz,*wMark,*incr); return(sz);}\
+    aType *ind(hType *hp,ZZint i){aType *p;\
+             ZZ_INDEX_ARRAY(id,hp,i,p); return(p);}\
+    void reset(hType *hp,ZZint wMark,ZZint incr){\
+             ZZ_RESET_ARRAY(id,hp,wMark,incr);}\
+    void push(hType *hp,aType *p);\
+    aType *pop(hType *hp);\
+    void sort(ZZTsortArr cmpF,hType *hp);\
+    void inHeap(ZZTsortFun cmpF,hType *hp,aType *p,ZZTheapBck bck);\
+    void outHeap(ZZTsortFun cmpF,hType *hp,aType *p,ZZTheapBck bck);\
+    void updHeap(ZZTsortFun cmpF,hType *hp,ZZint i,ZZTheapBck bck);\
+    void delHeap(ZZTsortFun cmpF,hType *hp,ZZint i,ZZTheapBck bck);\
+    void sort(ZZTsortArr cmpF,hType *hp);\
+    void addOrd(ZZTsortFun cmpF,hType *hp,aType *op);\
+    void delOrd(ZZTsortFun cmpF,hType *hp,aType *op);\
+    void delOrd(hType *hp,ZZint ind);\
+    ZZint getOrd(ZZTsortFun cmpF,hType *hp,aType *op,ZZint *found);\
+    void ins(hType *hp,ZZint i,aType *op);\
+};\
+scope ZZFP(ZZH,id) id
+#endif
+/* _______________________________________________________________________ */
+#ifndef ZORTECH
+void ZZV$ ZZH$ :: sort(ZZTsortArr cmpF,ZZ1$ *hp){ZZ_SORT_ARRAY($,cmpF,hp);}
+#endif
+void ZZV$ ZZH$ :: inHeap(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *p,ZZTheapBck bck){
+                     ZZ_IN_HEAP($,cmpF,hp,p,bck);}
+void ZZV$ ZZH$ :: outHeap(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *p,ZZTheapBck bck){
+                     ZZ_OUT_HEAP($,cmpF,hp,p,bck);}
+void ZZV$ ZZH$ :: updHeap(ZZTsortFun cmpF,ZZ1$ *hp,ZZint i,ZZTheapBck bck){
+                     ZZ_UPDATE_HEAP($,cmpF,hp,i,bck);}
+void ZZV$ ZZH$ :: delHeap(ZZTsortFun cmpF,ZZ1$ *hp,ZZint i,ZZTheapBck bck){
+                     ZZ_DELETE_HEAP($,cmpF,hp,i,bck);}
+void ZZV$ ZZH$ :: push(ZZ1$ *hp,ZZ2$ *p){ZZ_PUSH_ARRAY($,hp,p);}
+ZZ2$* ZZV$ ZZH$ :: pop(ZZ1$ *hp){ZZ2$ *p; ZZ_POP_ARRAY($,hp,p); return(p);}
+// -----------------------------------------------------------------------
+// Add a new object into the ordered collection. This is relatively
+// fast using binary search to find the position, but a section of
+// the array must move to open one slot.
+// -----------------------------------------------------------------------
+void ZZV$ ZZH$ :: addOrd(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *op){
+    ZZint k=binSearch(cmpF,hp,op);
+    if(k<0) ins(hp,-k-1,op);
+}
+// -----------------------------------------------------------------------
+// First find the object, using binary search, then remove it using the
+// other delOrd() function
+// -----------------------------------------------------------------------
+void ZZV$ ZZH$ :: delOrd(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *op){
+    ZZint k=binSearch(cmpF,hp,op);
+    if(k<0)return; // the object is not in the array
+    delOrd(hp,k-1);
+}
+    
+// -----------------------------------------------------------------------
+// -----------------------------------------------------------------------
+void ZZV$ ZZH$ :: delOrd(ZZ1$ *hp,ZZint ind){
+    ZZ2$* a=(ZZ2$ *)(hp->ZZa$->array);
+    ZZint wm=hp->ZZa$->waterM;
+    // some platforms have special efficient ways of moving blocks of memory
+#ifdef MICROSOFT
+    if(ind<wm)memmove(&(a[ind]), &(a[ind+1]), sizeof(ZZ2$)*(wm-ind));
+#else // MICROSOFT
+    for(ZZint i=ind; i<wm; i++)a[i]=a[i+1];
+#endif// MICROSOFT
+    hp->ZZa$->waterM=wm-1;
+}
+
+// -----------------------------------------------------------------------
+// Insert a copy of object op into the array before the object which
+// now has index i, and shift the remaining part of the array to open
+// one slot. If i>waterM, insert the object into position i.
+// -----------------------------------------------------------------------
+void ZZV$ ZZH$ :: ins(ZZ1$ *hp,ZZint i,ZZ2$ *op){
+    ZZ2$* a=(ZZ2$ *)(hp->ZZa$->array);
+    ZZint wm=hp->ZZa$->waterM;
+    // some platforms have special efficient ways of moving blocks of memory
+#ifdef MICROSOFT
+    if(i<=wm)memmove(&(a[i+1]), &(a[i]), sizeof(ZZ2$)*(wm-i+1));
+#else // MICROSOFT
+    for(ZZint k=wm; k>=i; k--)a[k+1]=a[k];
+#endif// MICROSOFT
+    a[i]=(*op);
+    if(i<=wm)wm++; else wm=i;
+    hp->ZZa$->waterM=wm;
+}
+
+// -----------------------------------------------------------------------
+// Binary search, returns the index of the given object, or the next
+// after it (if the equivalent object is not in the array) with 
+// a negative sign. If the array has not been formed, the function
+// generates an error message and returns 0.
+// IMPORTANT: The index returned by this routine starts from 1, NOT from 0
+//   as usual in C. The reason is that 0 cannot be give a negative sign.
+// -----------------------------------------------------------------------
+ZZint ZZV$ ZZH$ :: binSearch(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *op){
+    ZZint i1,i2,k,cmp,wm; ZZ2$ *rr; ZZ2$ *arr; ZZarray *za;
+
+    za=hp->ZZa$;
+    if(za){
+        i1=0; wm=i2=hp->ZZa$->waterM; k= -1; arr=(ZZ2$ *)(hp->ZZa$->array);
+    }
+    if(!za || !arr){ZZmsg(37); return 0;}
+    if(i2<0)return -1;
+    rr= &(arr[i1]); cmp=cmpF(op,rr);
+    if(cmp==0)return i1+1;
+    if(cmp<0)return -(i1+1);
+    rr= &(arr[i2]); cmp=cmpF(op,rr);
+    if     (cmp>0) return -(wm+2); 
+    else if(cmp==0)return wm+1; 
+
+    k=(i1+i2)/2;
+    while(k>i1){
+        rr= &(arr[k]); cmp=cmpF(rr,op);
+        if(cmp>0)i2=k;
+        else if(cmp<0)i1=k;
+        else return k+1;
+        k=(i1+i2)/2;
+    }
+    k++;
+    rr= &(arr[k]); cmp=cmpF(rr,op);
+    if(cmp==0)return k+1; else return -(k+1);
+}
+
+// -----------------------------------------------------------------------
+// For the key given in op, find the index of the object in the array,
+// using the binary search. If the object is not found, return 
+// the index of the entry before which the new object would have
+// to be inserted. The function returns found=1 when found, =0 when not.
+// -----------------------------------------------------------------------
+ZZint ZZV$ ZZH$ :: getOrd(ZZTsortFun cmpF,ZZ1$ *hp,ZZ2$ *op,ZZint *found){
+    ZZint k=binSearch(cmpF,hp,op);
+    if(k>0){*found=1; k=k-1;}
+    else   {*found=0; k=(-k-1);}
+    return k;
+}

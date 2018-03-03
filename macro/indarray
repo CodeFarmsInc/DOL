@@ -1,0 +1,93 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the array */
+ str1Type *obj;  /* object on which the array is */
+ int ind;               /* given index */
+ str2Type *elem; /* returned pointer into the array */
+.)l
+Description:
+ Get pointer to the element of the array specified by the index.
+This macro automatically provides index checking. For an array that
+has been formed as "fixed size" (see the description of ZZ_FORM_ARRAY)
+this means getting an error message and error flag set (see ZZ_ARRAY)
+for the index is out of range. For the "adjustable size" array,
+this means automatic reallocation of size if a larger array is needed.
+.sp
+Note that in case you don't have to worry about checking the index
+or increasing the size of the array, you may use the direct fast access
+that has no overhead.
+.sp
+An array must be formed before ZZ_INDEX_ARAY can be used.
+.sp
+.(l
+Example of the use: List of headers, each leading to 2 arrays
+
+ typedef struct Header Header;
+ typedef struct Animal Animal;
+ typedef struct Plant Plant;
+ struct Header {
+     ZZ_EXT_Header
+ };
+ struct Animal {
+     ZZ_EXT_Animal
+     int numLegs;
+ };
+ struct Plant {  /* note has no ZZ_EXT.. */
+     char annual; /* 'A=annual, 'P'=perenial */
+     int regNumber;
+ };
+ ZZ_ORG_SINGLE_RING(myList,Header)
+ ZZ_ORG_ARRAY(animals,Header,Animal)
+ ZZ_ORG_ARRAY(plants,Header,Plant)
+ ZZ_ORG_ARRAY(crop,Header,int)
+ ZZ_ORG_NAME(aName,Animal)
+
+ int i,inc,size,waterM,*k,c[];
+ Header h;
+ Animal *a,*ar;
+ Plant *p,*pr;
+
+ ZZ_FORM_ARRAY(animals,&h,40,0,a) /* forms array of 40 animals on h */
+ ZZ_FORM_ARRAY(plants,&h,15,0,p) /* forms array of 15 plants on h */
+ ZZ_FORM_ARRAY(crop,&h,100,50,c) /* forms array of 100 integers on h */
+
+ /* fast access */
+ a[20].numLegs=6;
+ printf("%c plant regNum=%d\\n",p[8].annual,p[8].regNumber;
+ c[88]=583; /* crop in year 88 */
+   
+ /* protected access: */
+ ZZ_INDEX_ARRAY(animals,&h,20,ar) 
+ ar->numLegs=6;
+ ZZ_INDEX_ARRAY(plants,&h,8,pr) 
+ printf("%c plant regNum=%d\\n",pr->annual,pr->regNumber;
+ ZZ_INDEX_ARRAY(crop,&h,88,k) 
+ *k=583;   /* crop in year 88 */
+
+ ZZ_INDEX_ARRAY(plants,&h,17,pr) /* detects index out of range */
+ ZZ_INDEX_ARRAY(crop,&h,124,k)   /* increases the size of the crop array */
+
+ /* display current size */
+ ZZ_SIZE_ARRAY(animals,&h,size,waterM,inc)
+ /* returns size=40, waterM=20 inc=0 */
+.)l
+  ========================================================== */ 
+#define ZZ_INDEX_ARRAY(id,obj,ind,elem) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_INDEX_ARRAY(id,ZZFT(2,id),ZZFP(ZZa,id),obj,ind,elem)
+
+#define ZZZ_INDEX_ARRAY(id,str2Type,aPtr,obj,ind,elem) \
+{ZZint ZZi,ZZFUN_upArr(); static str2Type *sample=NULL;\
+ ZZarray *ZZa; \
+    if(!sample)sample=new str2Type;\
+    ZZa=(obj)->aPtr;\
+    if(ZZupArr(ZZa,ind,(char*)sample)>0){\
+        ZZmsgSS(12,ZZ_STRINGIT(id),ZZ_STRINGIT(str2Type));\
+        (elem)=NULL;\
+    }\
+    else {\
+        ZZi=(ind);\
+        if(ZZa->waterM<ZZi)ZZa->waterM=ZZi;\
+        (elem)=(str2Type *)(&(ZZa->array[ZZi*(ZZa->size)]));\
+    }\
+}

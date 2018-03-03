@@ -1,0 +1,198 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.8 Entity Relationship Model</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.8 ENTITY-RELATIONSHIP MODEL</font></h2>
+
+<p align="center"><img src="images/dol11_9.jpg" width="575"
+height="497"></p>
+
+<p>This figure is an example from a paper by Campbell, Czejdo,
+and Embley. Rectangles represent entities, diamonds, relations
+between them, and ovals attributes. Both entities and relations
+can have attributes.</p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>The four basic organizations (see below) cover all situations
+that can occur when building a database within the ER model. You
+declare entities and relations as C++ classes; ER attributes
+simply become attributes of these structures. All organizations
+are internally doubly linked, so that the &quot;delete&quot;
+operation and traversing through the network is fast in all
+directions.</p>
+
+<h3><font size="3" face="Arial">The Four ER models:</font></h3>
+
+<blockquote>
+    <p><em>ZZ_HYPER_1_TO_1 (id, sourceEntity, relation,
+    targetEntity);</em></p>
+    <p><em>ZZ_HYPER_1_TO_N (id, sourceEntity, relation,
+    targetEntity);</em></p>
+    <p><em>ZZ_HYPER_M_TO_1 (id, sourceEntity, relation,
+    targetEntity);</em></p>
+    <p><em>ZZ_HYPER_M_TO_N (id, sourceEntity, relation,
+    targetEntity);</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">The Four ER models:</font></h3>
+
+<p><em>ZZ_HYPER_1_TO_1 (id, sourceEntity, relation,
+targetEntity);</em> declares 1-to-1 relation which is similar to<em>
+DOUBLE_LINK</em>, except that it has the <em>relation </em>object
+sitting in the middle of the link.</p>
+
+<p>Using <em>DOUBLE_LINK </em>for this purpose is less fancy, but
+more efficient. The same thing applies to 1-to-N and M-to-1
+relations below. Only the M-to-N relation is a special
+organization in its own right, which has no other simple
+representation.</p>
+
+<p><em>ZZ_HYPER_1_TO_N (id, sourceEntity, relation,
+targetEntity);</em> connects several target entities with one
+source entity, and is similar to <em>SINGLE_AGGREGATE</em>
+(formerly <em>SINGLE_TRIANGLE</em>), except for the relation
+sitting in the middle. If you don't keep any data on the relation
+itself, use<em> SINGLE_AGGREGATE </em>instead.</p>
+
+<p>ZZ_HYPER_M_TO_1 (id, sourceEntity, relation, targetEntity);
+connects several source entities with one target entity, and is
+similar to <em>SINGLE_AGGREGATE</em> (formerly<em>
+SINGLE_TRIANGLE</em>), except for the relation sitting in the
+middle. If you don't keep any data on the relation itself, use<em>
+SINGLE_AGGREGATE </em>instead.</p>
+
+<p><em>ZZ_HYPER_M_TO_N (id, sourceEntity, relation,
+targetEntity);</em> connects several source entities with several
+target entities; the <em>relation</em> objects form the
+connections.</p>
+
+<p>The access to all organizations is generic, as shown in the <strong>Syntax</strong>
+section.</p>
+
+<h3><font size="3" face="Arial">Error protection:</font></h3>
+
+<p>As a result of strong typing, many coding errors get caught by
+the compiler. At run time, the organization is automatically
+protected against dangling pointers. An object must be completely
+disconnected before it can be freed. You cannot replace a
+relation using <em>add();</em> first the old relation must be
+disconnected by <em>del().</em></p>
+
+<h3><font size="3" face="Arial">Required memory:</font></h3>
+
+<p>1_TO_1 1 pointer on each entity, 2 on the relation;<br>
+1_TO_N 1 pointer on each entity, 4 on each relation;<br>
+M_TO_1 1 pointer on each entity, 4 on each relation;<br>
+M_TO_N 1 pointer on each entity, 6 on each relation;</p>
+
+<h3><font size="3" face="Arial">Fast name pickup:</font></h3>
+
+<p>In databases based on the ER model, fast pickup of an object's
+name is usually required. Use the HASH organization in
+conjunction with the ER model - see the example in <em>orgC/test/test18a.c.</em></p>
+
+<h3><font size="3" face="Arial">Alternate Implementation:</font></h3>
+
+<p>The four basic models permit uniform handling of all ER
+situations. However, relations that have no attributes can also
+be implemented as a <em>DOUBLE_LINK</em> (1_TO_1 relation) or as
+a <em>DOUBLE_TRIANGLE</em> (1_TO_N and M_TO_1 relations). Such
+representations use fewer objects and 2 less pointers per
+relation. The penalty is that some of the uniformity is lost.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_1_TO_1(id,SOURCE,REL,TARGET);<br>
+        ZZ_HYPER_1_TO_N(id,SOURCE,REL,TARGET);<br>
+        ZZ_HYPER_M_TO_1(id,SOURCE,REL,TARGET);<br>
+        ZZ_HYPER_M_TO_N(id,SOURCE,REL,TARGET);</em></td>
+        <td>These statements declare the 4 basic relations. <em>SOURCE</em>
+        stands for the type of the source entity, <em>REL </em>stands
+        for the relation, and<em> TARGET</em> for the type or the
+        target entity.</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(SOURCE *s,REL *r,TARGET*t);</em></td>
+        <td>Adds relation <em>r</em> between entities <em>s</em>
+        and <em>t</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.del(REL *r);</em></td>
+        <td>Disconnects the given relation.</td>
+    </tr>
+    <tr>
+        <td><em>REL* id.fwd(SOURCE *s);</em></td>
+        <td>For a given source node, this returns the first
+        relation starting from it (<em>fwd=FORWARD</em>).</td>
+    </tr>
+    <tr>
+        <td><em>REL* id.bwd(TARGET *t);</em></td>
+        <td>For a given target entity, this returns the first
+        relation leading to it (<em>bwd=BACKWARD</em>).</td>
+    </tr>
+    <tr>
+        <td><em>SOURCE* id.source(REL *r);</em></td>
+        <td>For a given relation, it returns the source entity.</td>
+    </tr>
+    <tr>
+        <td><em>TARGET* id.target(REL *r);</em></td>
+        <td>For a given relation, it returns the target entity.</td>
+    </tr>
+    <tr>
+        <td><em>SOURCE *s; REL *r;<br>
+        id_sIterator is(s);</em><br>
+        <em>while(r=is++){ ... }</em></td>
+        <td>For a given <em>s</em>, this loop traverses all
+        relations starting at <em>s</em>.</td>
+    </tr>
+    <tr>
+        <td><em>TARGET *t; REL *r;<br>
+        id_tIterator it(s);<br>
+        while(r=it++){ ... }</em></td>
+        <td>For a given <em>t</em>, this loop traverses all
+        relations that lead to <em>t</em>.</td>
+    </tr>
+    <tr>
+        <td><em>is.start(s);<br>
+        it.start(t);</em></td>
+        <td>Restart the iterators.</td>
+    </tr>
+</table>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li>See files <em>macro/hyp1to1, macro/hyp1ton,
+        macro/hypmto1,</em> and <em>macro/hypmton</em>.</li>
+    <li><em>test18a.c </em>contains a comprehensive test of all
+        ER features on the database shown in the figure above.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11g.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.7 STACK</font></a></td>
+        <td align="right" width="50%"><a href="ch11i.htm"><font
+        face="Arial">Next Section 11.9 Property (Run-Time
+        Extensibility)<img src="images/next.gif" border="0"
+        width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

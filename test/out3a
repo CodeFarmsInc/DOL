@@ -1,0 +1,14 @@
+before allocation & force
+a no id
+m no id
+p no id
+ap no id
+ad[3] no id
+
+after allocation & set
+a id=Apple
+m no id
+Plum p: zone=4 pitSize=0.830000
+p id=Plum
+ap[11] id=Apple
+ad[3] id=Apple

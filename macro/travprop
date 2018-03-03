@@ -1,0 +1,78 @@
+/* =========================================================
+.(l
+ char *pType;          /* type of the property - see below */
+ strType *ptr;  /* entity on which to traverse properties */
+ char *name;           /* property name returned in each pass */
+ char *val;            /* pointer to value/array for the results */
+ int num;              /* size of the array returned, 1=single value */
+
+ The following propType are returned: "int", "float", "char", "string"
+ Note the difference in ZZ_SET_PROPERTY where this field must be
+ supplied as TEXT, not as a string.
+
+ Also note that the pointer to the value is returned as (char*).
+ This is necessary since each property may have different type
+ of value associated with it.
+.)l
+Description:
+ This macro forms a loop, that must end by ZZ_A_END (or ZZAend). In each
+pass, it returns the name and all attributes of the next property.
+ Note that the macro returns pointers directly into the internal property
+data structure; it would cause serious error if you attempt to modify
+or free these memory locations.
+.(l
+Attributes returned in each pass:
+  name = name of the property;
+  num  = dimension of the property (1=single value);
+  val  = array of values (pointer to a single value).
+.)l
+ You can delete a property while traversing.
+.(l
+Example:
+
+typedef struct Pencil Pencil;
+struct Pencil {
+    ZZ_EXT_Pencil
+    char color;
+    char used;
+};
+ZZ_ORG_PROPERTY(Pencil)
+
+Pencil *pp;
+char *type,*name,*val;
+int num,*ip;
+
+/* print names and values of all integer properties on pp */
+ZZ_A_TRAVERSE_PROPERTY(type,pp,name,val,num)
+    if(!strcmp(type,"int")){
+	printf("%s:\n",name);
+	ip=(int*)val;
+	for(i=0;i<num;i++)printf("%d ",ip[i]);
+	printf("\n");
+    }
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_A_TRAVERSE_PROPERTY(pType,ptr,name,val,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+ZZint ZZs,ZZFUN_prSize();\
+ZZint ZZFUN_cnvProp();\
+char ZZC;\
+struct ZZproperty *ZZP,*ZZR;\
+    if(ptr)ZZP=(ptr)->ZZprop; else ZZP=NULL;\
+    for(;ZZP;ZZP=ZZR){\
+	if(ZZP->next==(ptr)->ZZprop)ZZR=NULL; else ZZR=ZZP->next;\
+	(name)= &(ZZP->codeName[1]);\
+	ZZC=ZZP->codeName[0];\
+        ZZs=ZZprSize(ZZP);\
+	if(ZZC=='i' || ZZC=='f' || ZZC=='c' || ZZC=='s'){\
+	    (val)=ZZP->propType.cProp;\
+	}\
+	else {\
+	    (val)=ZZP->propType.arrayProp->array;\
+	};\
+        (val)=(val);\
+	(void)ZZcnvProp(&ZZC,ZZs,&(pType),&(num));

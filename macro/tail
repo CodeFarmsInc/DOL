@@ -1,0 +1,13 @@
+#ifdef ZZmultiProj
+/* dummy function to prevent compiler warnings */
+#ifdef ZZ_ANSI
+static void *ZZnoWarnings(void){
+#else
+static void *ZZnoWarnings(){
+#endif
+    void *p;
+    p=(void *)ZZstrList; p=(void *)ZZptrList;
+    p=(void *)ZZnxtType; p=(void *)ZZinhList;
+    return(p);
+}
+#endif

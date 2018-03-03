@@ -1,0 +1,255 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.2</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.2 COLLECTION</font></h2>
+
+<p align="center"><img src="images/dol11_3.jpg" width="550"
+height="634"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>An ordered or unordered <em>COLLECTION</em> occurs when one
+object type (TOP) contains a whole set of objects of another type
+(BOT).</p>
+
+<p>This organization can also be used as a <em>RING</em> with an
+encapsulated entry point. If the ring is singly linked it is a
+single collection(<em>SINGLE_COLLECT</em>), if it is doubly
+linked it is a double collection (<em>DOUBLE_COLLECT</em>).</p>
+
+<p>Note the difference between a <em>COLLECTION</em> and a <em>TREE</em>.
+A <em>TREE</em> is composed of objects that all have the same
+type; a <em>COLLECTION</em> works with two different object
+types. Also, a <em>COLLECTION</em> requires only about 50% of the
+memory required by a tree because the child and parent pointers
+on the bottom objects are missing.</p>
+
+<p>You can also look at the <em>COLLECTION</em> as being a <em>TRIANGLE</em>
+(see <a href="ch11c.htm#11_3">Chap.11.3</a>) where the parent
+pointer is missing, or as a combination of singly-linked <em>RINGS</em>
+(<a href="ch11aorg.htm#11_1">Chap.11.1</a>) with a single <em>LINK</em>
+(<a href="ch11f.htm#11_6">Chap. 11.6</a>).</p>
+
+<h3><font size="3" face="Arial">ADD and DELETE:</font></h3>
+
+<p>These commands add/delete objects to/from the bottom level. In
+order to make a <em>COLLECTION</em> empty, delete all its bottom
+objects. <em>del()</em> can be used while traversing the set with
+the <em>iterator.</em></p>
+
+<h3><font size="3" face="Arial">Order of objects:</font></h3>
+
+<p>The objects at the bottom level are handled as a ring. If
+objects ABCD have been added to a <em>COLLECTION</em>, the <em>iterator
+</em>returns them in the reverse order: DCBA. The <em>child </em>pointer
+of the top object works as the <em>start </em>pointer of the <em>RING</em>.
+<em>set() </em>allows you to reset this pointer. Therefore, for
+example, the following sequence results in the bottom objects
+being ordered in the same sequence as they were loaded:</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_SINGLE_COLLECT(myCol,ParType,ChiType);</em><br>
+    <em>ParType *p; ChiType *c1,*c2;<br>
+    ...<br>
+    myCol.add(p,c1);<br>
+    myCol.set(p,c1);<br>
+    ...<br>
+    myCol.add(p,c2);<br>
+    myCol.set(p,c2);<br>
+    ...</em></p>
+</blockquote>
+
+<p><em>sort()</em> sorts all the children using a user supplied
+compare function similar to the one needed for <em>qsort().</em></p>
+
+<h3><font size="3" face="Arial">Moving around the <em>COLLECTION</em>:</font></h3>
+
+<p>The iterator traverses the bottom elements of the <em>COLLECTION</em>.</p>
+
+<blockquote>
+    <p><em>myCol_iterator it(p);<br>
+    while(c1= ++it){<br>
+    ...<br>
+    }<br>
+    fwd() returns the next object in the bottom ring;<br>
+    child() returns the starting bottom object.</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Merging or Splitting Collections</font></h3>
+
+<p>Because all the children of a collection form a ring,
+collections can be merged or split just like a ring (see the
+illustration in <a href="ch11aorg.htm#11_1">Chap.11.1</a>).</p>
+
+<p>The merge command must be given two children and one parent
+object. If the two children are in the same collection, the
+operation results in splitting the collection in two. If the two
+children are in different collections, the operation merges them
+into one.</p>
+
+<p><em>id.merge(c,c,par)</em> results in no action. In order to
+extract a single object into a new <em>COLLECTION</em>, proceed
+as for the <em>RING</em>.</p>
+
+<p>In the case of merging, the given parent must be the parent of
+the second child. In the case of splitting, an empty parent must
+be given to receive the second part of the set.</p>
+
+<blockquote>
+    <pre><em>ZZ_HYPER_SINGLE_COLLECT(myCol,ParType,ChiType);
+ParType *p1,*p2; 
+ChiType *c1,*c2 // given two children
+    ....
+// p1 and p2 are parents of two collections
+// c1 is child of p1, c2 is child of p2
+if(p1==p2){ // case of splitting
+    p2=new ParType;
+    c1=myCol.merge(c1,c2,p2);
+    // p1 and p2 now hold the two collections
+}
+else { // case of merging, p2 must be parent of c2
+    c1=myCol.merge(c1,c2,p2);
+    // p1 contains the result, p2 is empty
+}</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_SINGLE_COLLECT(id,TOP,BOT);</em></td>
+        <td>Declares a singly-linked collection.</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(TOP *parent,BOT *newChild);</em></td>
+        <td>Adds <em>newChild</em> to the given parent.</td>
+    </tr>
+    <tr>
+        <td><em>void id.del(TOP *parent,BOT *oldChild);</em></td>
+        <td>Deletes <em>oldChild</em> from this <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>BOT* id.fwd(BOT *child);</em></td>
+        <td>Returns next child (fwd=FORWARD) under the same
+        parent.</td>
+    </tr>
+    <tr>
+        <td><em>BOT* id.child(TOP *parent);</em></td>
+        <td>Returns the first <em>child</em> under this <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.set(TOP *parent,BOT *newFirstChild);</em></td>
+        <td>Sets already existing <em>child</em> as the new first
+        <em>child</em> of this <em>parent</em></td>
+    </tr>
+</table>
+
+<p><strong>Warning</strong>: Using an improper parent will cause
+an un-detectable error.</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>void id.merge(BOT *child1,BOT *child2,TOP
+        *parent);</em></td>
+        <td>If the two children are from the same collection,
+        this splits it into two parts, and <em>parent</em> will
+        be the second collection.<br>
+        If the two children are from different collections, the
+        collections will merge.</td>
+    </tr>
+    <tr>
+        <td><em>void id.switchParents(TOP *parent1,TOP *parent2);</em></td>
+        <td>Exchanges parents of two collections. When one
+        collection is empty, this effectively moves a collection
+        under a new <em>parent</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void id.sort(int (*sortFun)(const void*,const
+        void*),TOP *parent);</em></td>
+        <td>Sorts the elements of the collection, using <em>sortFun()</em>
+        to compare the objects.</td>
+    </tr>
+    <tr>
+        <td><em>TOP *parent; BOT *obj;<br>
+        id_iterator it(parent);<br>
+        while(obj= ++it){ ... }</em></td>
+        <td>This loop traverses all the elements of the
+        collection. The value of <em>obj</em> should not be
+        changed from within the loop. Upon exit from the loop, <em>obj=NULL.</em></td>
+    </tr>
+    <tr>
+        <td><em>it.start(parent); </em></td>
+        <td>Restarts the same loop.</td>
+    </tr>
+</table>
+
+<p>Available only for the <em>DOUBLE_COLLECT</em>:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_HYPER_DOUBLE_COLLECT(id,TOP,BOT);</em></td>
+        <td>Declares a doubly-linked collection.</td>
+    </tr>
+    <tr>
+        <td><em>BOT* id.bwd(BOT *child);</em></td>
+        <td>For a given <em>child</em> returns the previous (<em>bwd=BACKWARD</em>)<em>
+        child</em> in the ring that forms the collection.</td>
+    </tr>
+    <tr>
+        <td><em>void id.ins(BOT *child,BOT *newChild);</em></td>
+        <td>Inserts the new<em> child</em> before the given<em>
+        child.</em></td>
+    </tr>
+    <tr>
+        <td><em>TOP *parent; BOT *obj;<br>
+        </em>id_iterator it(parent);<br>
+        while(obj=it--){ ... }</td>
+        <td>This loop is just like the one above, except that it
+        traverses the data in reverse order.</td>
+    </tr>
+    <tr>
+        <td><em>it.start(parent);</em></td>
+        <td>Restarts the same loop</td>
+    </tr>
+</table>
+
+<p>Most new C++ compilers for DOS issue warnings when using the <em>while()</em>
+statement in this situation. You can use the <em>iterator </em>in
+a different form which is not as easy to read, but it does not
+generate any warnings:</p>
+
+<blockquote>
+    <p><em>id_iterator it(parent);<br>
+    for(child= ++it; child; child= ++it){ ... };</em></p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<p>Netlist in electrical circuits, storing pins by block and by
+signal net (<em>test0i.c</em>).</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11AOrg.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Previous Section 11.1 RING</font></a></td>
+        <td align="right" width="50%"><a href="ch11c.htm"><font
+        face="Arial">Next Section: 11.3 AGGREGATION <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 11.13 Hash Tables</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><font size="4" face="Arial">11.13 HASH TABLES, INDEXED TABLES</font></h2>
+
+<p align="center"><img src="images/dol14_4.jpg" width="600"
+height="172"></p>
+
+<h3><font size="3" face="Arial">Purpose:</font></h3>
+
+<p>Provides fast access to objects either by name or by numerical
+key. If properly used, a hash table is faster than binary search.</p>
+
+<p>The diagram above shows the internal arrangement, normally
+transparent to the user. Since the hash table is based on an
+array, it is attached [just like an array] to a holder object.
+The array contains pointers to individual buckets, implemented as
+singly-linked rings. Note that OrgC++ uses no special objects for
+the bucket. The rings are formed by pointers, which are stored
+directly inside the objects (under the <em>ZZ_EXT_..</em>statement),
+one pointer per object.</p>
+
+<p>A hash table is treated as a fixed-size array. If you want to
+change the size, you have to call <em>resize()</em>.</p>
+
+<p>The performance of a hash table depends on the algorithm which
+converts a key into an index. Sometimes, the key may be a
+combination of several names or numbers. To provide flexibility,
+OrgC++ requires that, for each hash table, the user provides two
+functions:</p>
+
+<p><em>inline int id_class::cmp(oType *obj1,oType *obj2) </em>which
+compares two objects of type <em>oTYPE </em>(returns 0 if they
+have the same key). It also controls the order of the objects
+inside the buckets (see <a href="#11_13_Indexed_Tbls">Indexed
+tables</a> below.)</p>
+
+<p><em>inline int id_class::hash(oType *obj,int size) </em>which,
+for a given object and the hash table size, generates the bucket
+index.</p>
+
+<p>Note that both functions are NOT assigned to class <em>oType</em>,
+but rather to the class that internally represents the hash
+organization. Normally, except for this case, you don't even know
+the name of this class, you only deal with its instance, <em>id</em>.</p>
+
+<p>If you don't have any special requirements, you can use the
+default functions provided by OrgC++:</p>
+
+<p><em>int ZZhashStr(char *str,int size) </em>for a given text
+string and a hash table size, generates the bucket index;</p>
+
+<p><em>int ZZhashInt(int i,int size) </em>for a given integer and
+a hash table size, generates the bucket index.</p>
+
+<p>The default functions <em>ZZhashStr() </em>and <em>ZZhashInt()
+</em>are based on the multiplicative method (Knuth, Standish),
+using the improved golden ratio. <em>ZZhashStr() </em>first
+converts the text string into an integer, and then calls <em>ZZhashInt()
+</em>to randomize the number. The conversion of the text into an
+integer is based on adding individual bytes multiplied by an
+increasing factor, which generally leads to different indices for
+strings ABC, CBA, and BCA.</p>
+
+<p>The following example uses two hash tables on the object <em>Employee</em>,
+one based on a character string (name), and the other on an
+integer key (IDnum). Programs <em>test25b.c </em>and <em>test25c.c
+</em>show these hash tables used together with other
+organizations.</p>
+
+<blockquote>
+    <pre><em>#define HASH_SIZE 200
+class Header { // header for the hash table 
+    ZZ_EXT_Header
+    ...
+public: 
+    Header();
+};
+class Employee {
+    ZZ_EXT_Employee
+    int IDnum;
+    char *name;
+    ...
+public:
+    char *getName(void){return name;}
+    int getID(void){return IDnum;}
+    void setName(char *n){name=n;}
+    void setID(int i){IDnum=i;}
+};
+ZZ_HYPER_HASH(byIDnum,Header,Employee);
+ZZ_HYPER_HASH(byName,Header,Employee);</em></pre>
+    <pre><em>Header::Header(){
+    // for each header, form hash tables automatically
+    byIDnum.form(h,HASH_SIZE); 
+    byName.form(h,HASH_SIZE);
+    if(util.error()){printf(&quot;cannot allocate hash tables\n&quot;); 
+    }</em></pre>
+    <pre><em>int main(void){
+    Employee *p,e;
+    Header *h</em></pre>
+    <pre><em>    h=new Header;
+    ...
+    // use hashing without worrying about details
+    byIDnum.add(h,p);
+    byName.add(h,p);
+    // when searching for an object, set up a dummy
+    // object with an attribute for which you search
+    e.setID(127);
+    p=byIDnum.get(h,&amp;e);
+    e.setName(&quot;Brown J.&quot;);
+    p=byName.get(h,&amp;e);
+    ...
+}</em></pre>
+    <pre><em>// Each hash table requires two functions that control hashing // 
+    ZZhashStr() and ZZhashInt() are default functions provided
+inline int byName_class::cmp(Employee *p1,Employee *p2)
+    {return(strcmp(p1-&gt;getName(),p2-&gt;getName()));}</em></pre>
+    <pre><em>inline int byName_class::hash(Employee *p,int size)
+    { int ZZhashStr(char *name,int size); 
+    return(ZZhashStr(p-&gt;getName(),size)); }T
+inline int byIDnum_class::cmp(Employee *p1,Employee *p2)
+    {return(p1-&gt;getID() - p2-&gt;getID()); }
+inline int byIDnum_class::hash(Employee *p,int size)
+{ int ZZhashInt(int key,int size);
+    return(ZZhashInt(p-&gt;getID(),size)); }</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Typical sequence of calls:</font></h3>
+
+<ul>
+    <li>Declare the table with <em>ZZ_HYPER_HASH()</em></li>
+    <li>Form the table and give it a size, using <em>form().</em></li>
+    <li>Access the table: <br>
+        <em>add()</em> adds an object to the table;<em><br>
+        get()</em> returns an object for a given key;<br>
+        <em>add2()</em> adds an object with more control.</li>
+    <li>The program can monitor the loading of the table, using <em>size(),
+        </em>and when the loading exceeds a certain limit, it can
+        automatically re-size the table. </li>
+    <li><em>resize() </em>allocates a new hash table (larger or
+        smaller), re-loads all objects, and frees the old table.</li>
+    <li>If you don't need the hash table any more, free it with <em>free().</em></li>
+</ul>
+
+<h3><a name="11_13_Indexed_Tbls"></a><font size="3" face="Arial">Indexed
+tables:</font></h3>
+
+<p>In addition to its basic operation with pseudo)random access
+of buckets, the HASH class can be also used as an indexed, sorted
+dictionary. For example, assume that we want buckets sorted by
+the first letter of each word, and words alphabetically sorted
+within each bucket. In this case, function <em>hash()</em> does
+not provide random hashing. Instead, it uses the first character
+as the bucket index.</p>
+
+<p>Function <em>cmp()</em> detects identical objects as for the
+random hashing, but it is also controls the order of objects
+within individual buckets, using the same syntax as the compare
+function required for<font color="#FF0000"> !!TODO Ask Jiri????</font>
+or when sorting collections or other OrgC++ organizations. The
+following code sample demonstrates this approach. For the
+complete program, look at <em>test51.c</em>.</p>
+
+<blockquote>
+    <pre><em>class Root {
+    ZZ_EXT_Root
+    ...
+};
+class Word {
+    ZZ_EXT_Word
+    ...
+};
+ZZ_HYPER_HASH(dict,Root,Word);
+ZZ_HYPER_NAME(word,Word);
+ZZ_HYPER_UTILITIES(util):</em></pre>
+    <pre><em>inline dict_class::cmp(Word *w1,Word *w2){
+    return strcmp(word.fwd(w1), word.fwd(w2));
+    }
+inline int dict_class::hash(Word *w,int size){
+    char* p=word.fwd(w);
+    unsigned char c=(*p); // first character
+    int i=(int)(c)(unsigned char)('a'));
+    if(i&lt;0 || i&gt;=size)... // error
+    return i;
+    }
+unsigned char ua,uz;
+ua='a'; uz='z';
+dict.form((int)(uz,ua));</em></pre>
+</blockquote>
+
+<h3><font size="3" face="Arial">Saving to disk:</font></h3>
+
+<p>When saving/retrieving an object to/from disk, a hash table is
+treated as part of the holder object, and automatically stored
+with it. The <em>SWEEP</em> operation, when collecting all
+objects, expands through the hash table in the same way it does
+with pointers and arrays.</p>
+
+<p>When restoring data from the disk, the same hashing function
+is automatically assumed. If you changed the hash function after
+saving data to disk, call <em>resize() </em>after restoring data
+from the disk. This will reload the table using the new hashing
+function.</p>
+
+<h3><font size="3" face="Arial">More than one hash() function</font></h3>
+
+<p>Under special circumstances, you may want to switch between
+two or more hashing functions while running your program. The two
+or more optional hashing functions must be included in function<em>
+id_class::hash()</em>, using an external switch. For example:</p>
+
+<blockquote>
+    <pre><em>class Block {
+    ZZ_EXT_Block
+public: 
+    static int hashControl;
+    ...
+};
+class Label {
+    ZZ_EXT_Label
+public:
+    char *name;
+    ...
+};
+int Block::hashControl=0; // controls hashing function
+ZZ_HYPER_HASH(bHash,Block,Label);
+...
+int main(){
+... // using hashControl=0 Block::hashControl=1;
+bHash.newFun(bp); // resets the hash table 'in place'
+}
+... // now working with hashControl=1
+int bHash_class::hash(Label *p,int size){
+    if(!hashControl) return ZZhashStr(p&gt;name,size);
+    else return ZZhashStr(&amp;(p&gt;name[1]),size);
+}</em></pre>
+</blockquote>
+
+<p>Note how hashControl changes the hashing function from hashing
+the full name to hashing only a part of the name, starting from
+the second character. For another, similar example, look at <em>test25b.c</em>.</p>
+
+<h3><font size="3" face="Arial">Syntax:</font></h3>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>class HOLDER;<br>
+        class OBJECT;<br>
+        ZZ_HYPER_HASH(id,HOLDER,OBJECT);<br>
+        void id.form(HOLDER *hp,int size); </em></td>
+        <td>forms a hash table of the given size on the holder<em>
+        </em>object <em>hp</em>.</td>
+    </tr>
+    <tr>
+        <td><em>void* id.formed(HOLDER *hp);</em></td>
+        <td>allows to check whether the the hash table has been
+        formed; returns NULL if it has not been.</td>
+    </tr>
+    <tr>
+        <td><em>void id.resize(HOLDER *hp,int size); </em></td>
+        <td>resets the table to a new <em>size, </em>reloads all
+        data, and releases the old table.</td>
+    </tr>
+    <tr>
+        <td><em>void id.add(id,HOLDER *hp,OBJECT *p);</em></td>
+        <td>adds object <em>p </em>to the table; if the same key
+        already exists, the object is not added;</td>
+    </tr>
+    <tr>
+        <td><em>void del(HOLDER *hp,OBJECT *p);</em></td>
+        <td>deletes object <em>p</em> from the table;</td>
+    </tr>
+    <tr>
+        <td><em>int id.add2(id,HOLDER *hp,OBJECT *p,int sameKey);</em></td>
+        <td>adds object <em>hp</em> to the table; when sameKey=1
+        identical keys are permitted, when sameKey=0 they are
+        not; when the object is not added <em>add2()</em> returns
+        1;</td>
+    </tr>
+    <tr>
+        <td><em>OBJECT* id.get(HOLDER *hp,OBJECT *p);</em></td>
+        <td>returns the object that has the same key as <em>p</em>.</td>
+    </tr>
+    <tr>
+        <td><em>int id.size(HOLDER *hp,int *totNum); </em></td>
+        <td>returns the current <em>size </em>and (through the
+        second parameter) the total number of objects in the hash
+        table. </td>
+    </tr>
+    <tr>
+        <td><em>OBJECT* id.slot(HOLDER *hp,int slot); </em></td>
+        <td>returns the first object in the given <em>slot</em>. </td>
+    </tr>
+    <tr>
+        <td><em>id_iterator it(OBJECT *s); </em></td>
+        <td>declares an iterator, and initializes for traversing
+        objects in the same bucket as object <em>s.</em></td>
+    </tr>
+    <tr>
+        <td><em>id_iterator it(HOLDER *hp); </em></td>
+        <td>declares an iterator, and initializes for traversing
+        all objects of the hash table <em>s.</em></td>
+    </tr>
+    <tr>
+        <td><em>void it.start(OBJECT *s); </em></td>
+        <td>initializes previously declared iterator to start
+        another loop over one bucket. </td>
+    </tr>
+    <tr>
+        <td><em>void it.start(HOLDER *hp); </em></td>
+        <td>initializes previously declared iterator to start
+        another loop over the entire hash table. </td>
+    </tr>
+    <tr>
+        <td><em>void id.free(HOLDER *hp);</em></td>
+        <td>deallocates the whole table, including the array
+        header.</td>
+    </tr>
+    <tr>
+        <td><em>void id.newFun(HOLDER *hp);</em></td>
+        <td>without reallocating the array, it resets the entire
+        hash table. Typical use: Changing the<em> hash() </em>or <em>cmp()</em>
+        functions. </td>
+    </tr>
+</table>
+
+<p> This implementaiton of the hash table has a smart iterator, which allows 
+to traverse objects in the hash table in two differnt ways:</p>
+<p> (A) If you start with one of the objects that are in the hash table, 
+the iterator traverses objects in the same bucket where the object is:</p>
+
+<blockquote>
+    <pre><em>    int i,size,totNum;
+    OBJECT *s,*p;
+    ...
+    id_iterator it(s);
+    while(p= ++it){
+    .. here you have object p ..
+    }
+
+    // or when using the start() method
+    int i,size,totNum;
+    OBJECT *s,*p;
+    id_iterator it;
+    ...
+    it.start(s);
+    while(p= ++it){
+    .. here you have the next object p ..
+    }
+}</em></pre>
+</blockquote>
+
+<p> (B) If you start with the header, the iterator traverses all objects
+in the hash table:</p>
+
+<blockquote>
+    <pre><em>    HOLDER *hp;
+    OBJECT *p;
+    id_iterator it(hp);
+    ...
+    while(p= ++it){
+    .. here you have the next object p ..
+    }
+}</em></pre>
+</blockquote>
+
+<p> Note that this is the same as traversing buckets and iterating over
+the objects in the same bucket:</p>
+
+<blockquote>
+        <pre><em>int i,size,totNum;
+    HOLDER *hp;
+    OBJECT *s,*p;
+    id.iterator it;
+    ...
+    size=id.size(hp,totNum);D
+    for(i=0; i&lt;&lt;size; i ++){
+        s=id.slot(hp,i);
+        it.start(s);
+        while(p= ++it){
+        .. here you have the next object p ..
+        }
+    }
+}</em></pre>
+</blockquote>
+
+<p><strong>IMPORTANT</strong>: Check the error condition after <em>form(),</em>
+or <em>resize() </em>by calling <em>util.error().</em> If it is
+not 0, there is an allocation problem.</p>
+
+<h3><font size="3" face="Arial">Examples:</font></h3>
+
+<ol>
+    <li><em>test25b.c</em> for fast access of nodes in a graph,
+        searching by name.</li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch11l.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 11.12 Dynamic Array and Binary Heap</font></a></td>
+        <td align="right" width="50%"><a href="ch11n.htm"><font
+        face="Arial">Next Section 11.14 Pager <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

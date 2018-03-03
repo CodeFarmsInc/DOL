@@ -1,0 +1,184 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 1, Introduction</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">1. INTRODUCTION</font></h1>
+
+<p>The major challenge for present technology is to generate
+software more efficiently. Computers are being used in
+essentially all areas of human activities; even products that
+seemingly have nothing to do with computers contain a significant
+portion of computer related cost.</p>
+
+<p>More efficient software means three things: coding and
+debugging programs faster; generating programs with less errors;
+and producing cleaner, more readable code, which is easier to
+maintain.</p>
+
+<p>This library provides major improvements in all three of these
+areas. Current experience indicates that, with this library,
+algorithmic programs can be developed 2-4 times faster (coding
+and debugging). The increase in software productivity is even
+bigger for in-core databases (5-10 times faster development and
+testing compared to hand coded C++). The resulting code is more
+readable, and therefore easier to maintain or transfer to another
+programmer.</p>
+
+<p>When you use this library, software productivity is increased
+without sacrificing run-time performance. Programs developed with
+this library are just as fast as those developed with hand coded
+C++, and have no memory overhead. The class generator carries the
+overhead for data management and converts the original source
+into efficient, simple C++ code which does not use offsets or
+indexing for pointers.</p>
+
+<p>Also note that there is also a C version of this library.
+We prefer to use C++, but if you or some of your friends need
+advanced data structures and persistency which handles almost as
+easily as C++, contact Code Farms. </p>
+
+<p>This library is not just a package for the management of data,
+it is a new methodology, which extends the idea of structured
+programming. It requires not only program logic, but also
+the data to be structured and well organized. This library
+brings order into your thinking process; both you and the program
+will benefit.</p>
+
+<p>The library helps in the development of solid production code,
+but it is also useful for rapid prototyping. Examples with complicated data
+structures including graphs and hash tables can be coded and tested
+within hours. For this reason, this library is invaluable for
+software engineering classes; students can test complicated
+applications without losing time on implementation details.</p>
+
+<p>This text starts with the most important but simple to
+understand concepts, and leaves the more advanced features for
+later. You can read any chapter independently, but if you are a
+new user, reading the chapters one by one will give you the best
+introduction to the library.</p>
+
+<p>Most programmers are able to use this library within one day.
+Within a week, you will be confident enough to use some
+advanced features.</p>
+
+<p>If you are a new user, read only Chap. 1 to 15, and leave the
+remaining parts for later. You may never attempt to expand the
+existing library or to use the program in multi-user mode, and
+too much information would clutter your perception in the
+beginning.</p>
+
+<p>As you read this text, try to code simple test programs as
+soon as you can. After reading the example in<a
+href="ch07Exmp.htm"> Chap.7</a>, type your own program into the <i>orgC/test</i>
+directory as <i>myTest</i>.c. Then <i>try1 myTest</i> will run
+the class generator, and <i>ctry2 myTest</i> will compile your
+code. If you have any problems, see <a href="ch04Dirs.htm">Chap.
+4</a>, the section on the test directory<i>.</i> Most likely, you
+will have to set up a proper link to your compiler.</p>
+
+<p>Once you get through your first program, the spell will be
+broken, and progress will be rapid.</p>
+
+<p>Don't be frustrated if you get a lot of class generator and
+compiler errors. When you program with this library, you will have
+a harder time to get your program through the compiler, but once it
+compiles, there will be very little or no run-time debugging.<\p>
+
+<p>If you don't plan to use the library right away, and you are
+only curious about it, start with <a href="ch06What.htm">Chap.6</a>
+and <a href="ch07Exmp.htm">Chap.7</a>. They will explain what
+this library is, and will lead you through a complete example.</p>
+
+<p>Other data management packages come with big binders, which
+describe a variety of functions available from their libraries.
+The size of these binders may be impressive, but such systems are
+difficult to use. Nobody can remember all those functions. This library
+is just the opposite. It includes all the
+usual data structures, and it requires only a few pages to
+describe them (<a href="ch11AOrg.htm">Chap. 11</a>). Generic
+functions such as <i>add()</i> or <i>del()</i> are easy to
+remember and apply to most organizations in the library.</p>
+
+<p>A part of the library installation is the <i>test </i>directory,
+which contains examples of every feature presently in the library.
+That has two advantages: </p>
+
+<ul>
+    <li>If you are not sure about how to use some organization or
+        function, you can always find an example by using <i>grep</i>.
+    </li>
+    <li>By executing <i>cregr</i> in that directory, you can run
+        through all these examples and verify that everything is
+        functioning properly.</li>
+</ul>
+
+<p>The documentation has three parts:</p>
+
+<ul>
+    <li>The User's Guide - which you are reading, is shipped, in
+        printed form, with the tape or floppy as a part of the
+        software.</li>
+    <li>The Reference Guide. You can generate this document
+        yourself, see <a href="ch12Docn.htm">Chap. 12</a>. </li>
+    <li>On-line help. Without a fixed format or menu, you can
+        query about organizations, functions, and macros
+        currently in the library.</li>
+</ul>
+
+<p>The last chapter (<a href="ch19RvHs.htm">Chap.19</a>) contains
+a record of new features added to library in recent versions.</p>
+
+<p>The library evolved gradually and includes the experience of
+many people who worked with me over the past 15 years. In
+particular, I would like to express my gratitude to Mike
+Yamin(Bell Labs), Ken Keller (Frame Tech.), Mark Bales (CADENCE),
+Mikael Palzcewski (CADENCE), and the late Rick Stockburger (BNR).
+I would also like to thank Hans Gethoffer (ZUKEN, Japan), Carl
+Seaquist (AT&amp;T Bell Labs), and Bill Williams (BNR) for
+suggestions that lead to substantial improvements of the program.</p>
+
+<p>Just to avoid confusion, I would like to mention that the
+graphical CASE tool called &quot;Soukup Method&quot;, which was
+developed in Europe, has nothing to do with Code Farms'
+libraries. The similarity of authors' names is purely
+coincidental.</p>
+
+<p>Note that, throughout the documentation, instead of saying
+&quot;this library&quot;, we use the acronym OrgC++ (or OrgC for
+the C version of the library). This name has historical reasons.
+In 1989, the library was originally called &quot;Organized C
+Library&quot;. At that time, only the C version was available,
+and the name emphasized the main purpose - the management of data
+organizations and, in general, bringing more organization into
+the software design process. OrgC was the abbreviation for
+Organized C. Unfortunately, some programmers found the name
+misleading; some thought it was a new language, while others
+thought that Organized C and Objective C were the same thing.
+After some variations of the name, the package is now sold as
+C/C++ DATA Object Library which, I believe, better explains the
+purpose of the whole package.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="TitlePag.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">
+        Title Page</font></a></td>
+        <td align="right" width="50%"><a href="ch02Inst.htm"><font
+        face="Arial">Chapter 2. Installing Floppy or Tape <img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

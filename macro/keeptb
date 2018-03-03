@@ -1,0 +1,43 @@
+/* =========================================================
+.(l
+ NO PARAMETERS
+.)l
+Description:
+ When called before ZZ_OPEN(), internal tables for the conversion of
+pointers remain in memory even after ZZ_OPEN(). 
+.sp
+You may want to kep those tables if you want to do customized
+rebinding you pointers linking the organization stored on disk
+with other old/new organizations.
+.sp
+A call to ZZ_CLOSE_TABLES() will remove the tables from memory.
+.sp
+In the following example, we want to keep a pointer to one particular
+Employee, and reset it to the new location, after ZZ_OPEN() reloads the whole
+data:
+.(l  
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    int salary;
+};
+ZZ_ORG_NAME(eName,Employee);
+ZZ_ORG_DOUBLE_RING(dRing,Employee);
+  ...
+Employee *ep
+  ...
+ep=...;         /* remember old pointer */
+ZZ_SAVE(...);   /* save data on disk */
+ZZ_KEEP_TABLES(); /* instruction to keep tables */
+ZZ_OPEN(...);     /* reloads data into a new location */
+ZZ_BIND_POINTER(ep,ep); /* resets pointer to the original object */
+ZZ_CLOSE_TABLES(); /* removes tables from memory */
+  ...
+.)l
+.sp
+See also ZZ_FREE_TABLES(), ZZ_BIND_POINTER(), and ZZ_OPEN().
+.sp
+  ========================================================== */ 
+#define ZZ_KEEP_TABLES() \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZcustomPtr=1;

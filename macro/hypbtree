@@ -1,0 +1,235 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT type   ;          /* structure type used in this tree */
+
+Description:
+Encapsulated form of the binary tree for C++.
+Warning: The iterator traverses the tree, but the tree must not be changed
+         while traversing (no elements removed or added).
+         ITERATE(..) or ++ traverses left nodes first,
+         RETRACE(..) or -- traverses right nodes first.
+id.del(n)   deletes node n from anywhere in the tree, may results in
+            several disconnected subtrees
+
+The iterator uses a 'down' movement, when new nodes are visited, and the 'up'
+movement, which only traverses nodes that already have been discovered.
+
+For ++ (left-to-right):
+DOWN process:
+  - new node has lChild: go to lChild
+  - new node has rChild: go to rChild
+  - new node has no child: change to UP.
+UP process:
+  - arrived via lChild, rCHild exists: change to DOWN, go to rChild.
+  - parent exists: go to it.
+  - end of search
+
+For -- (right-to-left):
+DOWN process:
+  - new node has rChild: go to rChild
+  - new node has lChild: go to lChild
+  - new node has no child: change to UP.
+UP process:
+  - arrived via rChild, lCHild exists: change to DOWN, go to lChild.
+  - parent exists: go to it.
+  - end of search
+
+Special commands:
+   void dFun(void*); Node *n; int dMode;
+
+   delSub(n,dFun); disconnects n and all its descendents,
+         and then it applies dFun to it. dFun may be NULL (no action),
+         hide a call to delete(), or place one node to a free list.
+   replaceByLeftSubtree(n,dMode,dFun); disconnects n, and replaces it by
+         the left subtree of n. When dMode=0, the right subtree of n is
+         left intact, not connected to the original tree. When dMode=1,
+         the right subtree is dismantled, and dFun is applied to its
+         node (just as when calling delSub).
+         The function returns NULL if the root of the original tree has
+         not changed; it returns the new root if it has to be replaced.
+   replaceByRightSubtree(n,dMode,dFun); - reverse of replaceByLeftSubtree
+
+For examples of use, see test56.c
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_BINARY_TREE(id,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_BINARY_TREE(id,type,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_BINARY_TREE(id,type,where) \
+ZZ_BASIC_BINARY_TREE(id,type,static,where :: id)
+
+#define ZZ_BASIC_BINARY_TREE(id,type,scope,where) \
+class ZZFP(ZZH,id) { \
+public: \
+  type *par(type *c){return c->ZZFP(ZZp,id);} \
+  type *rChild(type *c){return c->ZZFP(ZZr,id);} \
+  type *lChild(type *c){return c->ZZFP(ZZl,id);} \
+  ZZint isLeaf(type *c){return !(c->ZZFP(ZZl,id) || c->ZZFP(ZZr,id));} \
+  void del(type *t); \
+  void delSubtree(type *t); \
+  void addR(type *p, type *c); \
+  void addL(type *p, type *c); \
+  void delSub(type *p,ZZTvoidFun dFun);\
+  type *replaceByLeftSubtree(type *p,ZZint dMode,ZZTvoidFun dFun);\
+  type *replaceByRightSubtree(type *p,ZZint dMode,ZZTvoidFun dFun);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+friend class ZZFP(ZZH,id); \
+   ZZint upDown;\
+   type *nxt;\
+   type *stp;\
+   type *next();\
+public:\
+   ZZFN(id,iterator)(type *p){start(p);}\
+   ZZFN(id,iterator)(){start(NULL);}\
+   void start(type *p){upDown=0; nxt=stp=p; if(p)stp=id.par(p);}\
+   type* operator++();\
+   type* operator--();\
+}
+// upDown=0 down, =1 up as leftChild, =2 as rightChild
+// next() returns nodes in the order in which they can be safely
+//    disconnected and destroyed.
+
+/* _______________________________________________________________________ */
+// return next node in such an order that it can be safely disconnected and
+// destroyed. This must be just after leaving the node in the upward direction.
+// Otherwise, the logic of this function is similar to operator ++.
+ZZ1$* ZZV$ $_iterator :: next(){
+    ZZ1$ *p;
+    if(nxt==stp || nxt==NULL)return NULL;
+
+    if(upDown>0){
+        p=$.rChild(nxt);
+        if(upDown==1 && p){nxt=p; upDown=0;}
+        else {
+            p=nxt;
+            nxt=$.par(nxt);
+            if(nxt){
+                if     ($.lChild(nxt)==p)upDown=1;
+                else if($.rChild(nxt)==p)upDown=2;
+            }
+            return p;
+        }
+    }
+
+    while(upDown==0 && nxt){
+        p=nxt;
+        nxt=$.lChild(p); if(!nxt)nxt=$.rChild(p);
+        if(!nxt){
+            nxt=$.par(p); 
+            if(nxt && $.lChild(nxt)==p)upDown=1; else upDown=2;
+            return p;
+        }
+    }
+    return nxt; // the program will never get here
+}
+ZZ1$* ZZV$ $_iterator::operator++(){
+    ZZ1$ *p;
+    if(nxt==stp || nxt==NULL)return NULL;
+    while(upDown!=0 && nxt){
+        p=$.rChild(nxt);
+        if(upDown==1 && p){nxt=p; upDown=0;}
+        else {
+            p=nxt;
+            nxt=$.par(nxt);
+            if(nxt==stp || nxt==NULL)return nxt;
+            if     ($.lChild(nxt)==p)upDown=1;
+            else if($.rChild(nxt)==p)upDown=2;
+        }
+    }
+    p=nxt;
+    nxt=$.lChild(p); if(!nxt)nxt=$.rChild(p);
+    if(!nxt){
+        nxt=$.par(p); 
+        if(nxt && $.lChild(nxt)==p)upDown=1; else upDown=2;
+    }
+    return p;
+}
+ZZ1$* ZZV$ $_iterator::operator--(){
+    ZZ1$ *p;
+    if(nxt==stp || nxt==NULL)return NULL;
+    while(upDown!=0 && nxt){
+        p=$.lChild(nxt);
+        if(upDown==2 && p){nxt=p; upDown=0;}
+        else {
+            p=nxt;
+            nxt=$.par(nxt);
+            if(nxt==stp || nxt==NULL)return nxt;
+            if     ($.rChild(nxt)==p)upDown=2;
+            else if($.lChild(nxt)==p)upDown=1;
+        }
+    }
+    p=nxt;
+    nxt=$.rChild(p); if(!nxt)nxt=$.lChild(p);
+    if(!nxt){
+        nxt=$.par(p); 
+        if($.rChild(nxt)==p)upDown=2; else upDown=1;
+    }
+    return p;
+}
+void ZZV$ ZZH$ :: addL(ZZ1$ *p, ZZ1$ *c){
+    if(p->ZZl$){ZZmsgSS(34,"$",(char*)p); return;}
+    if(c->ZZp$){ZZmsgSS(35,"$",(char*)c); return;}
+    p->ZZl$=c; c->ZZp$=p;
+}
+void ZZV$ ZZH$ :: addR(ZZ1$ *p, ZZ1$ *c){
+    if(p->ZZr$){ZZmsgSS(34,"$",(char*)p); return;}
+    if(c->ZZp$){ZZmsgSS(35,"$",(char*)c); return;}
+    p->ZZr$=c; c->ZZp$=p;
+}
+void ZZV$ ZZH$ :: del(ZZ1$ *t){ ZZ1$ *p;
+    if(t->ZZl$){t->ZZl$->ZZp$=NULL; t->ZZl$=NULL;}
+    if(t->ZZr$){t->ZZr$->ZZp$=NULL; t->ZZr$=NULL;}
+    p=t->ZZp$;
+    if(p){
+        if(p->ZZl$ == t)p->ZZl$=NULL;
+        if(p->ZZr$ == t)p->ZZr$=NULL;
+        t->ZZp$=NULL;
+    }
+}
+void ZZV$ ZZH$ :: delSubtree(ZZ1$ *t){
+    if(t->ZZl$)delSubtree(t->ZZl$);
+    if(t->ZZr$)delSubtree(t->ZZr$);
+    del(t);
+}
+void ZZV$ ZZH$ :: delSub(ZZ1$ *p,ZZTvoidFun dFun){
+    ZZ1$ *n;
+    $_iterator it(p);
+    for(n=it.next(); n; n=it.next()){
+        $.del(n);
+        if(dFun) dFun(n);
+    }
+}
+ZZ1$* ZZV$ ZZH$ :: replaceByLeftSubtree(ZZ1$ *p,ZZint dMode,ZZTvoidFun dFun){
+    ZZ1$ *lNode, *rNode, *pNode, *root, *left;
+    lNode=lChild(p);
+    rNode=rChild(p);
+    pNode=par(p);
+    if(pNode){ root=NULL; left=$.lChild(pNode); }
+    else     { root=lNode; left=NULL; }
+    $.del(p); // disconnect the given node
+    if(dFun) dFun(p);
+    if(dMode) delSub(rNode,dFun);
+    if(pNode){
+       if(left==p)addL(pNode,lNode); else addR(pNode,lNode);
+    }
+    return root;
+}
+ZZ1$* ZZV$ ZZH$ :: replaceByRightSubtree(ZZ1$ *p,ZZint dMode,ZZTvoidFun dFun){
+    ZZ1$ *lNode, *rNode, *pNode, *root, *left;
+    lNode=lChild(p);
+    rNode=rChild(p);
+    pNode=par(p);
+    if(pNode){ root=NULL; left=$.lChild(pNode); }
+    else     { root=rNode; left=NULL; }
+    $.del(p); // disconnect the given node
+    if(dFun) dFun(p);
+    if(dMode) delSub(lNode,dFun);
+    if(pNode){
+       if(left==p)addL(pNode,rNode); else addR(pNode,rNode);
+    }
+    return root;
+}

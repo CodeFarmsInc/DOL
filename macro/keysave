@@ -1,0 +1,175 @@
+/* =========================================================
+.(l
+ TEXT strType;       /* structure type */
+ char *fileName;     /* file name for output */
+ strType *pp; /* pointer to the block to be saved */
+.)l
+Description:
+ Write a key entry onto the output file. Any number of the output
+files may be open at the same time. First call to ZZ_KEY_SAVE() or to
+ZZ_OBJECT_SAVE() referencing a particular file automatically opens
+the file, ZZ_CLOSE_BIND() must be used to close it.
+ZZ_OPEN() will return key entries at the same order as they were written out.
+.sp
+For a single key (either simple or composite object) or for multiple keys
+that are all simple objects, ZZ_KEY_SAVE() and ZZ_OBJECT_SAVE() have
+the same effect as far as registering the keys. Either of the two macros
+can be used. However, if there are several keys that represent composite
+objects (see the examples below), ZZ_KEY_SAVE() must be used. It
+saves only the top level of the object just to record the key entry.
+Later, either ZZ_SAVE_OBJECT(), or ZZ_SAVE() must be called
+in order to save the whole object.
+.sp
+Saving the same object or its parts several times does not cause
+any problems. If saving several different versions of hte object, the last
+version is retrieved by ZZ_OPEN().
+.sp
+This description is applicable also to C++, where ZZ_OBJECT_SAVE() or
+ZZ_KEY_SAVE() are usually used in user-defined saving functions.
+When using C++, macro ZZ_SAVE() is equivalent to function util.save().
+.(l
+Examples:
+  struct A {
+      int x,y;
+  };
+  struct B {
+      ZZ_EXT_B
+      struct A a;
+      int b;
+  }; /* B is simple, because A does not have ZZ_EXT_.. */
+  struct C {
+      ZZ_EXT_C
+      struct B b;
+      int c;
+  }; /* C is composite, because B has ZZ_EXT_.. */
+  class D :  public B {
+      int d;
+      ZZ_EXT_D
+  public:
+      ...
+  }; // D is composite, it is derived from B that has ZZ_EXT_..
+.)l
+.sp
+You can combine ZZ_KEY_SAVE(), ZZ_OBJECT_SAVE(), ZZ_SAVE(), and ZZ_CLOSE_BIND()
+in various ways. When saving to a file, you have to do three things:
+ - register the key entries;
+ - write out all the objects;
+ - close the file;
+.sp
+ZZ_SAVE() does all this automatically. 
+If you control saving manually, you must execute all three steps:
+ - several calls to ZZ_KEY_SAVE() to register key entries;
+ - call ZZ_OBJECT_SAVE() for all your objects;
+ - call ZZ_CLOSE_BIND() to close the file;
+.sp
+If you combine the manual and automatic saving methods, you do this:
+ - several calls to ZZ_KEY_SAVE() to register key entries;
+ - call ZZ_OBJECT_SAVE() for some of your objects;
+ - call ZZ_SAVE() to save remaining objects and to close the file.
+.sp
+In this case, repeat one of the key entries that you already registered
+with ZZ_KEY_SAVE() in the call to ZZ_SAVE().
+ZZ_OBJECT_SAVE() must not be called after ZZ_SAVE(), because ZZ_SAVE()
+closes the output file.
+.sp
+Example:
+.(l
+#include <stdio.h>
+#define ZZascii
+#include "zzincl.h"
+
+typedef struct Instance Instance;
+typedef struct Net Net;
+typedef struct ActTerm ActTerm;
+struct Instance{
+    ZZ_EXT_Instance
+    char *name;
+};
+struct Net{
+    ZZ_EXT_Net
+    char *name;
+};
+struct ActTerm{
+    ZZ_EXT_ActTerm
+    char *fTerm;
+};
+ZZ_ORG_SINGLE_RING(inst,Instance);
+ZZ_ORG_SINGLE_RING(nets,Net);
+ZZ_ORG_SINGLE_TRIANGLE(byInst,Instance,ActTerm);
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,ActTerm);
+
+main()
+{
+    ActTerm *at;
+    Instance *ip,*iStart;
+    Net *np,*nStart;
+
+    /* here we setup four organizations:
+     *  - all instances in a ring starting from 'iStart';
+     *  - all nets in a ring starting from 'nStart';
+     *  - ActTerms in triangles under the instances
+     *  - ActTerms in triangles under the nets
+     */
+	    ...........
+
+
+    /* start with the two key entries into the main rings */
+    ZZ_KEY_SAVE(Instance,"myFile",iStart,1); /* will be duplicated */
+    ZZ_KEY_SAVE(Net,"myFile",nStart,1); /* will be duplicated */
+
+    /* traverse the whole organization, enter each object only once */
+    ZZ_A_TRAVERSE(nets,nStart,np){
+	ZZ_OBJECT_SAVE(Net,"myFile",np,1);
+    }ZZ_A_END;
+    ZZ_A_TRAVERSE(inst,iStart,ip){
+	ZZ_OBJECT_SAVE(Instance,"myFile",ip,1);
+        ZZ_A_TRAVERSE(byInst,ip,at){
+	    ZZ_OBJECT_SAVE(ActTerm,"myFile",at,1);
+	}ZZ_A_END;
+    }ZZ_A_END;
+    ZZ_CLOSE_BIND("myFile"); /* closes the file and the 'save' operation */
+    /* note no need to traverse the triangles under nets */
+}
+#include "zzfunc.c"
+.)l
+.sp
+SPECIAL CASE:
+ If you want, for some reason, to open/close the disk file yourself,
+use ZZ_MODE_SAVE() with cntrl=1. In this special case, instead of calling
+ZZ_KEY_SAVE() with the file name, you call it with the file
+pointer or file handle casted as (char *). For example:
+.(l
+   class Employee;
+   Employee *ep;
+   FILE *fp;
+
+   ZZ_MODE_SAVE(0,1,0,1);
+   fp=fopen("myFile","w");
+    ...
+   ZZ_KEY_SAVE(Employee,(char *)fp,ep);
+.)l   
+.sp 1
+  ========================================================== */ 
+#define ZZ_KEY_SAVE(strType,fileName,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+    char *ZZs; ZZint ZZt;\
+    void ZZFUN_writeASCII();\
+    void ZZFUN_writeBind();\
+    strType *ZZp;\
+    ZZ_GENERAL_EXT(); \
+    ZZp=(pp);\
+    ZZs=ZZ_STRINGIT(strType);\
+    ZZt=ZZFP(ZZI,strType);\
+    if(ZZbindASCII){\
+      if(!strcmp(ZZs,"char")){\
+          ZZwriteASCII(1,ZZt,fileName,(char*)ZZp,1,1);\
+      }\
+      else ZZwriteASCII((ZZint)sizeof(strType),ZZt,fileName,(char*)ZZp,\
+                                                 1,1);\
+    }\
+    else {\
+      if(!strcmp(ZZs,"char"))ZZwriteBind(1,ZZt,fileName,(char *)ZZp,1,1);\
+      else ZZwriteBind((int)sizeof(strType),ZZt,fileName,(char*)ZZp,1,1);\
+    }\
+}

@@ -1,0 +1,44 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *given; /* given object */
+ void *ret;             /* returned other side of the link */
+.)l
+Description:
+ Returns other side of the general link.
+structure.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_GENERAL_LINK().
+.(l
+Example:
+
+typedef struct Fruit Fruit;
+struct Fruit {
+    ZZ_EXT_Fruit
+     ...
+};
+ZZ_ORG_GENERAL_LINK(fLink,Fruit)
+
+void *pp;
+Fruit *f;
+
+ ....
+ZZ_FORWARD_GENERAL_LINK(fLink,f,pp)
+.)l
+.pp
+See also: ZZ_ORG_GENERAL_LINK(), ZZ_ADD_GENERAL_LINK(),
+ZZ_DELETE_GENERAL_LINK(), and
+also similar functions for typed single/double links.
+.sp
+  ========================================================== */ 
+#define ZZ_FORWARD_GENERAL_LINK(id,given,ret) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_FORWARD_GENERAL_LINK(ZZFP(ZZg,id),given,ret)
+
+#ifdef ZZcplus
+#define ZZZ_FORWARD_GENERAL_LINK(ptr,given,ret) \
+{char **ZZp=(char **)(&(ret)); *ZZp=(given)->ptr;}
+#else
+#define ZZZ_FORWARD_GENERAL_LINK(ptr,given,ret) (ret)=(void *)((given)->ptr);
+#endif

@@ -1,0 +1,23 @@
+netlist by instance:
+inst=1 fTerm=3 net=5
+inst=1 fTerm=1 net=1
+inst=1 fTerm=2 net=2
+inst=2 fTerm=2 net=3
+inst=2 fTerm=1 net=1
+inst=3 fTerm=3 net=5
+inst=3 fTerm=2 net=4
+inst=3 fTerm=1 net=2
+inst=4 fTerm=3 net=2
+inst=4 fTerm=1 net=3
+
+netlist by net:
+inst=1 fTerm=1 net=1
+inst=2 fTerm=1 net=1
+inst=1 fTerm=2 net=2
+inst=4 fTerm=3 net=2
+inst=3 fTerm=1 net=2
+inst=4 fTerm=1 net=3
+inst=2 fTerm=2 net=3
+inst=3 fTerm=2 net=4
+inst=1 fTerm=3 net=5
+inst=3 fTerm=3 net=5

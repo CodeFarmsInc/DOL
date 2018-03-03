@@ -1,0 +1,27 @@
+/* =========================================================
+.(l
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Organization of time stamp.
+.pp
+Internally, the time stamp is stored as 4 characters only.
+.pp
+The time accuracy is in seconds,
+which means that structures stamped
+within a second may appear as being stamped
+at the same time. The year must be at least 1988.
+.pp
+.(l
+Example of the use:
+    typedef struct myStruct myStruct;
+    struct myStruct {
+        ZZ_EXT_myStruct
+        int a,b,c,d;
+    };
+
+    ZZ_ORG_TIME_STAMP(myStruct)
+.)l
+  ========================================================== */ 
+#define ZZ_ORG_TIME_STAMP(strType) /* ZZ_ORG_TIME_STAMP */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

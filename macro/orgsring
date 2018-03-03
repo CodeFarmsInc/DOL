@@ -1,0 +1,49 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Explicit definition of the organization of the single linked ring
+.pp
+In this organization, one pointer (fwp=forward pointer) is added
+to the selected structure. Any member of the ring can be the
+starting point. 
+.(l
+ A -> B -> C -> D ... -> X ->.
+ .                           .
+ ............ <- .............
+.)l
+Note that this organization is most efficient in memory,
+and it is fast when adding new members. But it is slow when deleting
+a member.
+ ZZ-sort available for ring is just as fast for the single ring
+as it is for the double ring.
+.(l
+Example of the use:
+   typedef struct myStruct myStruct;
+   struct myStruct {
+       ZZ_EXT_myStruct
+       int a,b,c,d;
+   };
+   ZZ_ORG_SINGLE_RING(my1ring,myStruct)
+.)l
+.pp
+In some applications, the order of the elements in the ring is
+important. If you added objects in this order: A,B,C,D,E,
+the ring starts with A:
+  A->E->D->C->B->
+.sp
+The following sequence returns the objects in the reverse order
+as they were loaded into the ring (LIFO):
+.(l
+ZZ_A_TRAVERSE(my1ring,start,pp)
+    printf(...,pp);
+ZZ_A_END
+.)l
+Note that for the purpose of a stack, special organizations
+(LIFO,FIFO) are available.
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_SINGLE_RING(id,strType) /* ZZ_ORG_SINGLE_RING */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

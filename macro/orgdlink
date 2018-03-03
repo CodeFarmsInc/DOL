@@ -1,0 +1,22 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType1;         /* link from this structure */
+ TEXT strType2;         /* link to this structure */
+.)l
+Description:
+ Two way link between two given structures.
+.pp
+This organization does exactly the same thing as ZZ_ORG_SINGLE_LINK
+except that there is pointer on each of the two objects, so that
+the communication is possible in both directions. The two objects
+are essentially tied into a single object.
+.pp
+For an example of use, see the documentation of ZZ_ORG_SINGLE_LINK.
+.pp
+See also: ZZ_SET_DOUBLE_LINK(),
+ZZ_GET_DOUBLE_LINK(), ZZ_DELETE_DOUBLE_LINK(), and ZZ_BACKWARD_DOUBLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_ORG_DOUBLE_LINK(id,strType1,strType2) /* ZZ_ORG_DOUBLE_LINK */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

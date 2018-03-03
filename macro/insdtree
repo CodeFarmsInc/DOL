@@ -1,0 +1,62 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *obj;   /* given object */
+ strType *pp;    /* object to append */
+.)l
+Description:
+ Insert a new object before the given object (to the left in the tree */
+The new object can have a whole subtree under it.
+.sp
+Note that the generic ZZ_INSERT() can be used.
+.sp
+Possible error: An object cannot be inserted to a root (the new tree would
+not have a single root).
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_DOUBLE_TREE(company,Employee)
+
+Employee *a,*b,*c,*d;
+ZZ_PLAIN_ALLOC(Employee,1,a)
+ZZ_PLAIN_ALLOC(Employee,1,b)
+ZZ_PLAIN_ALLOC(Employee,1,c)
+ZZ_PLAIN_ALLOC(Employee,1,d)
+ZZ_ADD_DOUBLE_TREE(company,a,b)
+ZZ_ADD_DOUBLE_TREE(company,b,c)
+ZZ_INSERT_DOUBLE_TREE(company,a,d)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_INSERT_DOUBLE_TREE(id,obj,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_INSERT_DOUBLE_TREE\
+(id,ZZFP(ZZp,id),ZZFP(ZZs,id),ZZFP(ZZb,id),obj,pp)
+
+#define ZZZ_INSERT_DOUBLE_TREE(id,parent,sibling,backward,obj,pp) \
+{\
+char *ZZn;\
+    ZZn=ZZ_STRINGIT(id);\
+    if((pp)->parent!=NULL || (pp)->sibling!=NULL || (pp)->backward!=NULL){\
+        ZZmsgSS(24,ZZn,(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(!((obj)->parent)){\
+        ZZmsgSS(27,ZZn,(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        (obj)->backward->sibling=(pp);\
+        (pp)->sibling=(obj);\
+        (pp)->parent=(obj)->parent;\
+        (pp)->backward=(obj)->backward;\
+        (obj)->backward=(pp);\
+    }\
+}

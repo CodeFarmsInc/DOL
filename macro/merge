@@ -1,0 +1,47 @@
+/* =========================================================
+.(l
+ TEXT id;              /* organization id */
+ chiType *obj1;        /* first given child */
+ chiType *obj2;        /* second given child */
+ parType *par;         /* given parent */
+.)l
+Description:
+ Generic function that merges or splits organizations.
+If the two given objects are originally members of the same organization,
+the organization will split into two, with one of the objects in each.
+If the two given objects are originally members of different organizations,
+the two sets will be merged.
+.sp
+For RING, use par=NULL.
+For TRIANGLE or COLLECTION, use par as parent of obj2 when merging;
+provide a new empty parent object for the new set, when splitting.
+.sp
+When p1==p2, no action is taken.
+.sp
+If you want to extract a single object, call ZZ_MERGE(id,p1,p2,par), where
+p2 is next object to p1, and p2 will form a single-object set.
+.sp
+Error situations:
+ obj1 or obj2 equal to NULL, or not connected into an organization; also,
+when merging and par is not a parent of obj2.
+In such situations, an error message is issued, and no action is taken.
+.sp
+For more detail, see the description of 
+ ZZ_MERGE_SINGLE_RING(),
+ ZZ_MERGE_DOUBLE_RING(),
+ ZZ_MERGE(SINGLE_TRIANGLE(),
+ ZZ_MERGE_SINGLE_COLLECTION().
+.(l
+Example:
+
+typedef struct Obj Obj;
+ZZ_ORG_SINGLE_RING(myRing,Obj)
+Obj *p1,*p2;
+   .....
+ZZ_MERGE(myRing,p1,p2,NULL);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_MERGE(id,obj1,obj2,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZFN(ZZ_MERGE,id)(id,obj1,obj2,par)

@@ -1,0 +1,506 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 2, Installing Floppy or Tape</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">2. INSTALLING FLOPPY OR TAPE</font></h1>
+
+<h4><a href="#2_1"><font face="Arial">2.1 Installing OrgC++ Under
+DOS</font></a><font face="Arial"><br>
+</font><a href="#2_2"><font face="Arial">2.2 Installing OrgC++
+Under UNIX or LINUX</font></a><font face="Arial"><br>
+</font><a href="#2_3"><font face="Arial">2.3 Installing OrgC++ On
+Macintosh</font></a><font face="Arial"><br>
+</font><a href="#2_4"><font face="Arial">2.4 Installing OrgC++ under
+Microsoft Windows</font></a><font face="Arial"><br>
+</font><a href="#2_5"><font face="Arial">2.5 Installing OrgC++
+Under OS2</font></a><font face="Arial"><br>
+</font><a href="#2_6"><font face="Arial">2.6 Error 2104</font></a></h4>
+
+<h2><a name="2_1"></a><font size="4" face="Arial">2.1 Installing
+OrgC++ under DOS</font></h2>
+
+<h3><font size="3" face="Arial">Required configuration:</font></h3>
+
+<p>You need an IBM AT compatible machine (386 and up) with a hard
+drive (5 MB free), and 2MB of RAM. This means that, basically,
+the configuration which is sufficient for your C or C++ compiler
+will be sufficient for our library. We assume that you have DOS
+3.2 or higher. </p>
+
+<h3><font size="3" face="Arial">Compilers to use:</font></h3>
+
+<blockquote>
+    <p>Microsoft Visual C++ 4.0 or higher<br>
+    Watcom C/C++ 10.0 or higher<br>
+    ZORTECH C++ Ver.3.0 or higher<br>
+    Borland C++ Ver.4.5 or higher</p>
+</blockquote>
+
+<h3><font size="3" face="Arial">Installation:</font></h3>
+
+<p>The library ships on a single 1.44MB(3.5&quot;) diskette. The
+installation procedure is simple. You insert the diskette and
+type:</p>
+
+<blockquote>
+    <p><em>A:<br>
+    INSTALL</em></p>
+</blockquote>
+
+<p>The installer will guide you through the installation
+procedure which takes just a few minutes.</p>
+
+<p>If you get ERROR 2104, look at the instruction at <a
+href="#2_6">Chap.2.6</a>.</p>
+
+<h3><font size="3" face="Arial">Compiling the library</font></h3>
+
+<p>After you install the library, you have all the source files
+in place, but you have to compile them with the compiler you are
+planning to use. For most compilers, the scripts that recompile
+individual directories are already part of the library. In each
+directory, the README file tells you which script file to use.</p>
+
+<p>In order to run with the library, you have to compile orgc and
+orgc\lib directories. Do not worry about directories orgc\macro,
+orgc\docum, and orgc\test, you may compile them later when
+considering some advanced uses of the library. </p>
+
+<p>For example, in order to compile with Borland C++ 4.52 using
+the large memory model, you do this:</p>
+
+<blockquote>
+    <p><em>cd c:\orgc<br>
+    make<br>
+    cd lib<br>
+    b4pmakel</em></p>
+</blockquote>
+
+<p>In order to compile with Microsoft Visual C++ 4.0 or higher, enter the
+MS DOS window, and type this:</p>
+
+<blockquote>
+    <p><em>cd c:\orgc<br>
+    msft<br>
+    cd lib<br>
+    msft </em>... use msftd when debugging</p>
+</blockquote>
+
+In order to use VC++ from the compile line (e.g. from the DOS window),
+the PATH and environment variables must be set properly. 
+Without this, you will not be able to run the scripts that compile orgC++
+and run the regression test.</p>
+
+Most versions of Windows (and of the VC++ compilers) allow you to insert
+this information into the c:\autoexec.bat file. For example:</p>
+
+<blockquote><p>
+    set MSDevDir=C:\PROGRA~1\MICROS~3\COMMON\MSDev98<br>
+    set INCLUDE=C:\PROGRA~1\MICROS~3\VC98\INCLUDE<br>
+    set LIB=C:\PROGRA~1\MICROS~3\VC98\LIB<br>
+    set PATH=%PATH%;C:\PROGRA~1\MICROS~3\VC98\Bin;<br>
+                        C:\PROGRA~1\MICROS~3\COMMON\MSDev98\Bin<br>
+</p></blockquote>
+
+Under some versions of Windows you can also set these variable by going to 
+Control Pannel, System, Advanced, Environment Variables. Under WinXP this
+is the only way to do this:</p>
+
+<blockquote><p>
+   include  = C:\Program Files\Microsoft Windows Studio\VC98\include<br>
+   lib =      C:\Program Files\Microsoft Windows Studio\VC98\lib<br>
+   MSDevDir = C:\Program Files\Microsoft Windows Studio\Common\MSDev98<br>
+   path =     C:\Program Files\Microsoft Windows Studio\VC98\bin<br>
+</p></blockquote>
+
+
+
+<p>For more details on how to run under Microsoft Visual C++, see
+<a href="#2_5">Chap.2.5</a>.</p>
+
+<p>Note that all script files automatically use appropriate
+environment files (see <a href="ch05Envr.htm">Chap.5</a> ); also
+the important file orgc/zzcomb.h is automatically generated
+during the process.</p>
+
+<p>If the compiler which you are planning to use is not listed in
+the README files, contact <a href="www.codefarms.com">Code Farms</a>.
+We will help you to customize one of the existing script files
+and to create your own environment file.</p>
+
+<p>After you install the software, test it as shown in the second
+half of <a href="ch05Envr.htm">Chap.5</a>.</p>
+
+<h2><a name="2_2"></a><font size="4" face="Arial">2.2 Installing
+OrgC++ under UNIX</font></h2>
+
+<p>OrgC++ runs on a variety of hardware. On a SUN3 or SUN4 you
+load the streamer tape in the following way:</p>
+
+<blockquote>
+    <p><em>mkdir orgC<br>
+    cd orgC<br>
+    tar -xvf /dev/rst8</em></p>
+</blockquote>
+
+<p>On other machines, only the device is different:</p>
+<div align="left">
+
+<table border="0" cellpadding="5" cellspacing="1">
+    <tr>
+        <td>SUN3</td>
+        <td>rst8</td>
+    </tr>
+    <tr>
+        <td>SUN4</td>
+        <td>rst8</td>
+    </tr>
+    <tr>
+        <td>HP9000</td>
+        <td>rct</td>
+    </tr>
+    <tr>
+        <td>Masscomp</td>
+        <td>rctp</td>
+    </tr>
+    <tr>
+        <td>Sony News</td>
+        <td>rtu00</td>
+    </tr>
+</table>
+</div>
+
+<h3><font size="3" face="Arial">Recompiling manually</font></h3>
+
+<p>When you un-tar the tape, the entire library is already
+compiled for SUN OS4.1 (SPARC), regular SUN C and the Sun C++
+Ver.2.0. If you run with a different compiler (or a newer version
+of the C++ compiler), you have to recompile the library. Script
+files are provided for the most frequently occuring combinations.</p>
+
+<p>When using the SUN C and C++ compilers, replace the line <em>#define
+SUN</em> in files <em>orgc/lib/env*s.h</em> as follows. It does
+not matter whether you run under SUN OS or under Solaris:</p>
+
+<blockquote>
+    <p><em>#define SUN ... for C++ Ver.2.0<br>
+    #define SUN2_1 ... for C++ Ver.2.1<br>
+    #define SUN3_0 ... for C++ Ver.3.0 or higher</em></p>
+</blockquote>
+
+<p>Then type this:</p>
+
+<blockquote>
+    <p><em>cd orgc<br>
+    jsmake<br>
+    cd lib<br>
+    jscmake</em></p>
+</blockquote>
+
+<p>When using the GNU compiler, type this:</p>
+
+<blockquote>
+    <p><em>cd orgc<br>
+    jsgmake<br>
+    cd lib<br>
+    jsgmake</em></p>
+</blockquote>
+
+<p>When running with Silicon Graphics computer, type this:</p>
+
+<blockquote>
+    <p><em>cd orgc<br>
+    jssgmake<br>
+    cd lib<br>
+    jssgmake</em></p>
+</blockquote>
+
+<p>These runs also re-generate important file orgc/zzcomb.h.
+Script files for HP, AIX, and other UNIX environments are listed
+in the README files. If you cannot find your platform/compiler
+combination in the README file, you will have to set up your
+special script files and the environ.h file. Call <a
+href="www.codefarms.com">Code Farms</a>, and we will help you to
+modify one of the existing files.</p>
+
+<p>When you begin to use the library, there is no need to
+recompile in directories <em>orgc/docum</em> and <em>orgc/macro</em>.
+If, later on, you need programs stored in these directories,
+invoke the script files as indicated in the README files. For
+example, in order to recompile these directories with the SUN
+compiler, type:</p>
+
+<blockquote>
+    <p><em>cd orgc/macro<br>
+    jsmake<br>
+    cd orgc/docum<br>
+    jsmake</em></p>
+</blockquote>
+
+<p>Today, relatively few workstations are equipped with a tape
+drive. Many SUN users load new software from 3.5&quot; diskettes
+or using ftp over the network. If you opted for 3.5&quot;
+diskettes instead of the tape, you received several diskettes
+that contain the full source, which is not compacted, and is
+organized in several subdirectories. Copy the entire directory
+tree onto your hard disk. </p>
+
+<p>After you install the software, test it as shown in the second
+half of <a href="ch05Envr.htm">Chap.5</a>.</p>
+
+<h4>LINUX and GNU</h4>
+
+<p>Download the tar file via ftp, or install the DOS diskette
+(make sure the files are treated as UNIX and not DOS files). The
+environment and compilation is same as for SUN/GNU combination,
+but the ready to use batch files are slightly different for
+LINUX:</p>
+
+<blockquote>
+    <p><em>lgmake<br>
+    cd lib<br>
+    lgmake<br>
+    cd ../test<br>
+    lgregr </em></p>
+</blockquote>
+
+<h2><a name="2_3"></a><font size="4" face="Arial">2.3 Installing
+OrgC++ on Macintosh</font></h2>
+
+<p>The OrgC++ library is distributed on DOS diskettes, and you
+need either a Macintosh that can read DOS diskettes, or you must
+transfer the library over a network. In either case, you must
+recompile the library. The following sequence assumes that you
+installed the library under the root directory called <em>orgc</em>:</p>
+
+<p>(1) directory <em>:orgc</em></p>
+
+<blockquote>
+    <p><em>immake<br>
+    zzcomb</em></p>
+</blockquote>
+
+<p>(2) directory <em>:lib</em></p>
+
+<blockquote>
+    <p><em>jmmake</em> ......(for the C version of the library),
+    or<em><br>
+    jmcmake </em>.....(for the C++ version of the library).</p>
+</blockquote>
+
+<p>If you get to this point without errors, you are ready to run.
+The remaining steps are only for the auxiliary functions
+(documentation and library updates):</p>
+
+<p>(3) directory<em> :macro</em></p>
+
+<blockquote>
+    <p><em>jmmake</em></p>
+</blockquote>
+
+<p>(4) directory <em>:docum</em></p>
+
+<blockquote>
+    <p><em>jmmake</em></p>
+</blockquote>
+
+<p>After you install the software, test it as shown in the second
+half of <a href="ch05Envr.htm">Chap.5</a>.</p>
+
+<h2><a name="2_4"></a><font size="4" face="Arial">2.4
+Microsoft Integrated Environment</font></h2>
+
+<p>Enter the MS-DOS Command Prompt , and install, compile, and
+test the library using the appropriate script files as shown in <a
+href="#2_1">Chap. 2.1</a>. There is no need (and it is actually
+more complicated) to do this in the visual environment.</p>
+
+<p>Some programmers use the Windows enviroment for better memory
+management. You should be aware that all allocation in the Code
+Farms library is channelled through a single call to <em>malloc()</em>
+or <em>calloc()</em>, see file <em>lib\msgs.c</em>. The <em>new()</em>
+operator is overloaded by a call to this function. The purpose of
+this arrangement is to provide entry for private allocation
+schemes.</p>
+
+<p>If you don't make any special arrangements for memory
+allocation, you may be limited by the Windows memory management
+scheme. Windows puts an upper limit on the number of
+&quot;handles&quot; that can be allocated (approximately 8k).
+Depending on how your compiler implements <em>malloc()</em> etc.,
+you may not be able to create more than 8k objects!!</p>
+
+<p>There are three ways to overcome this limitation:</p>
+
+<p>(1) Change the calls to <em>malloc()</em>, <em>calloc()</em>, <em>realloc()</em>,
+and <em>free()</em> in file <em>lib\msgs.c</em> to the Windows
+allocation functions (<em>GlobalAlloc()</em> etc.).</p>
+
+<p>(2) Code your own version of <em>malloc()</em>, <em>calloc()</em>,
+<em>realloc()</em>, and <em>free()</em>, using Windows allocation
+functions (<em>GlobalAlloc()</em>). Then link these functions
+before Borland's or other library.</p>
+
+<p>(3) Use a commercial memory allocator like SmartHeap from
+MicroQuill Corp (tel 206-535-8218), and link it again before
+Borland's library. The package provides replacement for <em>malloc()</em>,
+<em>calloc()</em>, <em>realloc()</em>, <em>free()</em>, <em>new()</em>,
+and <em>delete()</em> with essentially no limitations. Note that
+since the OrgC++ library also overloads operators <em>new()</em>
+and <em>delete()</em>, it is essential that you link the OrgC++
+library first, then the commercial allocator, and then Borland's
+or other library.</p>
+
+<p>If you use Visual C++ from Microsoft Corp., your entire
+environment is driven by menu items and graphical displays, and
+is subject to unusual restrictions not present in other
+compilers. Visual C++ is not a normal compiler, but rather a
+windows developement framework. The following items are important
+when using the Code Farms library with Visual C++:</p>
+
+<p><b>ITEM 1:</b> Make sure that autoexec.bat includes correct
+PATH, INCLUDE, and LIB statements:</p>
+
+<blockquote>
+    <p><em>PATH .......;C:\msdev\bin<br>
+    SET INCLUDE=c:\msdev\include<br>
+    SET LIB=c:\orgc\lib;c:\msdev\lib</em></p>
+</blockquote>
+
+<p><b>ITEM 2: </b>The compilation is the same, whether you run
+under Win3.1, Win95, or WinNT. The only difference is that, for
+Win 3.1 or Win95, you have to remove line</p>
+
+<blockquote>
+    <p><em>#define NT</em></p>
+</blockquote>
+
+<p>from the file <em>c:\orgc\lib\envmsft.h</em>.</p>
+
+<p>Compiling the library in the DOS window:</p>
+
+<blockquote>
+    <p><em>cd c:\orgc<br>
+    msft<br>
+    cd lib<br>
+    msft </em></p>
+</blockquote>
+
+<p>When using the VC++ debugger, all parts of the code must be
+compiled with the /Debug option. While debugging, compile orgC++
+with lib\msftd.bat instead of lib\msft.bat.</p>
+
+<p>When using the library, copy the environment file into your
+current directory:</p>
+
+<blockquote>
+    <p><em>cd ....\mydir<br>
+    copy c:\orgc\lib\envmsft.h environ.h</em></p>
+</blockquote>
+
+<p>In order to run the regression test:</p>
+
+<blockquote>
+    <p><em>cd c:\orgc\test<br>
+    msftregr</em></p>
+</blockquote>
+
+<p><b>ITEM 3:</b> When running Visual C++ in the debugging mode
+(this is the most usual mode when developing new software), the
+compiler replaces the <em>new()</em> operator by an operator
+DEBUG_NEW. This happens for all classes that Class Wizard
+generated automatically for you. Since the Code Farm library
+always overloads operator <em>new()</em>, this results in a
+collision and compilation errors. In order to prevent this,
+comment the following line</p>
+
+<blockquote>
+    <p><em>#define new DEBUG_NEW</em></p>
+</blockquote>
+
+<p>in all files generated by Microsoft that also use any classes
+registered under the Code Farm's library (classes that have
+ZZ_EXT_... ). This disables the automatic memory leak detection
+provided by Visual C++, but there will be no conflict with the
+Code Farm's library.</p>
+
+<p><b>ITEM 4: </b>In Visual C++, the standard C preprocessor does
+not always behave as you would expect. In particular, <em>#define</em>
+and <em>#include</em> statements before and after <em>#include
+&quot;stdafx.h&quot;</em> have a different effect if you are
+using pre-compiled headers. Make sure that all the library
+defines and includes are after this statement.</p>
+
+<blockquote>
+    <p><em>#include &quot;stdafx.h&quot;</em><br>
+    .... <em><br>
+    #define ZZmain<br>
+    #include &quot;zzincl.h&quot;<br>
+    #include &quot;zzfunc.c&quot;</em></p>
+</blockquote>
+
+<p><b>ITEM 5</b>: When you link your aplication, you may get
+warnings about <em>mllib.lib</em> not being compatible with VC++
+runtime library. If this happens make sure that you compile the
+Code Farm's library with the same switches as your application.</p>
+
+<p>BUILD - SETTINGS - C/C++: disable precompiled headers</p>
+
+<p>BUILD - SETTINGS - LINK: add c:\orgc\lib\mllib.lib at the end</p>
+
+<p>BUILD - SETTINGS - LINK: use
+/nodefaultlib:&quot;libc.lib&quot;</p>
+
+<p>TOOLS - DIRECTORIES: add c:\orgc\lib</p>
+
+<p>OPTIONS - DIRECTORIES: add c:\orgc and the directory of
+zzincl.h</p>
+
+<h2><a name="2_5"></a><font size="4" face="Arial">2.5 Installing
+OrgC++ under OS2</font></h2>
+
+<p>Install and test the library using the same script files as
+for DOS, referring to the compiler you use (for example Borland).</p>
+
+<p>No special script files are required.</p>
+
+<h2><a name="2_6"></a><font size="4" face="Arial">2.6 Error 2104</font></h2>
+
+<p>The DOS version of the library uses a third party installation
+package, used by many other companies in the software industry.
+Some earlier versions of this software, when aborted in some
+irregular way, for example by rebooting the computer, left behind
+a working directory with one or more temporary files. On the next
+attempt to install the software, the installer stops with error
+2104. This working directory may have been left on your disk by
+some other software which you tried to install sometime in the
+past.</p>
+
+<p>In order to correct this situation, remove directory
+ISFYZQVO.TWJ and all the files that are in it. After that you
+will be able to install the library as expected.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch01Intr.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        1: Introduction</font></a></td>
+        <td align="right" width="50%"><a href="ch03SftK.htm"><font
+        face="Arial">Chapter 3: Software Key<img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

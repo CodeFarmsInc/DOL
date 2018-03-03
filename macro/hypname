@@ -1,0 +1,55 @@
+/* =========================================================
+.(l
+ TEXT id;               /* instance name (OrgC id) */
+ TEXT Obj;              /* object type on which the name exists */
+.)l
+Description:
+ Generates the instance of the HYPER_OBJECT for a NAME attached
+to object type Obj.
+.pp
+Example of the use:
+.(l
+/* each employee has the first and the last name */
+class Employee {
+    ZZ_EXT_Employee
+    long int salary;
+public:
+    void     setSalary(long int s){salary=s;}
+    long int getSalary(){return(salary);}
+};
+
+ZZ_HYPER_NAME(first,Employee);
+ZZ_HYPER_NAME(last,Employee);
+
+Employee *ep;
+char *n1,*n2,*fName={"John"},*lName={"Brown"};;
+
+ep=new Employee;
+ZZ_STRING_ALLOC(fName,nn);
+first.add(ep,n1);
+  ...
+first.fwd(ep,n1);
+second.fwd(ep,n2);
+printf("%s %s\n",n1,n2);
+.)l
+.sp
+ For local scope use ZZ_LOCAL_NAME(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+  ========================================================== */ 
+#define ZZ_HYPER_NAME(id,Obj)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_NAME(id,Obj,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_NAME(id,Obj,where)  \
+ZZ_BASIC_NAME(id,Obj,static,where :: id)
+
+#define ZZ_BASIC_NAME(id,Obj,scope,where)  \
+class ZZFP(ZZH,id) { \
+    friend class Obj;\
+public: \
+    char * fwd(Obj *s){char *p; ZZ_FORWARD_NAME(id,s,p); return(p);} \
+    void add(Obj *s,char *p){ZZ_ADD_NAME(id,s,p);}\
+    void addNew(Obj *s,char *p){char *nn; ZZ_STRING_ALLOC(p,nn); add(s,nn);}\
+    char * del(Obj *s){char *p;ZZ_DELETE_NAME(id,s,p);return(p);}\
+};\
+scope ZZFP(ZZH,id) id

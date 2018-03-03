@@ -1,0 +1,122 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 14.3 Time Stamp</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h2><a name="14_3"></a>14.3 Time stamp</h2>
+
+<p><font color="#FF0000">!!TODO - Insert GIF here.</font></p>
+
+<h4>Purpose:</h4>
+
+<p>To provide a time stamp, which records (with the accuracy of 1
+second) the time and date, when the object was created or
+modified.</p>
+
+<p>In C++, the time stamp is not automatically initialized when
+creating a new object, unless you place macro <em>ZZ_INIT() </em>or
+call function <em>setTime() </em>in all constructors. For
+example:</p>
+
+<blockquote>
+    <pre><em>class myObj { // first variantÄ
+    int i,k;
+    ZZ_EXT_myObj
+public:
+    myObj(){this-&gt;setID();}
+    myObj(int ii, int kk){this-&gt;setID(&quot;myObj&quot;,1); i=ii; k=kk;}
+};
+ZZ_HYPER_TIME_STAMP(myObj);</em></pre>
+    <pre><em>class myObj { // second variant, covers two initializations
+    int i,k;
+    ZZ_EXT_myObj
+public:
+    myObj(){ZZ_INIT(myObj);}
+    myObj(int ii, int kk){ZZ_INIT(myObj); i=ii; k=kk;}
+};
+ZZ_HYPER_TIME_STAMP(myObj);
+ZZ_HYPER_SELF_ID(myObj);</em></pre>
+</blockquote>
+
+<p>TIME_STAMP is one of the special hard-wired organizations that
+can have only one instance on any given object. Though it is
+declared as</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_TIME_STAMP(objType);</em> </p>
+</blockquote>
+
+<p>it does not create a hyper object. Functions manipulating this
+organization are associated with the object itself, and not with
+a general id.</p>
+
+<p>Internally, the stamp is packed into 4 bytes. For a convenient
+comparison of two time stamps, the special function <em>cmpTime()
+</em>is available. </p>
+
+<p><em>getTime() </em>returns the time stamp unpacked in 6 bytes,
+each representing one number (year, month, day, hour, minute,
+second).</p>
+
+<p>Note that the time stamp is kept only on specified object
+types (those for which <em>ZZ_HYPER_TIME_STAMP() </em>have been
+declared).</p>
+
+<h4>Syntax:</h4>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>// TYPE is the type of the given object<br>
+        ZZ_HYPER_TIME_STAMP(TYPE);<br>
+        char ts[6];<br>
+        void TYPE::setTime(void);</em> </td>
+        <td>sets the time stamp on the given object to the
+        current time.</td>
+    </tr>
+    <tr>
+        <td><em>void TYPE::getTime(ts); </em></td>
+        <td>returns time stamp of the given object [YMDHMS] in
+        ts. For example, June 18, 1989 17:30:11 is represented as
+        [89 6 18 17 30 11].</td>
+    </tr>
+    <tr>
+        <td><em>int TYPE::cmpTime(TYPE *obj2); </em></td>
+        <td>compares two objects and returns int i&lt;0 when obj1
+        is older, i=0 when both objects have the same age, i&gt;0
+        when obj2 is older. Example of use:
+        i=obj1-&gt;cmpTime(obj2).</td>
+    </tr>
+</table>
+
+<p>You don't have to worry about the year 2000 and up. The time
+stamp can be set only to the current date.</p>
+
+<p>Examples:</p>
+
+<ol>
+    <li><em>test4d.c</em></li>
+</ol>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch14Prpb.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Previous
+        Section 14.2 Run-Time Type Detection</a></td>
+        <td align="right" width="50%"><a href="ch14Prpd.htm">Next
+        Section 14.4 Dynamic Array and Binary Heap <img
+        src="images/next.gif" border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

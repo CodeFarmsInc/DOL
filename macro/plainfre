@@ -1,0 +1,53 @@
+/* =========================================================
+.(l
+ TEXT strType;        /* structure to free */
+ int num;             /* number of structures to free */
+ strType *ptr; /* pointer to the beginning of the area to be freed */
+.)l
+Description:
+ Can be used to free either a single data structure (num=1), or
+an array of structures. Note that the function checks that the object
+is properly disconnected from all organizations, and only then it
+is freed. If the object is a part of any organization, a warning
+message is issued, and the object is NOT freed.
+ This arrangement is one of the key features that prevent
+bugs caused by mistakes in initialization, allocation, and de-allocation
+of objects.
+.sp
+The current implementation is NOT protected against giving a wrong
+number of objects. If you give less objects than were originally allocated,
+not all objects are checked fro being disconnected from the organization.
+If you give more objects, you may get false error message and the
+no objects may be freed.
+.sp
+WARNING: When using the big memory block, this command is disabled (it does nothing). Use ZZ_OBJECT_ALLOC() and ZZ_FREE_ALLOC()
+if you want to free objects in the big block of memory mode.
+.(l
+Example:
+
+typedef struct Insect Insect;
+struct Insect{
+    ZZ_EXT_Insect
+    short numLegs;
+    char color;
+    char category;
+};
+
+Insect *pp;
+
+   ....
+/* free array of 350 Insect structures */
+ZZ_PLAIN_FREE(Insect,350,pp);
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_PLAIN_FREE(strType,num,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{\
+ strType *ZZp; ZZint ZZFUN_deal();\
+ ZZFN(ZZS,strType) \
+ ZZp=(ptr);\
+ if(ZZmemSwitch!=2) ZZdeal( \
+  (char *)ZZp,ZZstrList,ZZ_STRINGIT(strType),num,(int)sizeof(strType),0);\
+}

@@ -1,0 +1,6 @@
+rm temp*
+rm *.o
+rm zzmerge
+rm zzselect
+rm list
+rm trfile

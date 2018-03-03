@@ -1,0 +1,31 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str1Type *entry;/* entry to this organization, not used */
+ str2Type *pp;   /* child to be deleted from the triangle */
+.)l
+Description:
+ Disconnect the given child object from the triangle organization.
+ Similar to DELETE_SINGLE_TRIANGLE, but much faster.
+ Note different syntax from DELETE_DOUBLE_COLLECT, which does not know
+ about its parent.
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_DOUBLE_TRIANGLE(id,entry,child) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_DELETE_DOUBLE_TRIANGLE\
+(id,ZZFT(1,id),ZZFT(2,id),ZZFP(ZZf,id),ZZFP(ZZb,id),ZZFP(ZZc,id),ZZFP(ZZp,id),child)
+
+#define ZZZ_DELETE_DOUBLE_TRIANGLE(id,sTop,sBot,fwp,bwp,child,parent,pp) \
+{sBot *ZZa,*ZZb; sTop *ZZp; \
+    if((pp) && (pp)->parent ) {\
+        ZZp=(pp)->parent;\
+        if((pp)->fwp==(pp))ZZp->child=NULL;\
+        else { \
+            ZZa=(pp)->bwp; ZZb=(pp)->fwp;\
+            if(ZZp->child==(pp))ZZp->child=ZZa;\
+            ZZa->fwp=ZZb; ZZb->bwp=ZZa;\
+        } \
+        (pp)->fwp=(pp)->bwp=NULL; (pp)->parent=NULL;\
+    }\
+}

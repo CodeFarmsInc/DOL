@@ -1,0 +1,76 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *entry; /* anyting on entry, returns new entry if changed */
+ strType *pp;    /* element to be deleted from the ring */
+.)l
+Description:
+ Delete the given element from the ring, reset the ring, and provide
+a new entry into the ring.
+If, on the entry, entry!=pp,
+.i "entry"
+will not change. Otherwise,
+.i "entry" will point to the next element after
+.i "pp,"
+possibly NULL, if
+.i "pp" was the last element of the ring.
+  When calling this macro with (pp)=NULL or (pp) which has been already
+deleted from the given organization (or has never been added to it),
+the macro does nothing.
+.sp 1
+Note that since this organization is the single linked ring,
+deleting an element is not fast. The algorithm has to go sometimes
+through the whole ring to find how to reconnect the chain. If you call
+this macro often, you should use the 'double-linked-ring' organization.
+.(l
+Example:
+
+typedef struct Hotel Hotel;
+struct Hotel{
+    ZZ_EXT_Hotel
+    char name;
+    char numFloor;
+    short numRooms;
+};
+ZZ_ORG_SINGLE_RING(hotels,Hotel)
+
+Hotel *list,*h;
+
+/* delete hotel hp from the list of all hotels, 'list' */
+ZZ_DELETE_SINGLE_RING(hotels,list,hp)
+.)l
+On the order of the objects:
+ If the original ring is A,E,D,C,B (starting at A), and A is deleted,
+the new ring is B,E,D,C (starting at B). If any other object is deleted,
+the start remains at A.
+.sp
+You can delete objects using the TRAVERSE loop. The following 3 lines will
+disconnect the whole chain called 'hotels', and will return list=NULL at the
+end.
+.(l
+ZZ_A_TRAVERSE(hotels,list,hp)
+    ZZ_DELETE(hotels,list,hp)
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_SINGLE_RING(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_SINGLE_RING(ZZFP(ZZf,id),ZZFT(1,id),entry,pp) 
+
+#define ZZZ_DELETE_SINGLE_RING(fwp,strType,entry,pp) \
+{\
+strType *ZZp,*ZZs;\
+    ZZs=(pp); \
+    if(ZZs){\
+	if(ZZs->fwp){\
+            for(ZZp=(entry);ZZp->fwp!=ZZs;ZZp=ZZp->fwp)continue;\
+	    if(ZZp==ZZs)(entry)=NULL;\
+	    else {\
+	        if(ZZs==(entry))(entry)=ZZp;\
+	        ZZp->fwp=ZZs->fwp;\
+	    };\
+	    ZZs->fwp=NULL;\
+	}\
+    }\
+}

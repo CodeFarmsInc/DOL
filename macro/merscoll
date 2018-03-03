@@ -1,0 +1,83 @@
+/* =========================================================
+.(l
+ TEXT id;        /* organization id */
+ str2Type *obj1; /* first child object */
+ str2Type *obj2; /* second child object */
+ str1Type *par;  /* for split: new parent, for merge: parent of obj2 */
+.)l
+Description:
+ Merges or splits collections. If, originally, obj1 and obj2 belong to
+the same collection, the collection splits into two, with one of the objects
+in each collection.
+ If, originally, obj1 and obj2 are in different collections, the collections
+will merge into one. Generic ZZ_MERGE() can be used.
+.sp
+The command needs two children pointers, and one parent.
+In case of merging, the given parent must be the parent of the second child.
+In case of splitting, en empty parent must be given to recieve the second
+part of the set.
+.(l
+ZZ_ORG_SINGLE_COLLECT(myCol,parType,chiType);
+
+parType *p1,*p2;
+chiType *c1,*c2;
+       ....
+ZZ_PARENT(myCol,c1,p1);
+ZZ_PARENT(myCol,c2,p2);
+
+if(p1==p2){ /* case of splitting */
+    ZZ_PLAIN_ALLOC(parType,1,p2);
+    ZZ_MERGE(myCol,c1,c2,p2);
+    /* p1 and p2 now hold the two collections */
+}
+else { /* case of merging, nothing to do */
+    ZZ_MERGE(myCol,c1,c2,p2);
+    /* p1 contains the result, p2 is empty */
+}
+.)l
+.sp
+When obj1==obj1, no action is taken.
+.sp
+If you want to extract a single object, call ZZ_MERGE(id,p1,p2,par), where
+p2 is the next object to p1, and p2 will form a single-object collection
+nder the given new parent par.
+.sp
+Error situations:
+ obj1 or obj2 equal to NULL, or not connected to any COLLECTION or,
+in case of splitting, given parent which is not empty.
+In all these cases, an error message is issued, and no action is taken.
+  ========================================================== */ 
+#define ZZ_MERGE_SINGLE_COLLECT(id,obj1,obj2,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_MERGE_SINGLE_COLLECT\
+(id,ZZFT(1,id),ZZFT(2,id),ZZFP(ZZs,id),ZZFP(ZZp,id),ZZFP(ZZc,id),obj1,obj2,par)
+
+#define ZZZ_MERGE_SINGLE_COLLECT(id,tp1,tp2,sib,par,chi,obj1,obj2,nPar) \
+{tp1 *ZZs; tp2 *ZZp; ZZint ZZi,ZZj,ZZk;\
+    ZZi=0; ZZs=(nPar); ZZp=(obj1);\
+    if(!ZZs)ZZi=1;\
+    else if(!(obj1))ZZs->chi=(obj2);\
+    else if(!(obj2))ZZs->chi=(obj1);\
+    else {\
+        if(!(ZZp->sib) || !((obj2)->sib))ZZi=1;\
+        else if(ZZp!=(obj2)){\
+            for(ZZp=(obj2)->sib,ZZk=ZZj=0;;ZZp=ZZp->sib){\
+                if(ZZs->chi==ZZp)ZZk=1;\
+                if(ZZp==(obj1))ZZj=1;\
+                if(ZZp==(obj2))break;\
+            }\
+            if(ZZs->chi && ZZk || !(ZZs->chi) && ZZj){\
+                ZZp=(obj2)->sib; \
+                (obj2)->sib=(obj1)->sib;\
+                (obj1)->sib=ZZp;\
+                if(ZZs->chi)ZZs->chi=NULL;\
+                else {\
+                    for(ZZp=(obj2);ZZp->sib!=(obj2);ZZp=ZZp->sib)continue;\
+                    ZZs->chi=ZZp;\
+                }\
+            }\
+            else ZZi=1;\
+        }\
+    }\
+    if(ZZi)ZZmsgS(33,ZZ_STRINGIT(id));\
+}

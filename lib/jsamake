@@ -1,0 +1,24 @@
+cp env0s.h environ.h
+rm *.o;\
+rm zzlib.a;\
+cc -c \
+ bind.c\
+ util.c\
+ sweap.c\
+ property.c\
+ sortring.c\
+ time.c\
+ array.c\
+ msgs.c\
+ ;
+ar cr zzlib.a\
+ sweap.o\
+ property.o\
+ sortring.o\
+ bind.o\
+ time.o\
+ array.o\
+ util.o\
+ msgs.o\
+ ;
+echo make zzlib.a done

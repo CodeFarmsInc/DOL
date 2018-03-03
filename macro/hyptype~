@@ -1,0 +1,175 @@
+/* =========================================================
+.(l
+ TEXT id;    /* access to the compiler internal type tables */
+.)l
+Description:
+ Provides access to the type information which is normally
+hidden to C++ users. The access is instant (no searches involved)
+and can be used when coding private class browsers, or when coding
+private persistent data.
+ Note that this facility not only provides the type information
+for a given object, but it also can find the real type if a pointer
+to a sub-class is given. It also provides access to the virtual
+function/virtual class pointers which are normally hidden and
+inaccessible to C++ users. The implementation is independent
+of the internal logic used by specific compilers.
+ All classes on which this facility is used must have ZZ_EXT_..
+statement.
+.sp
+.pp
+Examples of the use:
+.(l
+ZZ_HYPER_TYPE(type);
+class Coord {
+    ZZ_EXT_Coord
+    int x,y;
+    ...
+};
+
+class Shape {
+    ZZ_EXT_Shape
+    ...
+};
+class Tool {
+    ZZ_EXT_Tool
+    ...
+};
+class Image: public Tool, public Shape {
+    ZZ_EXT_Image
+    ...
+};
+
+Shape *sp; int tp,tt,t1,t2,n; void *vp,**vv; char *cp; zzTypeInfo inf;
+Image *ip;
+
+n=type.num();   // returns number of types (here 3)
+tp=ZZgetType(Shape); // macro to get type index
+ip=new Image;
+sp=(Shape *)ip; vp=(void *)sp;
+type.trueType(&vp,&tp); // updates vp and tp to the true image (Image type)
+type.info(tp,&inf);  // returns info for type tp
+printf("class=%s\n",inf.name);
+
+type_iterate it(tp);  // iterate through base classes and members of tp
+while(tt=it++ >= 0){
+  printf("sub-type=%d %s\n",tt,it.name());  
+      // 'name' can be 'inherit','virtual', or member name 
+      // returns: i=0 inherit, i=1 member, i>1 array, i<0 unused
+}
+// print all types and their subtypes/members
+type_iterator it; 
+n=type.num();
+for(t1=0;t1<n;t1++){ // go through all types
+    type.info(t1,&inf);
+    printf("\n%s= ",inf.name);
+    it.start(t1);
+    while(t2=it++ >= 0){
+        type.info(t2,&inf);
+        printf("%s:%s ",it.name(),inf.name);
+    }
+}
+
+type_pointers ptrs(sp,tp); // traverse HYPER pointers on sp
+while(vv=ptrs++){
+    printf("pointer at=%d leading to type=%d\n",vv,ptrs.nxtType());
+}
+
+// print hidden virtual function pointers within an Image object
+int i,tp,sz; void **p; char *p,*m1; Image *ip; zzTypeInfo inf;
+
+ip=new Image;
+tp=ZZgetType(Image);
+type.info(tp,&inf);
+m=inf.mask2;
+sz=inf.size;  // sizeof(Image) could be used instead
+for(i=0, p=(char *sp); i<sz; i++,p++,m++){
+    if(*m='F')v=(virt **)(&p);
+    printf("virt.fun.pointer at=%d value=%d\n",v,*v);
+}
+.)l
+
+.(l
+Structure that keeps the type info:
+struct zzTypeInfo {
+    char *name;  // class name
+    int size;    // size of this class
+    char *mask1; // 0-filled object with correct v.f/v.c. pointers
+    char *mask2; // 'F' or 'C' for bytes that start v.f./v.c. pointers
+    int virt;    // bin packed:
+        // 01=abstr.class,02=virt.base class,04=virt.functions present
+};
+.)l
+Function id_iterator.name() returns one of the following text strings:
+ "inherit" if inherited member;
+ "virtual" if virtual base class;
+ "refer" if virtual base class included through intermediate classes;
+ name of member object.
+
+Note that the two masks are needed when the size of virt.fun.ptr may
+be different from a regular pointer, such as for Borland compilers.
+    
+.sp
+  ========================================================== */ 
+#define ZZ_HYPER_TYPE(id)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+class ZZFP(ZZH,id) { \
+public: \
+    ZZint num(void);\
+    void trueType(void **p,ZZint *t){void *ZZtopType(void*,ZZint,ZZint *);\
+              *p=ZZtopType(*p,*t,t);}\
+    void info(ZZint tp,zzTypeInfo *ip);\
+    void virtRange(void *low,void *high){\
+        void ZZgetVirtRange(ZZptrIntType*,ZZptrIntType*);\
+        ZZgetVirtRange((ZZptrIntType*)low,(ZZptrIntType*)high);}\
+    ZZFP(ZZH,id)(){ZZ_GENERAL_EXT();}\
+};\
+ZZ_EXTERN ZZFP(ZZH,id) id;\
+class ZZFN(id,iterator){ \
+   ZZint i,ii;\
+public:\
+   ZZFN(id,iterator)(ZZint tp){start(tp);}\
+   ZZFN(id,iterator)(){i=ii=0;}\
+   void start(ZZint tp);\
+   ZZint operator++(){ZZint k; i++; if(i>=ii)k=(-1); else k=ZZinhList[i].type;\
+                                               return(k);}\
+   char *name(void){char *p=ZZinhList[i].name;\
+       if(!strncmp(p,"ZZ",2))return(p+2); else return(p);}\
+};\
+class ZZFN(id,pointers){ \
+   ZZint i,ii; char *v;\
+public:\
+   ZZFN(id,pointers)(void *vp,ZZint tp){start(vp,tp);}\
+   ZZFN(id,pointers)(){i=ii=0;}\
+   void start(void *vp,int tp);\
+   void ** operator++(){i++; if(i>=ii)v=NULL; else v=v+sizeof(char *);\
+                        return((void **)v);}\
+   ZZint nxtType(void){return(ZZnxtType[i]);}\
+}
+/* _______________________________________________________________________ */
+ZZint ZZH$ :: num(void){return(ZZstrNum);} /* must not be inline */
+void ZZH$ :: info(ZZint tp,zzTypeInfo *ip){
+    ZZstrLST *sp;
+    if(tp>=0){
+        sp=(&(ZZstrList[tp]));
+        ip->name=sp->strName;
+        ip->size=sp->size;
+        ip->mask1=sp->vObj[0];
+        ip->mask2=sp->vObj[1];
+        ip->virt=sp->vPtr;
+    } 
+}
+void $_iterator :: start(ZZint tp){
+    if(tp>=0){
+         i=ZZstrList[tp].inhInd-1;
+         ii=ZZstrList[tp+1].inhInd;
+    }
+    else i=ii=0;
+}
+void $_pointers :: start(void *vp,ZZint tp){
+    if(tp>=0){
+         v=(char *)vp+ZZstrList[tp].start-sizeof(void *);
+         i=ZZstrList[tp].ptrInd-1;
+         ii=ZZstrList[tp+1].ptrInd;
+    }
+    else i=ii=0;
+}

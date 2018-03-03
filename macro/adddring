@@ -1,0 +1,62 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ strType *entry; /* entry into the ring, NULL when new ring */
+ strType *pp;    /* element to add to the ring */
+.)l
+Description:
+ Add the new element to the ring, after
+.i "entry."
+If the ring does not exist, entry=NULL on the entry, and
+the macro resets both
+.i "entry"
+and 
+.i "pp."
+All members of the ring must be strongly typed as
+.i "strType."
+.(l
+Example:
+Take and array of structures and link them into a ring.
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORGANIZE_DOUBLE_RING(eRing,Employee)
+
+Employee *list,*pp,arr[20];
+int i;
+
+list=NULL;
+for(i=0,pp=arr;i<20;i++,pp++) ZZ_ADD_DOUBLE_RING(eRing,list,pp);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ADD_DOUBLE_RING(id,entry,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_ADD_DOUBLE_RING(id,ZZFP(ZZf,id),ZZFP(ZZb,id),entry,pp)
+
+#ifdef ZZnoCheck
+#define ZZZ_ADD_DOUBLE_RING(id,fwp,bwp,entry,pp) \
+{\
+        if(entry){(entry)->fwp->bwp=(pp);  (pp)->bwp=(entry);\
+                  (pp)->fwp=(entry)->fwp; (entry)->fwp=(pp);}\
+        else {(entry)=(pp); (pp)->fwp=(pp)->bwp=(pp);}\
+}
+#else
+#define ZZZ_ADD_DOUBLE_RING(id,fwp,bwp,entry,pp) \
+{\
+    if((pp)->fwp || (pp)->bwp){\
+        ZZmsgSS(23,ZZ_STRINGIT(id),(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        if(entry){(entry)->fwp->bwp=(pp);  (pp)->bwp=(entry);\
+                  (pp)->fwp=(entry)->fwp; (entry)->fwp=(pp);}\
+        else {(entry)=(pp); (pp)->fwp=(pp)->bwp=(pp);}\
+    }\
+}
+#endif

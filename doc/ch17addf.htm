@@ -1,0 +1,581 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 17 Adding New Features</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>17. ADDING NEW FEATURES</h1>
+
+<h4><a href="#17_1">17.1 Adding a new organization</a><br>
+<a href="#17_2">17.2 Coding a new hyper-class</a><br>
+<a href="#17_3">17.3 Adding a new function</a><br>
+<a href="#17_4">17.4 Adding a function to the compiled library</a><br>
+<a href="#17_5">17.5 Debugging new functions and classes</a><br>
+<a href="#17_6">17.6 Hierarchical organizations</a></h4>
+
+<p>If you are just starting with OrgC, skip this entire chapter.
+You may need this information later, but only if you decide to
+add functions to the library.</p>
+
+<p>There is a big difference between adding new features to
+OrgC++, which is based on C++ classes, and to OrgC, which is
+based on a combination of macros and compiled functions. In
+OrgC++, all functions related to the same organization are in one
+file, which describes the hyper-class of the organization. In
+OrgC, each macro or compiled function has its own file. The
+equivalent of hyper-classes is implemented through tables stored
+in the file <em>zzmaster</em>.</p>
+
+<p>If you look at any of the files in <em>orgC/macro/hyp*</em>,
+you will see that numerous ZZ-prefixed macros are used inside the
+hyper-class declarations. This may create the false impression
+that the hyper-classes are not coded in pure C++, and that they
+are only C functions called through a C++ interface. </p>
+
+<p>These macros do not have to be there. If you take the macros
+from whatever file they are, and insert them into the hyper-class
+definition, you will get &quot;normal&quot; C++ code. The reason
+for using the macros is to maintain compatibility between C and
+C++ versions of Organized C, and also to simplify maintenance of
+the whole system. When you add a new hyper-class, you don't have
+to use ZZ-macros, except for two or three macros that create the
+pointer and type names. (<em>ZZFP(), ZZFN()</em>).</p>
+
+<h2><a name="17_1"></a>17.1 ADDING A NEW ORGANIZATION</h2>
+
+<p>When you want to add a new organization to OrgC++, you have to
+do two things: You plan the organization and register it in <em>orgC/macro/zzmaster
+</em>(<a href="#17_1">Chap.17.1</a>); then you code the
+hyper-class and access functions (<a href="#17_2">Chap.17.2</a>).</p>
+
+<p>Decide how many transparent pointers and other variables the
+new organization will need, then edit the file <em>orgC/macro/zzmaster,
+</em>find the end of the section that starts with <em>ZZorganization</em>,
+and append one line there. The line must contain the following
+information: </p>
+
+<ul>
+    <li>order index;</li>
+    <li>new organization name;</li>
+    <li>p1,p2 = upper and lower index of pointers in the <em>ZZpointer
+        </em>section;</li>
+    <li>nInp = number of object types + 1 = num.parameters of <em>ZZ_HYPER_..();</em></li>
+</ul>
+
+<p>Add pointers/variables required for the organization at the
+end of the <em>ZZpointer </em>section. Each pointer/variable
+needs the following fields:</p>
+
+<ul>
+    <li>order index, must agree with the cross reference from <em>ZZorganization</em>;</li>
+    <li><em>toUse </em>and <em>pointTo</em> are type definitions,
+        referring to the order of parameters in <em>ZZ_HYPER_.. </em></li>
+</ul>
+
+<p>For example, if you plan to add <em>ZZ_HYPER_NEW_ORGANIZATION</em>
+(<em>id,type1,type2</em>), then a pointer which is on object <em>type1</em>
+and points to object <em>type2</em>, will set <em>toUse=1</em>, <em>pointTo=2</em>,
+while a pointer on object <em>type2</em> and pointing to a
+character string (<em>char *</em>), will have set <em>toUse=2</em>,
+<em>pointTo=0</em>. </p>
+
+<ul>
+    <li>pointer type, one character field which determines the
+        type of variable: 'a'=automatically managed pointer,
+        's'=string (<em>char*</em>), 'c'=character, 'i'=integer,
+        'f'=float. </li>
+    <li>pointer name, must be ZZ plus one lower case letter. Try
+        to use meaningful names, such as <em>ZZp </em>for parent,
+        <em>ZZf </em>for forward, etc. You can use the same name
+        in different organizations, OrgC++ is protected against
+        conflicts between different organizations. For your own
+        reference, you may add a comment at the end of each line,
+        which explains the meaning of the pointer (examine the
+        example below, or the actual file <em>zzmaster</em>). </li>
+</ul>
+
+<p>If you look into the actual file <em>zzmaster</em>, you will
+see that some pointer/variable names do not fit the recommended 3
+character pattern, for example <em>ZZprop</em>. These pointers
+belong to hardwired organizations, which are subject to special
+rules.</p>
+
+<h4>Example:</h4>
+
+<p>The OrgC++ library contains <em>SINGLE_TRIANGLE</em>. Assume
+that you want to work with a hierarchy, where each level forms a
+doubly-linked ring, and you want to introduce a new organization
+called <em>DOUBLE_TRIANGLE</em>.</p>
+
+<p>The organization will be declared by</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_DOUBLE_TRIANGLE(id,topType,botType);</em></p>
+</blockquote>
+
+<p>and your original <em>zzmaster </em>file looks like this:</p>
+
+<blockquote>
+    <pre><em>/* ind organization	p1	p2	nInp */
+ZZorganization {
+0	SINGLE_RING 	0	0 	2 
+......................
+12	LIFO		20	20	2
+13	SINGLE_TREE	21	23	2
+}</em></pre>
+    <pre><em>/* ind usedOn pointTo arrSize Type ptrCode */ 
+ZZpointer {
+0	1	1	1	a	ZZf
+...................
+22	1	1	1	a	ZZc
+23	1	1	1	a	ZZs</em></pre>
+    <pre><em>}</em></pre>
+</blockquote>
+
+<p>You will add the new organization (index 14), with 4 new
+pointers: <em>ZZp</em>=parent, <em>ZZc</em>=child, <em>ZZf</em>=forwardSibling,
+<em>ZZb</em>=backwardSibling.</p>
+
+<p>For example, the <em>parent</em> pointer is on the <em>topType</em>(2)
+and points to the <em>topType</em>(1), <em>ZZp </em>has <em>usedOn=2</em>
+<em>pointTo=1</em>.</p>
+
+<p>The new <em>zzmaster </em>file:</p>
+
+<blockquote>
+    <pre><em>/* ind organization	p1	p2	nInp */
+ZZorganization {
+0	SINGLE_RING	0	0	2 
+......................
+12	LIFO		20	20	2
+13	SINGLE_TREE	21	23	2
+14	DOUBLE_TRIANGLE	24	27	3
+}</em></pre>
+    <pre><em>&nbsp;/* ind usedOn pointTo arrSize Type ptrCode */
+ZZpointer {
+0	1	1	1	a	ZZf
+...................
+22	1	1	1	a	ZZc
+23	1	1	1	a	ZZs
+24	1	2	1	a	ZZc	// child 
+25	2	1	1	a	ZZp	// parent
+26	2	2	1	a	ZZf	// forward
+27	2	2	1	a	ZZb	// backward
+}</em></pre>
+</blockquote>
+
+<h4>Recommendation:</h4>
+
+<p>In your new organization, plan on using a ring-type
+arrangement where valid pointers cannot have a NULL value. If you
+do so, your program will be better protected at run-time.</p>
+
+<h2><a name="17_2"></a>17.2 CODING A HYPER-CLASS</h2>
+
+<p>The whole hyper-class will be in one file. All files
+containing hyper-class C++ definitions start with <em>hyp...</em>.
+You may follow the same convention, or use a special prefix, for
+hyper-classes which you designed yourself. The file, as with all
+files in the macro directory, will contain both the documentation
+and the computer code, separated by special comment lines:</p>
+
+<blockquote>
+    <pre><em>/* ========================================= */
+   ... documentation ...
+/* ========================================= */
+   ... first part of the macro,
+       which also will appear
+       in the documentation ...
+/* +++++++++++++++++++++++++++++++++++++++++ */
+   ... remaining part of the macro ...
+/* _______________________________________________ */
+   ... compiled functions ...</em></pre>
+</blockquote>
+
+<p>The first line must be /* ====... , and not a blank line,
+otherwise the program treats the file as encrypted, and produces
+complete gibberish.</p>
+
+<p>Note that the separation mark /* __... uses the underscore and
+not dash.</p>
+
+<p>If your hyper-class uses only in-line functions, the last
+separation line and the last section can be omitted.</p>
+
+<p>Note that the matching between the library and hyper-class
+declarations in your program will be done by the class generator
+(preprocessor). For example, if you declare</p>
+
+<blockquote>
+    <p><em>ZZ_HYPER_DOUBLE_TRIANGLE(myTriangle,topType,botType);</em></p>
+</blockquote>
+
+<p>the file <em>zzincl.h </em>will contain the following
+statements:</p>
+
+<blockquote>
+    <pre><em>#define ZZ1myTriangle	topType
+#define ZZ2myTriangle	botType
+#define ZZ_EXT_topType \
+....
+botType *ZZcmyTriangle;\
+....</em></pre>
+    <pre><em>#define ZZ_EXT_botType \
+....
+topType *ZZpmyTriangle;\
+botType *ZZfmyTriangle;\
+botType *ZZbmyTriangle;\</em></pre>
+</blockquote>
+
+<p><em>zzincl.h </em>gives you access to macros that paste
+arguments:</p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em><strong>form pointer:<br>
+        </strong></em>example: </td>
+        <td><em>ZZFP(A,B)<br>
+        ZZFP(ZZf,myTriangle)</em></td>
+        <td>creates AB<br>
+        creates ZZfmyTriangle</td>
+    </tr>
+    <tr>
+        <td><em><strong>form type:<br>
+        </strong></em>example:&nbsp;</td>
+        <td><em>ZZFT(A,B)<br>
+        ZZFT(1,myTriangle)</em></td>
+        <td>creates ZZAB<br>
+        creates ZZ1myTriangle= topType</td>
+    </tr>
+    <tr>
+        <td><em><strong>nameToString:<br>
+        </strong></em>example:</td>
+        <td><em>ZZ_STRINGIT(A)<br>
+        printf(&quot;%s/n&quot;,ZZ_STRINGIT(myTriangle));</em></td>
+        <td>creates &quot;A&quot;<br>
+        </td>
+    </tr>
+</table>
+
+<p>You can find the pasting macros in <em>orgC/lib/heading.h. </em>Most
+OrgC macros (for use in C) are coded in two levels. The first
+macro (<em>ZZ_.</em>.) sets up pointer and type names; the second
+macro (<em>ZZZ_..</em>) does the actual calculation and uses
+simple and meaningful names for variables and pointers. All this
+name conversion is not needed in C++.</p>
+
+<h4>Example:</h4>
+
+<p>Continuing the example from the previous chapter, we will
+present segments of the hyper-class for <em>DOUBLE_TRIANGLE</em>.
+The hyper class will be coded in the form of a parametric macro,
+stored in the file <em>hypdtria. </em>OrgC++ uses file names with
+8 characters or less to maintain portability between UNIX and PC
+DOS. For the same reason, there should be no special use of
+upper/lower case in the file name.</p>
+
+<blockquote>
+    <pre><em>/* ====================================== 
+   your documentation in nroff -me format,
+   including:
+      definition of parameters
+      description of both the organization and functions
+      possible errors or exceptions
+      example
+====================================== */ 
+#define ZZ_HYPER_DOUBLE_TRIANGLE(id,pType,cType) \
+/* +++++++++++++++++++++++++++++++++++ */ \ 
+class ZZFP(ZZH,id) { \
+    friend class pType;\
+    friend class cType;\
+public: \
+    cType *fwd(cType *s){return(s-&gt;ZZFP(id,ZZf);};\
+    cType *bwd(cType *s){return(s-&gt;ZZFP(id,ZZb);};\
+    pType *par(cType *s){return(s-&gt;ZZFP(id,ZZp);};\
+    cType *child(pType *p){cType *c;\
+        c=p-&gt;ZZFP(id,ZZc); return(fwd(c))};\
+    ....
+    void del(cType *p);\
+};\
+ZZ_EXTERN ZZFP(ZZH,id) id; \</em></pre>
+    <pre><em>class ZZFN(id,iterator){ \
+    cType *start;\
+    cType *nxt;\
+public:\
+    ZZFN(id,iterator)(pType *p)\
+        {nxt=NULL; if(p)start=id.child(p); else start=NULL;};\ cType*
+operator++(){cType *p; if(nxt==start)p=NULL;\
+    else {if(!nxt)nxt=start; p=nxt; nxt=id.fwd(nxt);} return(p);};\
+cType* operator==(){cType *p; if(nxt==start)p=NULL;\
+    else {if(!nxt)nxt=start; p=nxt; nxt=id.bwd(nxt);} return(p);};\ };
+/* ______________________________________ */ </em></pre>
+    <pre><em>void ZZH$ :: del(ZZ2$ *t){
+    if(t &amp;&amp; t-&gt;&gt;ZZp$){ // if not connected, do nothing
+        if(t-&gt;ZZf$==t)t-&gt;ZZp$-&gt;ZZc$=NULL; // only child
+        else {
+            if(t-&gt;ZZp$-&gt;ZZc$==t)t-&gt;ZZp$-&gt;ZZc$=t-&gt;ZZb$;
+            t-&gt;ZZb$-&gt;ZZf$=t-&gt;ZZf$; // relink neighbours
+            t-&gt;ZZf$-&gt;ZZb$=t-&gt;ZZb$;
+        }
+        t-&gt;ZZp$=NULL; // disconnect parent
+        t-&gt;ZZf$=t-&gt;ZZb$=NULL; // disconnect neighbours
+    }
+}</em></pre>
+</blockquote>
+
+<p>Note several important details of how to deal with
+pointer/type names:</p>
+
+<p>In the first part (class and iterator declarations which are
+included through the <em>zzincl.h </em>file) two macros are used:
+<em>ZZFP(id,ptrName) </em>creates the actual pointer name from
+the <em>ptrName </em>registered in the <em>zzmaster </em>file by
+concatenating the two names. <em>ZZFN(id,name) </em>concatenates
+the two names with an underscore (_) in the middle, and that is
+used here to create the name of the iterator class.</p>
+
+<p>In the second part (compiled functions which are deposited
+into the file <em>zzfunc.c), </em>the $ character is used to
+parametrize the pointers and types. The class generator will
+replace <em>ptrName$ </em>by the name of the actual pointer, <em>ZZ1$
+</em>by the type of the first parameter (<em>pType</em> here),
+and <em>ZZ2$ </em>by the type of the second parameter (<em>cType </em>here).</p>
+
+<p>The parametrization logic is simple, and the meaning of the
+pointers easy to follow. Classes coded in this style cause no
+special difficulties during debugging.</p>
+
+<p>Note that if the C implementation of the <em>DOUBLE_TRIANGLE</em>
+already existed, we could take a shortcut and code the <em>del() </em>function
+like this:</p>
+
+<blockquote>
+    <p><em>ZZH$ :: del(ZZ2$
+    *t){ZZ_DELETE_DOUBLE_TRIANGLE($,NULL,t);}</em></p>
+</blockquote>
+
+<p>which would have no impact on code complexity, run-time
+performance, or the purity of C++ implementation.</p>
+
+<h4>Record the ZZ_HYPER_ macro in the <em>zzmaster </em>file:</h4>
+
+<p>Anywhere in the section of <em>ZZfunction </em>(here the index
+is not important) enter the following line:</p>
+
+<blockquote>
+    <p><em>ZZhyp2Tri ZZ_HYPER_DOUBLE_TRIANGLE hypdtria 13 -1 h </em></p>
+</blockquote>
+
+<p>where</p>
+
+<p><em>ZZhyp2Tri </em>is the short name for the macro;<em><br>
+ZZ_HYPER_DOUBLE_TRIANGLE </em>is the long name;<em><br>
+hypdtria </em>is the file where the macro is stored;<br>
+13 is the organization index;<br>
+-1 is the index into the list of support files, -1 mean none;<em><br>
+h</em> is the type of macro/function, here h=hyper-class.</p>
+
+<p>For hyper-classes you do not need any support files.</p>
+
+<h4>UTILITY MACROS:</h4>
+
+<p>If you need a general utility function which does not relate
+to any particular organization, add it to the <em>UTILITIES</em>
+hyper-class (file <em>hyputil</em>).</p>
+
+<p>OrgC++ contains three special hardwired classes: SELF_ID,
+TIME_STAMP, and PROPERTY, which are neither regular base classes
+nor hyper-classes. Each may appear on any object not more than
+once and, with the exception of PROPERTY, the variables that form
+them need special treatment. All three organizations are
+associated with the object itself (just like a base class), and
+have no hyper-class id.</p>
+
+<p>For example:</p>
+
+<blockquote>
+    <pre><em>class Block {
+    ZZ_EXT_Block;
+...
+};
+ZZ_HYPER_TIME_STAMP(Block); 
+Block *bp;
+...
+bp-&gt;setTime(); </em></pre>
+</blockquote>
+
+<p>You cannot add such special classes to the OrgC++ library.
+However, since only the object itself is involved, you can
+achieve the same effect by using plain inheritance outside of
+OrgC++.</p>
+
+<h4>Creating new <em>zzcomb.h:</em></h4>
+
+<p>After you introduce a new organization or a new function, the
+file <em>orgC/zzcomb.h </em>must be updated. When you run <em>zzprep</em>
+hyper-class declarations are taken from this file and not from
+individual files in the <em>orgC/macro </em>directory. The file <em>zzcomb.h
+</em>combines all macros stripped of comments. The file <em>zzfunc.c
+</em>is created any time you run the class generator.</p>
+
+<p>To update <em>zzcomb.h</em>, do this:</p>
+
+<blockquote>
+    <p><em>cd orgC<br>
+    zzcomb</em></p>
+</blockquote>
+
+<p>If you forget to update <em>zzcomb.h</em>, your first run of <em>zzprep</em>
+will take a long time. The program detects that <em>zzcomb.h </em>is
+out of date, and invokes the <em>zzcomb</em> run automatically.</p>
+
+<h2><a name="17_3"></a>17.3 ADDING A NEW FUNCTION</h2>
+
+<p>When you want to add/modify a function to an existing
+hyper-class, simply modify the file <em>orgC/macro/hyp..., </em>and
+re-run <em>zzcomb</em> in the <em>orgC</em> directory.</p>
+
+<h2><a name="17_4"></a>17.4 ADDING A FUNCTION TO THE COMPILED
+LIBRARY</h2>
+
+<p>In some situations, you may want to move some functions into a
+compiled library. For example, you may have to hide (for
+commercial reasons) the critical part of your code from the
+programmers who will use the class. Using the library will also
+avoid unnecessary re-compilation of already tested code, when
+debugging the program.</p>
+
+<p>This is how to add a new function to the library:</p>
+
+<p>In UNIX:</p>
+
+<blockquote>
+    <p><em>cc -c newFun.c<br>
+    ar r zzlib.a newFun.o<br>
+    ranlib zzlib.a</em></p>
+</blockquote>
+
+<p>In DOS (TurboC++):</p>
+
+<blockquote>
+    <pre><em>tcc -mm -c -Lc:\turboc\startups;c:\turboc\lib -Ic:\turboc\
+    include newFun tlib zzlib /C -+ newFun</em></pre>
+</blockquote>
+
+<h2><a name="17_5"></a>17.5 DEBUGGING NEW FUNCTIONS AND CLASSES</h2>
+
+<p>The most convenient way to debug a new hyper-class is to run <em>zzcomb</em>
+and the class generator once, and then continue working with <em>zzcomb.h
+</em>and <em>zzfunc.c</em>, making modifications directly in them
+until everything works as expected. The file <em>zzfunc.c </em>has
+no macros inside, and is easier to read. You can recognize the
+meaning of all the pointers by the beginning of their names. If
+you have problems with the parametric definition of the
+hyper-class in <em>zzcomb.h, </em>replace the pasting macros,
+temporarily, by actual names. This is very simple, for example,
+if you have id=<em>myRing</em>, then <em>ZZFP(id,ZZf) </em>becomes
+<em>ZZfmyRing</em>, and<em> ZZFN(id,iterator) </em>becomes <em>myRing_iterator.</em></p>
+
+<p>When you finish debugging, recode <em>orgC/macro/hyp...</em>back
+into parametric form, rerun <em>zzcomb</em>, and re-test the
+whole setup.</p>
+
+<h4>IMPORTANT:</h4>
+
+<p>There are several serious reasons why OrgC++ implements
+hyper-objects through parametric macros. Templates introduced
+with C++ Ver.2.1 are limited to the use of type only, and do not
+allow argument pasting which provides close interaction between
+application code and class generator. </p>
+
+<p>The simple linkage between a hyper-object library and user's
+code cannot be implemented with existing C++ tools, and we
+believe that our approach of using macros is more practical than
+writing a new C++ compiler which would compile data structures
+directly as a part of the language.</p>
+
+<p>Watch for some typical errors when coding macros:</p>
+
+<p>You need &quot;\&quot; at the end of each line (except for the
+last line) in the declaration of the hyper-class and (possibly)
+in the iterator.</p>
+
+<p>Remember the different style of parametrization in the macro
+part: <em>ZZFP(id,ZZf)</em>, compared with <em>ZZf$</em> in the
+function part.</p>
+
+<p>You have to generate one global instance of the hyper-class,
+by using <em>ZZ_EXTERN ZZFP(ZZH,id) id; </em>this line generates
+an instance of the hyper-class in your file which has <em>#define
+ZZmain</em>, and only an <em>extern</em> reference in all other
+files.</p>
+
+<p>Use <em>#ifdef </em>and <em>#endif </em>around whole macros,
+not just for sections of macros. For example this works fine:</p>
+
+<blockquote>
+    <pre><em>#ifdef UNIX
+#define myMacro(a){\
+    a=a+3; \
+}
+#else
+#define myMacro(a){\
+    a=a+2; \
+}
+#endif</em></pre>
+</blockquote>
+
+<p>but this is a problem with most compilers:</p>
+
+<blockquote>
+    <pre><em>#define myMacro(a){\
+#ifdef UNIX
+    a=a+3;\
+#else
+    a=a+2;\
+#endif
+}</em></pre>
+</blockquote>
+
+<h2><a name="17_6"></a>17.6 HIERARCHICAL ORGANIZATIONS</h2>
+
+<p>The C version of Organized C (see the green manual, also
+called OrgC) allows the creation of one organization from another
+through hierarchical macros. For example, a <em>TRIANGLE</em> can
+be derived from a <em>RING</em>, and so on. At the beginning,
+when OrgC worked only with C, this was considered to be an
+important feature, similar to C++ inheritance. It is interesting
+that, over two years of industrial use, hardly anybody has used
+these hierarchical macros. Perhaps the data objects for basic
+data organizations are simple enough to be treated individually.
+Perhaps, the flat model is easier to maintain. Or, perhaps,
+run-time performance, which is the ultimate objective for a
+library like this, is easier to tune without hierarchy.</p>
+
+<p>If you want to create organizations hierarchically in C++, we
+suggest that you use the inheritance mechanism. If you are just
+curious about the original hierarchical macros, look at Chap.
+17.6 in the Users Guide for &quot;Data Manager for C&quot;.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch16Errs.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        16: Reporting Errors</a></td>
+        <td align="right" width="50%"><a href="ch18Merg.htm">Chapter
+        18: Merging and Reducing Libraries <img
+        src="images/next.gif" border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

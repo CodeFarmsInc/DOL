@@ -1,0 +1,68 @@
+/* =========================================================
+.(l
+ TEXT id;          /* organization id */
+ strType2 *rel;    /* relation to be deleted */
+.)l
+Description:
+ Delete the given M_TO_1 relation.
+.sp
+If the relation is disconnected, no action is taken, no error message
+issued.
+.sp
+The DELETE operation is permitted while in ZZ_A_TRAVERSE() loop.
+.sp
+Advice: Use generic ZZ_DELETE_RELATION(), it simplifies the code.
+.sp
+Warning: If this macro causes problems on Microsoft software, use
+compiled version ZZF_DELETE_RELATION().
+.(l
+Example:
+   typedef struct River River;
+   typedef struct Ocean Ocean;
+   typedef struct FlowsInto FlowsInto;
+   struct River {
+       ZZ_EXT_River
+       int length;
+       char *name;
+   };
+   struct Ocean {
+       ZZ_EXT_Ocean
+       char *name;
+   };
+   struct FlowsInto {
+       ZZ_EXT_FlowsInto
+       char *mouth;
+   };
+   ZZ_ORG_M_TO_1(intoOcean,River,FlowsInto,Ocean)
+   ....
+   River *r;
+   Ocean *o;
+   FlowsInto *f;
+   ....
+   ZZ_PLAIN_ALLOC(FlowsInto,1,f);
+   ZZ_ADD_RELATION(intoOcean,r,f,o);
+   ....
+   ZZ_DELETE_RELATION(intoOcean,f);
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_RELATION_M_TO_1(id,rel) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_DELETE_RELATION_M_TO_1(id,ZZFP(ZZf,id),ZZFP(ZZx,id),ZZFP(ZZy,id), \
+ZZFP(ZZb,id),ZZFP(ZZs,id),ZZFP(ZZr,id),rel)
+
+#define ZZZ_DELETE_RELATION_M_TO_1(id,fwd,src,trg,bwd,sib,ret,rel)\
+{\
+    if(rel){\
+	if((rel)->sib && (rel)->src && (rel)->trg){\
+	    if((rel)->sib==(rel))((rel)->trg->bwd)=NULL;\
+	    else {\
+	        if((rel)==((rel)->trg->bwd))((rel)->trg->bwd)=(rel)->ret;\
+	        (rel)->ret->sib=(rel)->sib;\
+	        (rel)->sib->ret=(rel)->ret;\
+	    }\
+	    (rel)->sib=(rel)->ret=(rel)->src->fwd=NULL;\
+            (rel)->src=NULL; (rel)->trg=NULL;\
+	}\
+    }\
+}

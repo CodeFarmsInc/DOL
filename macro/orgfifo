@@ -1,0 +1,43 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ TEXT strType;          /* structure on which to use this organization */
+.)l
+Description:
+ Declares the FIFO organization (FIFO=first in, first out).
+.sp
+The organization is implemented as a single-linked ring and
+uses one pointer per object. Both the PUSH and POP operation
+on this organization are very fast.
+.sp
+.(l
+Example:
+typedef struct Object Object;
+struct Object {
+    ZZ_EXT_Object
+    int code;
+};
+ZZ_ORG_FIFO(objStack,Object)
+Object *a,*b,*c,*d,*r,*start;
+  ....
+start=NULL; /* don't touch this variable while using the queue */
+ZZ_PUSH_FIFO(objStack,start,a)   
+ZZ_PUSH_FIFO(objStack,start,b)  
+ZZ_PUSH_FIFO(objStack,start,c) 
+ZZ_POP_FIFO(objStack,start,r) /* returns r=a */
+ZZ_PUSH_FIFO(objStack,start,d)    
+ZZ_POP_FIFO(objStack,start,r) /* returns r=b */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=c */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=d */
+ZZ_POP_FIFO(objStack,start,r) /* returns r=NULL */
+
+/* The following code gradually empties the stack */
+while(start){
+    ZZ_POP_FIFO(objStack,start,r)
+    ....
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_ORG_FIFO(id,strType) /* ZZ_ORG_FIFO */
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */

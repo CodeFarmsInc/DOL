@@ -1,0 +1,75 @@
+/* =========================================================
+.(l
+ TEXT id;               /* organization id */
+ nodeType *nd[]; /* array of pointers to 2 nodes to be connected */
+ edgeType *ge;   /* given edge to connect the two nodes */
+.)l
+Description:
+ Delete one edge from a directed graph. 
+The edge may be specified by the starting node and a given edge
+(ge!=NULL), or by a pair of nodes (ge=NULL on the entry).
+ If the macro is called for an edge that has already been deleted from the
+given graph (or has neve been added to it),
+the macro does nothing, no error message is printed.
+.(l
+Example:
+
+typedef struct Town Town;
+typedef struct Flight Flight;
+struct Town {     /* graph node */
+    ZZ_EXT_Town
+    char *name;
+};
+struct Flight {      /* graph edge, one way */
+    ZZ_EXT_Flight
+    int number;
+};
+ZZ_ORG_DIRECT_GRAPH(myGraph,Town,Flight)
+
+Town *t[2],*t1,*t2;
+Flight *f; 
+
+....
+/* first possible form */
+ZZ_DELETE(myGraph,t,f) /* value of t[1] is irrelevant */
+....
+/* second possible form */
+t[0]=t1; t[1]=t2;
+ZZ_DELETE(myGraph,t,NULL)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_DIRECT_GRAPH(id,nodes,ge) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ 
+ZZZ_DELETE_DIRECT_GRAPH(ZZFT(1,id),ZZFT(2,id),\
+ZZFP(ZZe,id),ZZFP(ZZy,id),ZZFP(ZZr,id),nodes,ge)
+
+#define ZZZ_DELETE_DIRECT_GRAPH(nStr,eStr,edge,node2,next1,nodes,ge) \
+{eStr *ZZe,*ZZf; nStr *ZZa,*ZZb,**nd;\
+    ZZe=(ge);\
+    if(nodes){\
+        nd=nodes;\
+        ZZa=(nd)[0]; ZZb=(nd)[1];\
+    }\
+    if(!ZZe && nodes){\
+        if(ZZa==ZZb)ZZb=NULL;\
+	ZZf=ZZa->edge;\
+	for(ZZe=ZZf;ZZe;){\
+	    if(ZZe->node2==ZZb)break;\
+            ZZe=ZZe->next1; if(ZZe==ZZf)ZZe=NULL;\
+	}\
+    }\
+    if(ZZe && nodes){\
+	if(!(ZZe->next1))ZZe=ZZe;\
+	else if(ZZe->next1==ZZe)ZZa->edge=NULL;\
+	else {\
+	    if(ZZa->edge == ZZe)ZZa->edge=ZZe->next1;\
+	    for(ZZf=ZZe;;){\
+		if(ZZf->next1==ZZe){ZZf->next1=ZZe->next1; break;}\
+		ZZf=ZZf->next1;\
+	    }\
+	}\
+	ZZe->next1=NULL;\
+	ZZe->node2=NULL;\
+    }\
+}

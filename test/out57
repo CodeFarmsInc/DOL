@@ -1,0 +1,10 @@
+type your name:
+registered in:(advanced physics)(math1)
+menu(A className,D className,R=remove student,E=exit):
+type your name:
+registered in:(French)(advanced physics)
+menu(A className,D className,R=remove student,E=exit):
+type your name:
+new student=Eric White
+menu(A className,D className,R=remove student,E=exit):
+type your name:

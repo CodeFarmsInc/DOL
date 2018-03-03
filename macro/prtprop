@@ -1,0 +1,47 @@
+/* =========================================================
+.(l
+ FILE *file; /* output file */
+ char *tp;   /* property type, as a string */
+ char *name; /*name of the property */
+ char *val;  /* block containing all the values */
+ int num;    /* number of values */
+.)l
+Description:
+ Print one property (single or mutiple value).
+ Because there are several different properties (int, float, char, string
+and each of them can be single or multiple, this is handy when
+displaying properties.
+ Output format: (property name): (value1) (value2) ...
+.pp
+.(l
+Examples:
+
+typedef struct Apple Apple;
+struct Apple {
+    char color;
+    char type;
+    short yearPlanted;
+};
+
+FILE *file;
+Apple *a;
+char *tp,*name,*val;
+int num;
+
+   ...
+
+ZZ_GET_PROPERTY(0,Apple,tp,a,name,val,num)
+ZZ_PRINT_PROPERTY(file,tp,name,val,num)
+
+ZZ_A_TRAVERSE_PROPERTY(0,Apple,tp,a,name,val,num)
+    ZZ_PRINT_PROPERTY(file,tp,name,val,num)
+ZZ_A_END
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_PRINT_PROPERTY(file,tp,name,val,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ int ZZFUN_wrtProperty();\
+  ZZwrtProperty(file,tp,name,(char *)val,num);\
+}

@@ -1,0 +1,1199 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Appendix A: Current Organizations and Operations in C++</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">APPENDIX A: CURRENT ORGANIZATIONS
+AND OPERATIONS IN C AND C++</font></h1>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_RING(id,type);
+ZZ_HYPER_SINGLE_RING(id,type);</em></p>
+
+<hr>
+
+<p><em>type *entry,*p;<br>
+int (cmpF*)(const void*,const void*);</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,p,next); </em></td>
+        <td><em>next=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,entry,p);</em></td>
+        <td><em>entry=id.add(entry,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,entry,p);</em></td>
+        <td><em>entry=id.del(entry,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MERGE(id,s,t,NULL);</em></td>
+        <td><em>s=id.merge(s,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpFun,entry);</em></td>
+        <td><em>entry=id.sort(cmpFun,entry);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,entry,p){<br>
+        ... <br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(entry);<br>
+        while(p= ++it){<br>
+        ...<br>
+        };<br>
+        it.start(entry);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_DOUBLE_RING(id,type);
+ZZ_HYPER_DOUBLE_RING(id,type);</em></p>
+
+<hr>
+
+<p><em>type *entry,*p,*next;<br>
+int (cmpF*)(const void*,const void*);</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,p,next);</em></td>
+        <td><em>next=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BACKWARD(id,p,next);</em></td>
+        <td><em>next=id.bwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,entry,p);</em></td>
+        <td><em>entry=id.add(entry,p); </em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_INSERT(id,entry,p);</em></td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td><em>entry=id.ins(entry,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,entry,p);</em></td>
+        <td><em>entry=id.del(entry,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MERGE(id,s,t,NULL);</em></td>
+        <td><em>s=id.merge(s,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpFun,entry);</em></td>
+        <td><em>entry=id.sort(cmpFun,entry);</em></td>
+    </tr>
+    <tr>
+        <td>&nbsp;</td>
+        <td>&nbsp;</td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,entry,p){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        </em></td>
+        <td><em>id_iterator it(entry); <br>
+        while(p= ++it){<br>
+        ...<br>
+        };</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_REVERSE(id,entry,p){<br>
+        ...<br>
+        ZZ_A_END;</em></td>
+        <td><em>it.start(entry);<br>
+        while(p=it- -){<br>
+        ...<br>
+        };</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_TRIANGLE (id,parT,chiT);
+ZZ_HYPER_SINGLE_TRIANGLE(id,parT,chiT);</em></p>
+
+<hr>
+
+<p><em>parT *p,*p1,*p2;<br>
+chiT *c,*s;<br>
+int (cmpF*)(const void*,const void*);</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_PARENT(id,c,p);</em></td>
+        <td><em>p=id.par(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CHILD(id,c,p);</em></td>
+        <td><em>p=id.child(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,c,s);</em></td>
+        <td><em>s=id.fwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET(id,p,c);</em></td>
+        <td><em>id.set(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,p,c);</em></td>
+        <td><em>id.add(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,p,c);</em></td>
+        <td><em>id.del(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MERGE(id,c,s,p);</em></td>
+        <td><em>id.merge(c,s,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpFun,p);<br>
+        </em></td>
+        <td><em>id.sort(cmpFun,p);<br>
+        id.switchParents(p1,p2);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,p,c) <br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>{id_iterator it(p);<br>
+        while(c= ++it){<br>
+        ...<br>
+        };<br>
+        it.start(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_COLLECT(id,parT,chiT);
+ZZ_HYPER_SINGLE_COLLECT(id,parT,chiT); </em></p>
+
+<hr>
+
+<p><em>parT *p,*p1,*p2;<br>
+chiT *c,*s;<br>
+int (cmpF*)(const void*,const void*);</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_CHILD(id,c,p);</em></td>
+        <td><em>p=id.child(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,c,s);</em></td>
+        <td><em>s=id.fwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET(id,p,c);</em></td>
+        <td><em>id.set(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,p,c);</em></td>
+        <td><em>id.add(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,p,c);</em></td>
+        <td><em>id.del(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MERGE(id,c,s,p);</em></td>
+        <td><em>id.merge(c,s,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpFun,p);<br>
+        </em></td>
+        <td><em>id.sort(cmpFun,p);<br>
+        id.switchParents(p1,p2);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,p,c){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(p); <br>
+        while(c= ++it){<br>
+        ...<br>
+        };<br>
+        it.start(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_DOUBLE_COLLECT(id,parT,chiT);
+ZZ_HYPER_DOUBLE_COLLECT(id,parT,chiT); </em></p>
+
+<hr>
+
+<p><em>parT *p,*p1,*p2;<br>
+chiT *c,*s;<br>
+int (cmpF*)(const void*,const void*);</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_CHILD(id,c,p);</em></td>
+        <td><em>p=id.child(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,c,s);</em></td>
+        <td><em>s=id.fwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BACKWARD(id,c,s);</em></td>
+        <td><em>s=id.bwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET(id,p,c);</em></td>
+        <td><em>id.set(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,p,c);</em></td>
+        <td><em>id.add(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_INSERT(id,c,s);</em></td>
+        <td><em>id.ins(c,s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,p,c);</em></td>
+        <td><em>id.del(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MERGE(id,c,s,p);</em></td>
+        <td><em>id.merge(c,s,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpFun,p);<br>
+        </em></td>
+        <td><em>id.sort(cmpFun,p);<br>
+        id.switchParents(p1,p2);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,p,c){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(p); <br>
+        while(c= ++it){<br>
+        ...<br>
+        };<br>
+        it.start(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_REVERSE(id,p,c){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>it.start(p); <br>
+        while(c=it++){<br>
+        ...<br>
+        };<br>
+        it.start(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_NAME(id,type); ZZ_HYPER_NAME(id,type); </em></p>
+
+<hr>
+
+<p><em>type *p;<br>
+char *n;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td>ZZ_FORWARD(id,p,n);</td>
+        <td><em>n=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td>ZZ_ADD(id,p,n);</td>
+        <td><em>id.add(p,n);</em></td>
+    </tr>
+    <tr>
+        <td>ZZ_DELETE(id,p,n);</td>
+        <td><em>n=id.del(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_LINK(id,sourT,targT);
+ZZ_HYPER_SINGLE_LINK(id,sourT,targT); </em></p>
+
+<hr>
+
+<p><em>sourT *s;<br>
+targT *t;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,s,t);</em></td>
+        <td><em>t=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,s,t);</em></td>
+        <td><em>id.add(p,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,s,t);</em></td>
+        <td><em>t=id.del(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_LIFO(id,type); ZZ_HYPER_LIFO(id,type);</em></p>
+
+<hr>
+
+<p><em>type *p; /* an object */<br>
+type *entry; /* entry into the stack */</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_PUSH(id,entry,t);</em></td>
+        <td><em>id.push(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_POP(id,entry,t);</em></td>
+        <td><em>p=id.pop();</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_FIFO(id,type); ZZ_HYPER_FIFO(id,type);</em></p>
+
+<hr>
+
+<p><em>type *p; /* an object */<br>
+type *entry; /* entry into the stack */</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_PUSH(id,entry,t);</em></td>
+        <td><em>id.push(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_POP(id,entry,t);</em></td>
+        <td><em>p=id.pop();</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_DOUBLE_LINK(id,sourT,targT);
+ZZ_HYPER_DOUBLE_LINK(id,sourT,targT); </em></p>
+
+<hr>
+
+<p><em>sourT *s;<br>
+targT *t;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,s,t);</em></td>
+        <td><em>t=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BACKWARD(id,t,s);</em></td>
+        <td><em>s=id.bwd(t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,s,t);</em></td>
+        <td><em>id.add(p,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,s,t);</em></td>
+        <td><em>t=id.del(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_GENERAL_LINK(id,sourT);
+ZZ_HYPER_GENERAL_LINK(id,sourT); </em></p>
+
+<hr>
+
+<p><em>sourT *s;<br>
+char *t;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,s,t);</em></td>
+        <td><em>t=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,s,t);</em></td>
+        <td><em>id.add(p,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,s,t);</em></td>
+        <td><em>t=id.del(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_REFERENCE(id,sourT,targT);
+ZZ_HYPER_REFERENCE(id,sourT,targT); </em></p>
+
+<hr>
+
+<p><em>sourT *s; targT *t; int count;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORWARD(id,s,t);</em></td>
+        <td><em>t=id.fwd(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,s,t);</em></td>
+        <td><em>id.add(p,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,s,t);</em></td>
+        <td><em>t=id.del(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET_REFERENCE(id,t,count);</em></td>
+        <td><em>id.set(t,count);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_GET_REFERENCE(id,t,count);</em></td>
+        <td><em>count=id.get(t);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_TREE(id,obj); ZZ_HYPER_SINGLE_TREE(id,obj);</em></p>
+
+<hr>
+
+<p><em>obj *p,*c,*s;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_PARENT(id,c,p);</em></td>
+        <td><em>p=id.par(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CHILD(id,p,c);</em></td>
+        <td><em>c=id.child(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,c,s);</em></td>
+        <td><em>s=id.fwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET(id,p,c);</em></td>
+        <td><em>id.bwd(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,p,c);</em></td>
+        <td><em>id.add(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_APPEND(id,c,s);</em></td>
+        <td><em>id.app(c,s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,NULL,c);&lt;</em></td>
+        <td><em>id.del(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,p,c){ <br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(p); <br>
+        while(c= ++it){<br>
+        ...<br>
+        };<br>
+        it.start(p);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_DOUBLE_TREE(id,obj); ZZ_HYPER_DOUBLE_TREE(id,obj);</em></p>
+
+<hr>
+
+<p><em>obj *p,*c,*s;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_PARENT(id,c,p);</em></td>
+        <td><em>p=id.par(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CHILD(id,p,c);</em></td>
+        <td><em>c=id.child(p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,c,s);</em></td>
+        <td><em>s=id.fwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BACKWARD(id,c,s);</em></td>
+        <td><em>s=id.bwd(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET(id,p,c);</em></td>
+        <td><em>id.bwd(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,p,c);</em></td>
+        <td><em>id.add(p,c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_INSERT(id,c,s)</em></td>
+        <td><em>id.ins(c,s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_APPEND(id,c,s)</em></td>
+        <td><em>id.app(c,s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,NULL,c);</em></td>
+        <td><em>id.del(c);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,p,c){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        </em></td>
+        <td><em>id_iterator it(p);<br>
+        while(c= ++it){<br>
+        ...<br>
+        };</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_RETRACE(id,p,c){<br>
+        ...<br>
+        }ZZ_A_END;</em></td>
+        <td><em>it.start(p);<br>
+        while(c=it- -){<br>
+        ...<br>
+        };</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_SINGLE_GRAPH(id,vertex,edge);
+ZZ_HYPER_SINGLE_GRAPH(id,vertex,edge); </em></p>
+
+<hr>
+
+<p><em>vertex *v,*t[2];<br>
+edge *e,*s;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_ADD(id,t,e);</em></td>
+        <td><em>id.add(t,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,t,e);</em></td>
+        <td><em>id.del(e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_NODES(id,t,e);<br>
+        <br>
+        <br>
+        </em></td>
+        <td><em>id.nodes(t,e);<br>
+        e=id.edge(t);<br>
+        s=id.fwd(e);<br>
+        id.set(v,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,t,e){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(t[0]);<br>
+        while(e= ++it){<br>
+        t[1]=it.adj();<br>
+        ...<br>
+        };<br>
+        it.start(t[0]);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_DIRECT_GRAPH(id,vertex,edge);
+ZZ_HYPER_DIRECT_GRAPH(id,vertex,edge); </em></p>
+
+<hr>
+
+<p><em>vertex *v,*t[2];<br>
+edge *e,*s;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_ADD(id,t,e);</em></td>
+        <td><em>id.add(t,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,t,e);</em></td>
+        <td><em>id.del(t,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_NODES(id,t,e);<br>
+        <br>
+        </em></td>
+        <td><em>id.nodes(t,e);<br>
+        e=id.edge(t);<br>
+        s=id.fwd(e);<br>
+        id.set(v,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,t,e){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        <br>
+        <br>
+        </em></td>
+        <td><em>id_iterator it(t[0]);<br>
+        while(e= ++it){<br>
+        inset pls t[1]=it.adj();<br>
+        ...<br>
+        };<br>
+        it.start(t[0]);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_1_TO_1(id,srs,rel,targ);
+ZZ_HYPER_1_TO_1(id,src,rel,targ);</em></p>
+
+<hr>
+
+<hr>
+
+<p><em>ZZ_ORG_1_TO_N(id,src,rel,targ);
+ZZ_HYPER_1_TO_N(id,src,rel,targ);</em></p>
+
+<hr>
+
+<hr>
+
+<p><em>ZZ_ORG_M_TO_1(id,src,rel,targ);
+ZZ_HYPER_M_TO_1(id,src,rel,targ);</em></p>
+
+<hr>
+
+<hr>
+
+<p><em>ZZ_ORG_M_TO_N(id,src,rel,targ);
+ZZ_HYPER_M_TO_N(id,src,rel,targ);</em></p>
+
+<hr>
+
+<p><em>Source *s; Relation *r; Target *t;</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_ADD_RELATION(id,s,r,t);</em></td>
+        <td><em>id.add(s,r,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE_RELATION(id,r);</em></td>
+        <td><em>id.del(r);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FORWARD(id,s,r);</em></td>
+        <td><em>r=id.fwd(s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BACKWARD(id,t,r);</em></td>
+        <td><em>r=id.bwd(t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SOURCE(id,s,r);</em></td>
+        <td><em>s=id.source(r);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_TARGET(id,t,r);</em></td>
+        <td><em>t=id.target(r);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,s,r){<br>
+        ...<br>
+        }ZZ_A_END;</em></td>
+        <td><em>id_sIterator it(s);<br>
+        while(r= ++it){ ... }<br>
+        id.start(s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_RETRACE(id,t,r){<br>
+        ...<br>
+        }ZZ_A_END;</em></td>
+        <td><em>id_tIterator it(t);<br>
+        while(r= ++it){ ... }<br>
+        id.start(t);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_ARRAY(id,holder,obj);
+ZZ_HYPER_ARRAY(id,holder,obj);</em></p>
+
+<hr>
+
+<pre><em>int sz,incr,wMark;			/* size, increment, waterMark */
+int i; 					/* index */
+int (cmpF*)(const void*,const void*); 	/* function to compare two objects */
+void (bck*)(void *,int); 		/* callback function */
+holder *hp;
+obj *a; 				/* start of the array */
+obj *e; 				/* pointer to an object/array */
+obj r; 					/* element of the array */
+void *vp;				/* pointer to be NULL or undetermined value*/</em></pre>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORM_ARRAY(id,hp,sz,incr,a);<br>
+        </em></td>
+        <td><em>a=id.form(hp,sz,incr);<br>
+        vp=id.formed(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FREE_ARRAY(id,hp);</em></td>
+        <td><em>id.free(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SIZE_ARRAY(id,hp,sz,wMark,incr);</em></td>
+        <td><em>sz=id.size(h&#144;p,&amp;wMark,&amp;incr);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_INDEX_ARRAY(id,hp,i,e);</em></td>
+        <td><em>e=id.ind(hp,i);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_HEAD_ARRAY(id,hp,e);</em></td>
+        <td><em>e=id.head(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_RESET_ARRAY(id,hp,wMark,incr);</em></td>
+        <td><em>id.reset(hp,wMark,incr); </em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_PUSH(id,hp,e);</em></td>
+        <td><em>id.push(hp,e);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_POP(id,hp,e);</em></td>
+        <td><em>e=id.pop(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SORT(id,cmpF,hp);</em></td>
+        <td><em>id.sort(cmpF,hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_IN_HEAP(id,cmpF,hp,e,bck);</em></td>
+        <td><em>id.inHeap(cmpF,hp,e,bck);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_OUT_HEAP(id,cmpF,hp,&amp;r,bck);</em></td>
+        <td><em>id.outHeap(cmpF,hp,&amp;r,bck);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_UPDATE_HEAP(id,cmpF,hp,i,bck);</em></td>
+        <td><em>id.updHeap(cmpF,hp,i,bck);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE_HEAP(id,cmpF,hp,i,bck);</em></td>
+        <td><em>id.delHeap(cmpF,hp,i,bck);</em></td>
+    </tr>
+    <tr>
+        <td><em></em></td>
+        <td><em>i=id.binSearch(cmpF,hp,e);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_HYPER_HASH(id,holder,obj);
+ZZ_HYPER_HASH(id,holder,obj); </em></p>
+
+<hr>
+
+<pre><em>int sz,num,slot;	/* size, number, slot */
+holder *hp;		/* holder object */
+obj *p,*s;		/* objects */
+obj *t;			/* object template with a search key */
+void *vp;		/* pointer to be NULL or undetermined value*/</em></pre>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORM_HASH(id,hp,sz);<br>
+        </em></td>
+        <td><em>id.form(hp,sz);<br>
+        id.formed(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_RESIZE_HASH(id,hp,sz);</em></td>
+        <td><em>id.resize(hp,sz);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_ADD(id,hp,p);</em></td>
+        <td><em>id.add(hp,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE(id,hp,p);</em></td>
+        <td><em>id.del(hp,p);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SIZE_HASH(id,hp,sz,*num);</em></td>
+        <td><em>sz=id.size(hp,&amp;num);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SLOT_HASH(id,hp,slot,p);</em></td>
+        <td><em>p=id.slot(hp,slot);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FREE_HASH(id,hp);</em></td>
+        <td><em>id.free(hp);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_GET_HASH(id,hp,t,p);<br>
+        </em></td>
+        <td><em>p=id.get(h,t);<br>
+        id.newFun(h);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE(id,s,p){<br>
+        ...<br>
+        }ZZ_A_END;<br>
+        it.start(s);</em></td>
+        <td><em>id_iterator it(s);<br>
+        while(p= ++it){<br>
+        ...<br>
+        };</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_TIME_STAMP(obj); ZZ_HYPER_TIME_STAMP(obj);</em></p>
+
+<hr>
+
+<p><em>char ts[6]; /* time record, byte encoded numbers: Y M D H
+M S */ <br>
+obj *p,*s; /* two objects */</em></p>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_GET_TIME_STAMP(p,ts);</em></td>
+        <td><em>p-&gt;getTime(ts);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SET_TIME(p);</em></td>
+        <td><em>p-&gt;setTime();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CMP_TIME_STAMP(p,s,i);</em></td>
+        <td><em>i=p-&gt;cmpTime(s);</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_PROPERTY(obj); ZZ_HYPER_PROPERTY(obj); </em></p>
+
+<hr>
+
+<pre><em>char *pTyp;	/* property type as string, for example:&quot;int&quot; or "string"*/ 
+obj *p;		/* given object */
+char *label;	/* property label */
+char **val;	/* property value always treated as an array */
+int n;		/* size of the array */
+FILE *fp;	/* output file for the print */</em></pre>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_SET_PROPERTY(pTyp,p,label,val,n); </em></td>
+        <td><em>p-&gt;setProp(pTyp,label,val,n);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_GET_PROPERTY(pTyp,p,label,val,n);</em></td>
+        <td><em>val=(char*)p-&gt;getProp(label,&amp;pTyp,&amp;n);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DELETE_PROPERTY(p,label);</em></td>
+        <td><em>p-&gt;delProp(label);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_A_TRAVERSE_PROPERTY(pTyp,p,label,val,n){ <br>
+        ...<br>
+        }ZZ_A_END;</em></td>
+        <td><em>obj_propIterator it;<br>
+	  it.start(s);
+	  while(val=it.next(&label,&pTyp,&n)){
+		util.prtProp(stdout,pTyp,label,val,n);
+        };</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p><em>ZZ_ORG_PAGER(id,hp); ZZ_HYPER_PAGER(id,hp);</em></p>
+
+<hr>
+
+<pre><em>Holder *hp;		/* holder object */
+char *fn;		/* file name */
+int ps;			/* page size */
+int np;			/* number of pages */
+int ii;			/* 0= not initialized, 1= by '\0', 2= by' ' */ 
+long ind;		/* byte address within the file */
+char *buff;		/* memory buffer */
+int n;			/* object size */
+int mode;		/* 0=read 1=write */
+int bMoved;		/* bytes moved, -1 error */</em></pre>
+
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_FORM_PAGER(id,hp,fn,ps,np,ii);</em></td>
+        <td><em>bMoved=id.form(hp,fn,ps,np,ii); </em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_IO_PAGER(id,hp,ind,buff,n,mode);</em></td>
+        <td><em>id.io(hp,ind,buff,n,mode); </em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CLOSE_PAGER(id,hp);<br>
+        <br>
+        </em></td>
+        <td><em>id.close(hp);<br>
+        id.fill(hp);<br>
+        id.flush();</em></td>
+    </tr>
+</table>
+
+<hr>
+
+<p align="center"><em>ZZ_HYPER_TYPE(id);</em></p>
+
+<hr>
+
+<p>This organization works in C++ only</p>
+
+<pre><em>int n;				// total number of types used
+int tp,tt;			// index into the internal type table
+text objType;			// object type
+void *vp;			// object pointer
+void **vv;			// pointer to a pointer
+void *r1,*r2;			// range limits of the v.f.table
+zzTypeInfo inf;			// type info structure</em></pre>
+
+<pre><em>n=id.num();			// returns number of types
+tp=ZZgetType(objType);		// gets type index
+id.trueType(&amp;vp,&amp;tp);		// updates vp and tp to the
+true pointer and type id.info(tp,&amp;inf);// returns info for type tp
+id.virtRange(&amp;r1,&amp;r2);		// returns the range of v.f.pointers for all types
+id_iterate it(tp);		// iterates through the base classes and members of tp</em></pre>
+
+<pre><em>while((tt= ++it)=0){ ... }</em></pre>
+
+<pre><em>type_pointers ptrs(vp,tp);	// traverse HYPER pointers on vp
+while(vv= ++ptrs){ ... }</em></pre>
+
+<pre><em>struct zzTypeInfo {		// structure which keeps the type info 
+char *name;			// class name
+int size;			// size of this class
+char *mask1;			// 0-filled object with correct v.f/v.c. pointers
+char *mask2;			// 'F' or 'C' for bytes that start v.f./v.c. pointers
+int virt;			// bin packed:
+	// 01=abstr.class,02=virt.base class,04=virt.functions present
+};</em></pre>
+
+<hr>
+
+<p><em>ZZ_ORG_UTILITIES(id); ZZ_HYPER_UTILITIES(id);</em></p>
+
+<hr>
+
+<pre><em>char *s,*p;		/* strings */
+int i,mSz,pSz;		/* int memory size, page size */
+int fmt,mode,ver;	/* format, mode, and version for open/save */ 
+char *file;
+int fc;			/*file control */
+char *bn;		/* name or address of memory block */
+void *hook;		/* hook to private data */
+char *obj;		/* general object */
+FILE *fp;		/* file to print on */
+char *lb,*tp;		/* label and type of the property */
+void *val;		/* array of property values */
+int n;			/* size of the property array */
+void fun(char *obj,int typeInd,int size,char *priv);
+type *r;
+
+int n;      /* number of key entries (roots) */
+void* v[]; /* array of pointers to key entries */
+char* t[]; /* array of type names for key entries */
+
+</em></pre>
+<table border="3" cellpadding="3">
+    <tr>
+        <td><em>ZZ_STRING_ALLOC(s,p);</em></td>
+        <td><em>p=id.strAlloc(s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_STRING_FREE(s);</em></td>
+        <td><em>id.strFree(s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_PLAIN_ALLOC(type,i,r);</em></td>
+        <td><em>r=new type[i];</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_PLAIN_FREE(type,i,r);</em></td>
+        <td><em>delete(r);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_OBJECT_CLEAR();</em></td>
+        <td><em>id.objClear();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BLOCK_ALLOC(i);</em></td>
+        <td><em>id.blkAlloc(mSz,pSz);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BLOCK_ACTIVE(bn,mode);</em></td>
+        <td><em>id.blkActive(bn,mode);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BLOCK_UTIL(bn,&amp;hook,mode);</em></td>
+        <td><em>it.blkUtil(bn,&amp;hook,mode);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BLOCK_FREE(i);</em></td>
+        <td><em>id.blkFree(i);</em></td>
+    </tr>
+    <tr>
+        <td><em>i=ZZerror</em></td>
+        <td><em>i=id.error();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZerror=0;</em></td>
+        <td><em>id.ok();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SAVE(file,n,v,t);</em></td>
+        <td><em>id.save(file,n,v,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_OPEN(file,n,v,t);</em></td>
+        <td><em>id.open(file,n,v,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CLEAR(n,v,t);</em></td>
+        <td><em>id.clear(n,v,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_BIND_POINTER(s,p);</em></td>
+        <td><em>p=id.bind(s);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_KEEP_TABLES();</em></td>
+        <td><em>id.keepTbl();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_FREE_TABLES();</em></td>
+        <td><em>id.freeTbl()'</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SWEAP_SET(n,v,t);</em></td>
+        <td><em>id.swpSet(n,v,t);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SWEAP_FUNCTION(n,v,t);</em></td>
+        <td><em>id.swpFun(fun,priv);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_SWEAP_FREE;</em></td>
+        <td><em>id.swpFree();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_MODE_SAVE(fmt,mode,ver,fc);</em></td>
+        <td><em>id.mode(fmt,mode,ver,fc);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_CLOSE_BIND;</em></td>
+        <td><em>id.close();</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_TYPE_NAME(i,p);</em></td>
+        <td><em>p=id.type(i);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_PRINT_PROPERTY(fp,tp,lb,val,n);</em></td>
+        <td><em>prtProp(fp,tp,lb,val,n);</em></td>
+    </tr>
+    <tr>
+        <td><em>ZZ_DEB_PRT(r,tp)</em></td>
+        <td><em>id.debug(r,tp);</em></td>
+    </tr>
+    <tr>
+        <td><em>N/A</em></td>
+        <td><em>n=id.getNumObjects();</em></td>
+    </tr>
+</table>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch19RvHs.htm"><font size="3"
+        face="Arial"><img src="images/prev.gif" border="0"
+        width="21" height="19">Chapter 19: Revision History</font></a></td>
+        <td align="right" width="50%"><a href="AppendxB.htm"><font
+        size="3" face="Arial">Appendix B: References<img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

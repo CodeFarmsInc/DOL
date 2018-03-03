@@ -1,0 +1,16 @@
+cp lib/env0l.h environ.h
+cd lib
+cp env0l.h environ.h
+lcc -c util.c msgs.c time.c
+cd ..
+lcc zzprep.c zzutil.c lib/util.o lib/msgs.o lib/time.o
+mv a.out zzprep
+lcc zzcomb.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzcomb
+lcc zzhelp.c zzutil.o lib/util.o lib/msgs.o lib/time.o
+mv a.out zzhelp
+lcc zzsplit.c
+mv a.out zzsplit
+lcc zzroff.c
+mv a.out zzroff
+zzcomb

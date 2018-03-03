@@ -1,0 +1,42 @@
+/* =========================================================
+.(l
+ TEXT id;           /* organization id */
+ int sortFun();     /* function that controls the sort */ 
+ strType *start;    /* entry to the organization, may change */
+.)l
+Description:
+ Generic function that sorts the entire organization. Function sortFun()
+controls the sort in the similar way as used for UNIX qsort().
+The program detects the type of the organization from its id
+and automatically calls the appropriate SORT function.
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORGANIZE_SINGLE_RING(eRing,Employee)
+Employee *start;
+int salarySort();
+
+/* sort employees by the increasing salary */
+ZZ_SORT(eRing,salarySort,start);
+ ....
+
+int salarySort(p1,p2)
+Employee *p1,*p2;
+{
+    if(p1->salary<p2->salary)return(-1);
+    if(p1->salary>p2->salary)return(1);
+    return(0);
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_SORT(id,sortFun,start) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZFN(ZZ_SORT,id)(id,sortFun,start)

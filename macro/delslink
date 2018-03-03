@@ -1,0 +1,46 @@
+/* =========================================================
+.(l
+ TEXT id;                /* id for the instance of the organization */
+ str1Type *from;  /* link from this object */
+ str2Type *targ;  /* returns the disconnected target object */ object */
+.)l
+Description:
+ Removes the given link from the given object.
+.pp
+For the description of purpose and
+a detailed example of use, see ZZ_ORG_SINGLE_LINK().
+.(l
+Example:
+
+typedef struct Rectangle Rectangle;
+typedef struct tempRect tempRect;
+struct Rectangle {
+    ZZ_EXT_Rectangle
+     ...
+};
+struct tempRect {
+     ...
+};
+ZZ_ORG_SINGLE_LINK(rLink,Rectangle,tempRect)
+
+Rectangle *r;
+tempRect *tr;
+
+ ....
+ZZ_ADD_SINGLE_LINK(rLink,r,tr)
+ ....
+ZZ_DELETE_SINGLE_LINK(rLink,r,tr)
+/* returns tr as the disconnected object */
+.)l
+.pp
+See also: ZZ_ORG_SINGLE_LINK(), ZZ_GET_SINGLE_LINK(),
+ZZ_SET_SINGLE_LINK(), and ZZ_DELETE_GENERAL_LINK(),
+ZZ_DELETE_DOUBLE_LINK().
+.sp
+  ========================================================== */ 
+#define ZZ_DELETE_SINGLE_LINK(id,from,targ) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_SINGLE_LINK(ZZFP(ZZf,id),from,targ)
+
+#define ZZZ_DELETE_SINGLE_LINK(fwp,from,targ) \
+{(targ)=(from)->fwp; (from)->fwp=NULL;}

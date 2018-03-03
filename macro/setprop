@@ -1,0 +1,68 @@
+/* =========================================================
+.(l
+ TEXT propType;         /* type of the property - see below */
+ strType *ptr;   /* entity on which to set the property */
+ char *name;            /* property name to be used as ID */
+ char *arr;             /* pointer to the array of values to be used */
+ int num;               /* size of the array, 1=single value */
+
+ The following propType are permitted: int, float, char, string.
+ Note the difference between this field in ZZ_GET_PROPERTY,
+ where this information is returned as string, not as TEXT.
+.)l
+Description:
+ Searches properties on entity
+.i "ptr"
+for the given
+.i "name"
+and  checks its type.
+If such property already exists, it resets its value(s).
+If such property exists but with different type,
+the program issues a warning message and changes both its type
+and its value.
+If such property does not exist yet, it creates it with all its
+attributes.
+.(l
+Examples:
+
+  typedef struct FormalPin FormalPin;
+  struct FormalPin{
+      ZZ_EXTFormalPin
+      int x1,y1,x2,y2; /* pin limits */
+      int layer;       /* layer of the pin */
+  };
+  ZZ_ORG_PROPERTY(FormalPin)
+
+  FormalPin fp[200];
+  int aLayer={54}; n={4};
+  float spacing[]={1.25, 3.7, 0.11, 2.1};
+  char *p, *up={"UP}, *options[2]={"BLACK","WHITE"};
+
+/* set a single integer property */
+ZZ_SET_PROPERTY(int,&(fp[182]),"contactAccess",&aLayer,1);
+
+/* set an array of four float numbers as -clearances- */
+ZZ_SET_PROPERTY(float,&(fp[34]),"clearances",spacing,n);
+
+Important - the following statement is INCORRECT, to be consistent,
+	    an address must be supplied even for a single string:
+ZZ_SET_PROPERTY(string,&(fp[10]),"dirAcess1","DOWN",1);
+
+Correct setting of the string-type property:
+p="DOWN";
+ZZ_SET_PROPERTY(string,&(fp[10]),"dirAcess1",&p,1);
+p=up;
+ZZ_SET_PROPERTY(string,&(fp[11]),"dirAcess2",&p,1);
+ZZ_SET_PROPERTY(string,&(fp[12]),"myOptions",options,2);
+	 
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_SET_PROPERTY(propType,ptr,name,arr,num) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{\
+ZZint ZZi, ZZFUN_propSet();\
+ZZpropSIZE(propType,ZZi);\
+ZZpropSet(&((ptr)->ZZprop),ZZ_STRINGIT(propType),name,(char *)(arr),(num)*ZZi);\
+}

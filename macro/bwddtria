@@ -1,0 +1,16 @@
+/* =========================================================
+.(l
+ TEXT id;        /* id for the instance of the organization */
+ str2Type *pp;   /* given pointer to a child object */
+ str2Type *fwd;  /* next object */
+.)l
+Description:
+ Finds the previous element in the list of sibling.
+ Similar to ZZ_BACKWARD_SINGLE_TRIANGLE() and ZZ_BACKWARD_DOUBLE_COLLECT().
+.sp 1
+  ========================================================== */ 
+#define ZZ_BACKWARD_DOUBLE_TRIANGLE(id,pp,fwd) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_BACKWARD_DOUBLE_TRIANGLE(ZZFP(ZZb,id),pp,fwd)
+
+#define ZZZ_BACKWARD_DOUBLE_TRIANGLE(sibling,pp,fwd) {(fwd)=(pp)->sibling;}

@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 20 Revision History</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1>20. REVISION HISTORY</h1>
+
+<p>For various reasons, you may want to know the differences
+between individual versions of the software. Anybody who is
+running on a version older than 4.8 should request an update.
+Here are updates since Ver.4.9:</p>
+
+<h4>VERSION 5.0</h4>
+
+<h4>Backward compatibility</h4>
+
+<p>No changes, fully compatible.</p>
+
+<h4>Corrections</h4>
+
+<p>No errors reported, only new features added.</p>
+
+<h4>Improvements</h4>
+
+<p>Function del() for the HASH organization has been improved so
+that it detects situations when an object seems to be in a hash
+table, but when you ask for it, it is not there.</p>
+
+<p>The performance of the <em>PAGER</em> has been improved by
+keeping the track of dirty pages, and flushing only dirty pages
+to disk when <em>close() </em>is called. The <font
+color="#FF0000">!!TODO - Ask Jiri </font>operation is also faster
+due to the use of <em>memcpy() </em>internally when copying large
+blocks of bytes.</p>
+
+<h4>New Features</h4>
+
+<ol>
+    <li>Function <em>newFun() </em>allows you to switch between
+        different hashing functions while running your program.</li>
+    <li>An ARRAY can be treated as a <em>sorted collection</em>,
+        adding and removing items while maintaining the array
+        ordered (sorted).</li>
+</ol>
+
+<p>A new function <em>etOrd()</em>, performs binary search on the
+sorted array.</p>
+
+<p>New functions available for <em>PAGER</em>: <em>fill()</em>
+returns the highest byte address currently used by the <em>PAGER</em>;
+<em>flush() </em>flushes all dirty pages to the disk.</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch19Mult.htm"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        19: Multi User Mode</a></td>
+        <td align="right" width="50%"><a href="AppendxA.htm">Appendix
+        A: Current Organizations <img src="images/next.gif"
+        border="0" width="21" height="19"></a></td>
+    </tr>
+</table>
+</body>
+</html>

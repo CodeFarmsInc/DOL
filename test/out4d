@@ -1,0 +1,15 @@
+warning: non-unique use of property named=grade
+         type=int changed to int, size=3 changed to 2
+before save/open:
+dynamic apple=Apple
+automat apple=Apple
+dynamic plum =NO SELF_ID
+after save/open:
+next apple=Apple
+grade: 11 21
+owner: lapid
+Type: B
+type: melba mcintosh idared granny
+year: 1978
+next apple=Apple
+dynamic plum =NO SELF_ID

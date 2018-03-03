@@ -1,0 +1,60 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *obj;   /* given object */
+ strType *pp;    /* object to append */
+.)l
+Description:
+ Append a new object after the given object (to the right in the tree */
+The new object can have a whole subtree under it.
+.sp
+Note that the generic ZZ_APPEND() can be used.
+.sp
+Possible error: An object cannot be appended to a root (the new tree would
+not have a single root).
+.(l
+Example:
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_SINGLE_TREE(company,Employee)
+
+Employee *a,*b,*c,*d;
+ZZ_PLAIN_ALLOC(Employee,1,a)
+ZZ_PLAIN_ALLOC(Employee,1,b)
+ZZ_PLAIN_ALLOC(Employee,1,c)
+ZZ_PLAIN_ALLOC(Employee,1,d)
+ZZ_ADD_SINGLE_TREE(company,a,b)
+ZZ_ADD_SINGLE_TREE(company,b,c)
+ZZ_APPEND_SINGLE_TREE(company,a,d)
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_APPEND_SINGLE_TREE(id,obj,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_APPEND_SINGLE_TREE\
+(id,ZZFP(ZZp,id),ZZFP(ZZs,id),obj,pp)
+
+#define ZZZ_APPEND_SINGLE_TREE(id,parent,sibling,obj,pp) \
+{\
+char *ZZn;\
+    ZZn=ZZ_STRINGIT(id);\
+    if((pp)->parent || (pp)->sibling){\
+        ZZmsgSS(25,ZZn,(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else if(!((obj)->parent)){\
+        ZZmsgSS(26,ZZn,(char *)(pp));\
+        ZZerrFLG=ZZerrFLG|010;\
+    }\
+    else {\
+        (pp)->parent=(obj)->parent;\
+        (pp)->sibling=(obj)->sibling;\
+        (obj)->sibling=(pp);\
+    }\
+}

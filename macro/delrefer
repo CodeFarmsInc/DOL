@@ -1,0 +1,23 @@
+/* =========================================================
+.(l
+ TEXT id;         /* id for the instance of the organization */
+ str1Type *from;  /* link from this object */
+ str2Type *targ;  /* returns the disconnected target object */ object */
+.)l
+Description:
+ Removes the given link from the given object, and substructs 1 from
+ the reference count. Returns the pointer to the disconnected target
+ object.
+.pp
+If you want to detect unused target objects, get their count after each
+DELETE() by calling ZZ_GET_REFERENCE(id,p,count), and destroy objects with
+count=0. For more explanation and example of use, see the description of
+ZZ_ORG_REFERENCE() or ZZ_HYPER_REFERENCE().
+.sp
+  ========================================================== */ 
+#define ZZ_DELETE_REFERENCE(id,from,targ) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZZ_DELETE_REFERENCE(ZZFP(ZZf,id),ZZFP(ZZc,id),from,targ)
+
+#define ZZZ_DELETE_REFERENCE(fwp,cnt,from,targ) \
+{(targ)=(from)->fwp; (from)->fwp=NULL; if(targ)((targ)->cnt)--;}

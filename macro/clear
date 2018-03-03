@@ -1,0 +1,88 @@
+/* =========================================================
+.(l
+ int n;       /* number of the given key entries */
+ void *pp[];   /* array of given key entries, any type */
+ char *type[]; /* array types for the given entries */
+.)l
+Description:
+ Single line free-all command.
+Using the SWEAP algorithm, it collects all objects in the
+organization connected to the key entries, and frees them.
+No checking on the validity of pointers is done, because the whole
+organization is removed at once.
+When finished, the internal list of objects is freed.
+.sp
+ In C++, or when using ZZ_INHERIT, this command is disabled; you can call
+it, but it will result in no action. If you want to deallocate all your
+data, you have to traverse the organization and deallocate the objects
+individually.
+.sp
+ Why such inconvenience? The reason is, that when using inheritance or
+injected objects, internal list often contains objects allocated as a part of
+a bigger object. The program has no information whether the small object
+is a part of a bigger object or a standalone small object, and an attempt
+to de-allocate a sub-object would crash your program.
+.sp
+WARNINGS:
+ (1) If your organization includes pointers into any ARRAY, or if it
+includes objects that are automatically allocated (including names),
+calling ZZ_CLEAR() will cause a program crash, because it will attempt
+to de-allocate these objects. 
+ (2) Objects that are part of this organization must fall into one
+of the following categories: have ZZ_EXT, or be a text string, or
+have the size of at least (char*).
+ (3) ZZ_CLEAR() has no restriction on general objects or
+the LINK organizations, as does ZZ_SAVE().
+All objects in the organization will be freed.
+.sp
+Example:
+.(l
+typedef struct Block Block;
+typedef struct Net Net;
+typedef struct Pin Pin;
+struct Block {
+    ZZ_EXT_Block    /* let the program to hide the pointers here */
+    char *name;
+    int x1,y1,x2,y2; /* corners of the block */
+};
+struct Net {
+    ZZ_EXT_Net    /* let the program to hide the pointers here */
+    char *name;
+};
+struct Pin {
+    ZZ_EXT_Pin    /* let the program to hide the pointers here */
+    int x1,y1,x2,y2; /* pin, relative to the block lower-left corner  */
+};
+ZZ_ORG_SINGLE_RING(bChain,Block)
+ZZ_ORG_SINGLE_RING(nChain,Net)
+ZZ_ORG_SINGLE_TRIANGLE(byBlock,Block,Pin)
+ZZ_ORG_SINGLE_TRIANGLE(byNet,Net,Pin)
+
+char *fileName,*v[2],*t[2];
+Block *bStart; /* start of all blocks */
+Net *nStart;   /* start of all nets */
+
+v[0]=(char*)bStart; v[1]=(char*)nStart;
+t[0]="Block";       t[1]="Net";
+ZZ_FREE_ALL(2,v,t)
+.)l
+.sp 1
+  ========================================================== */ 
+
+#define ZZ_CLEAR(n,obj,type) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+{ZZint ZZFUN_swpSet();\
+ ZZint ZZFUN_freeAll();\
+ ZZint ZZFUN_swpFree(); \
+ void ZZFUN_blastClear(); \
+        ZZ_GENERAL_EXT(); \
+        if(ZZmemSwitch==2)ZZblastClear();\
+        else {\
+            ZZswpSet(ZZstrList,ZZnxtType,(char **)(obj),type,n,1); \
+            if(!ZZerrFLG){\
+                ZZfreeAll();\
+                ZZswpFree();\
+            } \
+            else printf("internal error in swpSet()\n"); \
+        }\
+}

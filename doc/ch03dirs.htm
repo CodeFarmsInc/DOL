@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type"
+content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR"
+content="Microsoft FrontPage (Visual InterDev Edition) 2.0">
+<title>Chapter 3, Directories</title>
+</head>
+
+<body bgcolor="#FFFFFF" link="#487B59" vlink="#67B467"
+alink="#804040">
+
+<h1><font size="5" face="Arial">3. DIRECTORIES</font></h1>
+
+<p>When you install OrgC/C++, you will have the following
+directories.</p>
+
+<p align="center"><img src="images/dol4_1.jpg" width="400"
+height="210"></p>
+
+<p>The <i>orgC</i> directory<i> </i>is the main OrgC++ directory,
+and it contains the preprocessor<i> </i>(<i>zzprep),</i> the help
+program<i> (zzhelp</i>), the file containing all of the combined
+macros (<i>zzcomb.h</i>), the program to combine macros (<i>zzcomb</i>),
+and a simplified <i>nroff</i> for DOS (<i>zzroff</i>).</p>
+
+<p>The<i> lib</i> directory contains the OrgC/C++ library, to
+which you must link when you compile with OrgC/C++. Depending on
+the version of OrgC/C++ you are using, you may have a different
+library: <i>zzlib.a </i>(UNIX C),<i>zzclib.a </i>(UNIX C++),<i>
+zzlib.lib</i> (DOS TurboC medium data model), <i>zzllib.lib </i>(DOS
+TurboC large model), and so on.</p>
+
+<p>The <i>macro </i>directory<i> </i>contains many files, one for
+each OrgC/C++ macro. Each file includes documentation, a simple
+example, and the executable code. You may examine these files
+either by using your favourite editor or, if you want to see it
+in better formatted text, call under UNIX: </p>
+
+<blockquote>
+    <p><em>nroff -me &lt;filename&gt;</em></p>
+</blockquote>
+
+<p>or simplified <i>nroff</i> under DOS:</p>
+
+<blockquote>
+    <p><em>...\zzroff &lt;filename&gt;</em></p>
+</blockquote>
+
+<p>The file <i>macro/zzmaster</i> is the most important file of
+the macro directory. It contains a master table of all
+organizations and functions available in the OrgC/C++ library,
+and must be properly updated if you add new features to the
+library (see <a href="ch16Addf.htm">Chap.16</a>.)</p>
+
+<p>The <i>docum</i> directory contains the program <i>zzdocum</i>,
+which automatically retrieves documentation from all macro files
+and puts it into the OrgC/C++ Reference Guide (<i>zzrefer</i>). <i>zzrefer</i>
+is in <i>nroff -me</i> format, and it even includes new
+organizations and functions possibly added by the user. <i>zzdocum</i>
+can create either the complete documentation, or just update
+pages.</p>
+
+<p>The <i>test</i> directory contains a large number of test
+programs that test every feature of OrgC/C++. The second half of <a
+href="ch05Envr.htm">Chap.5</a> describes how to invoke these
+tests.</p>
+
+<p>The <i>multi</i> directory and all its subdirectories contain
+more complex examples, such as a project leader with 3
+programmers using OrgC/C++ simultaneously at several levels (see <a
+href="ch18Mult.htm">Chap. 18</a>).</p>
+
+<p>&nbsp;</p>
+
+<table border="0" cellpadding="2" width="100%">
+    <tr>
+        <td width="50%"><a href="ch02inst.htm"><font face="Arial"><img
+        src="images/prev.gif" border="0" width="21" height="19">Chapter
+        2: Installing Floppy or Tape</font></a></td>
+        <td align="right" width="50%"><a href="CH04envr.htm"><font
+        face="Arial">Chapter 4: Environment UNIX, DOS, MAC<img
+        src="images/next.gif" border="0" width="21" height="19"></font></a></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,51 @@
+MQShapeKey 4 8 1 -1 -1 -1 -1 0 0 4
+MQPenBkgndTool 0 28 0 -1 -1 -1 -1 1 0 6
+MQSolidTool 0 36 0 -1 -1 -1 -1 1 3 6
+MQBackgndTool 0 20 0 -1 -1 -1 -1 1 7 6
+MQBrushTool 0 20 0 -1 -1 -1 -1 1 8 6
+MQPenTool 0 20 0 -1 -1 -1 -1 1 9 6
+MQShapeTool 0 8 0 -1 -1 -1 -1 1 10 4
+MQCircleShape 0 36 0 -1 -1 -1 -1 1 10 4
+MQOvalShape 0 36 0 -1 -1 -1 -1 1 11 4
+MQAbstractRectShape 0 36 0 -1 -1 -1 -1 1 12 4
+MQShape 4 20 3 -1 -1 -1 -1 1 14 4
+MQWRect 0 16 0 -1 -1 -1 -1 4 14 0
+ZZendMark -1 -1 -1 -1 -1 -1 -1 4 14 0
+aZZfMQShapeLink[1
+aZZbMQShapeList[1
+aZZfMQShapeList[1
+aZZfMQShapeToolLink[1
+5 0 0 ZZinherit
+3 8 0 ZZinherit
+6 20 0 ZZrefer
+5 0 0 ZZinherit
+4 8 0 ZZinherit
+3 16 0 ZZinherit
+6 28 0 ZZrefer
+6 12 0 ZZvirtual
+6 12 0 ZZvirtual
+6 12 0 ZZvirtual
+8 0 0 ZZinherit
+9 0 0 ZZinherit
+10 4 0 ZZinherit
+11 20 1 MathRect
+-1 -1 -1 ZZendMark
+9314264 0 8 1
+9299680
+9299680 8 36 1
+9299680 9 36 1
+9299680 10 20 1
+9299680 9299680 9299660
+9
+9299700 11 16 1
+6 5 8 7
+9299632 2 36 1
+9299632 5 12 1
+1
+9299640 4 12 1
+2
+9299648 3 12 1
+3
+9299660 6 8 1
+4
+0 -1 -1 0

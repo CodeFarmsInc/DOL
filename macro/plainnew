@@ -1,0 +1,73 @@
+/* =========================================================
+.(l
+ TEXT strType; /* class to allocate */
+ int sz;       /* size of the array, =1 single object */
+ strType *ptr; /* returned pointer, NULL if allocation problems */
+.)l
+Description:
+ Allocates a single object or an array of object, using a call to
+to ZZnewObj() in orgC/lib/msgs.c, or using the big memory block
+(if invoked). The returned object is disconnected from all organizations
+(ZZ_INITIAL() does not have to be called). Virtual function pointers are
+properly initialized.
+.sp
+IMPORTANT: The constructor of the class must call ZZ_INITIAL() as shown
+in the example below.
+.sp
+This macro is specifically designed for C++; it cannot be used in C.
+Its C equivalent is ZZ_PLAIN_ALLOC(). The allocation of new objects
+is done through function ZZnewObj() in file orgC/lib/msgs.c; if you
+replace the call to new() there by your own allocation function, the whole
+of OrgC++ converts to your allocation scheme.
+.sp
+See also: ZZ_PLAIN_FREE() which deallocates the array. Unless you specify
+a special allocation scheme, this is not the most efficient way of
+alllocating. The object/array is allocated through new char[], and then
+both the data pointers and the virtual function pointers are initialized.
+If you just want to allocate an object, use the usual constructor with
+ZZ_INITIAL() in it.
+.sp
+Warning: This macro keeps one instance of the given class. Calling it
+within an in-line function may cause some overhead.
+.(l
+Example 1: For special allocation schemes.
+
+class Insect {
+    ZZ_EXT_Insect
+private:
+    short numLegs;
+    char color;
+    char category;
+public:
+    Insect *newObj(void);
+    void delObj(void);
+    Insect(){ZZ_INITIAL(Insect,0,1,this);};
+    ~Insect(){ZZ_CHECK_FREE(Insect,1,this);};
+};
+Insect* Instect::newObj(void){Insect *p; ZZ_PLAIN_NEW(Insect,p);return(p);};
+void    Instect::delObj(void){ZZ_PLAIN_FREE(Insect,this);};
+
+Example 2: Using the default allocation mechanism in C++.
+
+class Insect {
+    ZZ_EXT_Insect
+private:
+    short numLegs;
+    char color;
+    char category;
+public:
+    Insect(){ZZ_INITIAL(Insect,0,1,this);};
+    ~Insect(){ZZ_CHECK_FREE(Insect,1,this);};
+};
+
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_PLAIN_NEW(strType,sz,ptr) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */
+{ static strType s; char *ZZFUN_allo(); void ZZFUN_bitCopy();\
+    ZZFN(ZZS,strType) \
+    (ptr)= (strType *)ZZallo(ZZstrList,(char **)ZZselfArr,ZZFP(ZZJ,strType),\
+        ZZ_STRINGIT(strType),ZZFP(ZZI,strType),sz,(int)sizeof(strType),0);\
+    if(ptr)ZZbitCopy((int)sizeof(strType),(char*)(&s),(char*)(ptr));\
+}

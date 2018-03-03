@@ -1,0 +1,7 @@
+faculty=F.Green: ssn=2413 sal=1010 office=403B phone=422
+  works for: English
+faculty=F.Black: ssn=7323 sal=2850 office=401B phone=401
+
+department: English phone=302 office=900
+  employs: F.Green
+department: Mathematics phone=102 office=722

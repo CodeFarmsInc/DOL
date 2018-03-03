@@ -1,0 +1,6 @@
+cp ../environ.h .
+cp ../lib/env0h.h ../lib/environ.h
+cc zzmerge.c ../zzutil.c ../lib/zzlib.a
+mv a.out zzmerge
+cc zzselect.c ../zzutil.c ../lib/zzlib.a
+mv a.out zzselect

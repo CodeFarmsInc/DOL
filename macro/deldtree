@@ -1,0 +1,83 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ strType *dumb;  /* unused entry */
+ strType *pp;    /* object to be deleted from the tree */
+.)l
+Description:
+ Disconnect the given object from the tree organization.
+ This macro can be called within a 'traverse' loop, see the example.
+.sp
+IMPORTANT:
+ If an object is disconnected, the whole subtree remains on the object
+and disappears from the tree. The object itself becomes a root of
+this subtree. If you disconnect the main root of a tree, nothing happens.  
+When deleting a whole tree, proceed from leaves
+as shown in the example below.
+.sp
+SPEED:
+ This operation is much faster here for the DOUBLE_TREE than it is for
+the SINGLE_TREE, because for the DOUBLE_TREE all adjacent objects are
+within one pointer access.
+.(l
+Example:
+Within one level of the company organization, delete
+all employees that have salary lower than $20,000.
+
+typedef struct Employee Employee;
+struct Employee {
+    ZZ_EXT_Employee
+    char *name;
+    int salary;
+    int startDate;
+};
+ZZ_ORG_DOUBLE_TREE(company,Employee)
+
+Employee *manager,*pp;
+
+ZZ_A_TRAVERSE_DOUBLE_TREE(company,manager,pp)
+    if(pp->salary<20000)
+      ZZ_DELETE_DOUBLE_TREE(company,NULL,pp)
+ZZ_A_END
+ 
+Example: Delete recursively the whole tree,
+ starting from the leaves.
+
+void deleteTree(root)
+Employee *root;
+{
+    void deleteTree();
+    Employee *child,*ep;
+
+    ZZ_CHILD(company,root,child)
+    if(!child)ZZ_DELETE(company,NULL,root)
+    else {
+        ZZ_A_TRAVERSE(company,root,ep)
+            deleteTree(ep)
+        ZZ_A_END
+    }
+}
+.)l
+.sp 1
+  ========================================================== */ 
+#define ZZ_DELETE_DOUBLE_TREE(id,dumb,pp) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_DELETE_DOUBLE_TREE(id,ZZFP(ZZp,id),ZZFP(ZZb,id),ZZFP(ZZs,id),ZZFP(ZZc,id),pp)
+
+/* ZZFT(),ZZFP() are used inside the next macro instead of passing strType.
+ * The reason is that the macro line was too long for DOS in some cases */
+
+#define ZZZ_DELETE_DOUBLE_TREE(id,parent,backward,sibling,child,pp) \
+{ZZFT(1,id) *ZZv,*ZZp,*ZZs;\
+    ZZp=(pp)->parent;\
+    if(ZZp){\
+        ZZs=(pp)->sibling; ZZv=(pp)->backward;\
+        if(ZZs==(pp))ZZp->child=NULL;\
+        else { \
+            if(ZZp->child==(pp))ZZp->child=ZZv;\
+            ZZv->sibling=ZZs;\
+            ZZs->backward=ZZv;\
+        } \
+    }\
+    (pp)->sibling=(pp)->backward=NULL; (pp)->parent=NULL;\
+}

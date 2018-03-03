@@ -1,0 +1,132 @@
+/* =========================================================
+.(l
+ TEXT id;    /* instance name for the hyper-class */
+ TEXT vType; /* type of the vertex object */
+ TEXT eType; /* type of the edge object */
+.)l
+Description:
+ Declaration of the hyper-object for SINGLE_GRAPH.
+This is a a C++ function similar to ZZ_ORG_SINGLE_GRAPH() in C.
+.pp
+Internally, each node is associated with a circular singly-linked
+list of adjacent edges. Each edge is on two rings (one for each vertex),
+and has two pointers, one for to each adjacent vertex.
+All this is trasparent to the user but, sometimes, it is useful
+to understand what happens inside the program.
+.pp
+This graph representation can be used for both directed and undirected
+graph. The basic model corresponds to the undirected graph, but
+if the first/second vertices of each edge are treated as the
+start/end points, the model can support directed graphs.
+The order of the start/end points is never reversed once an edge is
+added to the graph by the id.add() command.
+For more efficient operation with directed graphs, see DIRECT_GRAPH.
+.pp
+When using this model for directed graph, the model is sub-optimal
+in two ways: 1. For a directed graph, each edge can be only on one
+ring (for the starting vertex), and therefore one pointer per edge
+could be saved. 2. When traversing edges adjacent to a vertex, the
+user program must skip over the edges that end at the given vertex.
+This about doubles the traversing time, and adds the checking of
+the start/end point to the processing time. If you are concerned
+about the performance in directed graph applications, you many
+create a special hyper-object for a directed graph and add it to
+the system. Only a small modification of the SINGLE_GRAPH
+organization is required.
+.pp
+If you have nodes with many edges that may be deleted in random
+order, you should consider creating a DOUBLE_GRAPH organization,
+where doubly-linked rings would be used for the edges.
+.pp
+ For local scope use ZZ_LOCAL_SINGLE_GRAPH(). See description
+of ZZ_LOCAL_SINGLE_RING() on how to work in local scope.
+.(l
+Example:
+ Organize a graph of highways connecting towns.
+
+class Town {
+    ZZ_EXT_Town
+    char *name;
+};
+class Hwy {
+    ZZ_EXT_Hwy
+    int number;
+};
+ZZ_HYPER_SINGLE_GRAPH(myGraph,Town,Hwy);
+
+
+If we decide to handle names as the part of the automatic organization
+(which may be useful for automatic disk save/open), and we use a name
+both for Towns and Hwy's, we have the following setup:
+
+class Town {
+    ZZ_EXT_Town
+};
+class Hwy {
+    ZZ_EXT_Hwy
+};
+ZZ_HYPER_SINGLE_GRAPH(myGraph,Town,Hwy);
+ZZ_HYPER_NAME(townName,Town);
+ZZ_HYPER_NAME(hwyName,Hwy);
+
+Operation insert() is just like add(), except that the order is not reversed.
+.pp
+Operation set() resets the tail of the edge list on the given vertex.
+The vertex can be either the source or the target of the edge.
+This operation provides a more detailed control of the order of edges.
+.)l
+  ========================================================== */ 
+#define ZZ_HYPER_SINGLE_GRAPH(id,vType,eType)  \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */ \
+ZZ_BASIC_SINGLE_GRAPH(id,vType,eType,ZZ_EXTERN,id)
+
+#define ZZ_LOCAL_SINGLE_GRAPH(id,vType,eType,where)  \
+ZZ_BASIC_SINGLE_GRAPH(id,vType,eType,static,where :: id)
+
+#define ZZ_BASIC_SINGLE_GRAPH(id,vType,eType,scope,where)  \
+class ZZFP(ZZH,id) { \
+  friend class vType;\
+  friend class eType;\
+public: \
+  void nodes(vType **v,eType *e){ZZ_NODES_SINGLE_GRAPH(id,v,e);}\
+  eType *edge(vType *v){return(v->ZZFP(ZZe,id));}\
+  eType *fwd(vType **v,eType *e);\
+  void add(vType **v,eType *e);\
+  void insert(vType **v,eType *e){add(v,e);\
+      v[0]->ZZFP(ZZe,id)=e; v[1]->ZZFP(ZZe,id)=e;}\
+  void del(eType *e);\
+  void set(vType *v,eType *e);\
+};\
+scope ZZFP(ZZH,id) id; \
+class ZZFN(id,iterator){ \
+   vType *nd[2];\
+   vType *ver;\
+   eType *beg;\
+   eType *nxt;\
+public:\
+   ZZFN(id,iterator)(){beg=nxt=NULL; nd[0]=NULL;}\
+   ZZFN(id,iterator)(vType *v){start(v);}\
+   vType *adj(){return(ver);}\
+   void start(vType *v){if(v){beg=where.edge(v); nd[0]=v; if(beg)nxt=where.fwd(nd,beg); else nxt=NULL;}\
+                                                 else beg=nxt=NULL;} \
+   eType* operator++(){eType *e; e=nxt; ver=nd[1]; if(!ver)ver=nd[0];\
+            if(e==beg)nxt=beg=NULL; else nxt=where.fwd(nd,e); return(e);};\
+}
+/* _______________________________________________________________________ */
+void ZZV$ ZZH$ :: add(ZZ1$ **v,ZZ2$ *e){ZZ_ADD_SINGLE_GRAPH($,v,e); }
+void ZZV$ ZZH$ :: del(ZZ2$ *e){ZZ_DELETE_SINGLE_GRAPH($,NULL,e); }
+ZZ2$* ZZV$ ZZH$ :: fwd(ZZ1$ **v,ZZ2$ *e){ZZ2$ *t;
+      if(e->ZZx$==v[0])t=e->ZZr$;
+      else if(e->ZZy$==v[0])t=e->ZZs$;
+      else t=NULL;
+      if(t){
+          if(t->ZZx$==v[0])v[1]=t->ZZy$;
+          else if(t->ZZy$==v[0])v[1]=t->ZZx$;
+      }
+      else v[1]=NULL;
+      return(t);
+}
+void ZZV$ ZZH$ :: set(ZZ1$ *v,ZZ2$ *e){
+    if(e->ZZx$==v || e->ZZy$==v)v->ZZe$=e;
+    else ZZmsgSS(32,(char *)v,(char *)e);
+}

@@ -1,0 +1,15 @@
+/* =========================================================
+.(l
+ TEXT id;               /* id for the instance of the organization */
+ str2Type *pp;   /* given pointer to a child */
+ str1Type *par;  /* returned pointer to the parent */
+.)l
+Description:
+ For a given sibling, it returns its parent. Works just like ZZ_PARENT_SINGLE_TRIANGLE().
+.sp 1
+  ========================================================== */ 
+#define ZZ_PARENT_DOUBLE_TRIANGLE(id,pp,par) \
+/* +++++++++++++++++++++++++++++++++++++++++++++++++++++++++ */\
+ZZZ_PARENT_DOUBLE_TRIANGLE(ZZFP(ZZp,id),pp,par)
+
+#define ZZZ_PARENT_DOUBLE_TRIANGLE(parent,pp,par) {(par)=(pp)->parent;}

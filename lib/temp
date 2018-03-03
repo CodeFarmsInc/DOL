@@ -1,0 +1,20 @@
+
+#define CHECK_READ(TXT,SZ,RET) \
+    {if(RET==(-1))RET=0; \
+     ZZsize uu=(ZZsize)RET;\
+     if(uu==0 || uu!=SZ){ \
+         ZZerrFLG=ZZerrFLG|0100;\
+         ZZmsgSSS(8,TXT,(char*)uu,(char*)SZ);\
+	 RETURNX;\
+     }\
+    }
+
+#define CHECK_WRITE(TXT,SZ,RET) \
+    {if(RET==(-1))RET=0; \
+     ZZsize uu=(ZZsize)RET;\
+     if(uu==0 || uu!=SZ){ \
+         ZZerrFLG=ZZerrFLG|0100;\
+         ZZmsgSSS(9,TXT,(char*)uu,(char*)SZ);\
+	 RETURNX;\
+     }\
+    }
